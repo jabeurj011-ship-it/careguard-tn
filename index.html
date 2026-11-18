@@ -884,10 +884,10 @@
       </div>
       <input id="profMedicalNotesInput" autocomplete="off" type="text" placeholder="Notes médicales" class="w-full rounded-2xl border-2 border-slate-300 px-4 py-2.5 text-lg" />
       <div class="rounded-2xl border-2 border-emerald-200 bg-emerald-50/60 p-3 space-y-2">
-        <p id="profHomeGpsTitle" class="text-sm font-black text-emerald-950">📍 Zone de sécurité du domicile (GPS)</p>
+        <p id="profHomeGpsTitle" class="text-sm font-black text-emerald-950">📍 المنطقة الآمنة للمنزل (GPS)</p>
         <div class="flex flex-wrap items-center gap-2">
-          <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-3.5 py-2 text-xs font-black text-white">📍 Définir ma position maison</button>
-          <a id="homeGpsMapLink" href="#" target="_blank" rel="noopener" class="hidden rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-extrabold text-[#0E5A3E]">🗺️ Google Maps</a>
+          <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-3.5 py-2 text-xs font-black text-white">📍 تحديد موقع المنزل</button>
+          <a id="homeGpsMapLink" href="#" target="_blank" rel="noopener" class="hidden rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-extrabold text-[#0E5A3E]">🗺️ معاينة على الخريطة</a>
         </div>
         <p id="homeGpsStatus" class="text-xs font-bold text-emerald-800"></p>
       </div>
@@ -1029,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v118-TN',
+    VERSION: 'v119-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3025,7 +3025,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v118 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v119 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -5580,6 +5580,7 @@
         credential: $('npCredential').value,
         country: $('npCountry').value,
         region: ($('npRegion').value || '').trim(),
+        city: ($('npCityZip').value || '').trim() || ($('npRegion').value || '').trim() || 'Tunisie',
         city_zip: ($('npCityZip').value || '').trim(),
         service_radius_km: Number($('npRadius').value || 25),
         license_number: null,
