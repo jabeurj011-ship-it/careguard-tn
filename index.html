@@ -1012,7 +1012,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v105-TN',
+    VERSION: 'v106-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -2208,13 +2208,27 @@
       }
     } catch (_) {}
   }
+  if ('speechSynthesis' in window && window.speechSynthesis.getVoices) {
+    try { window.speechSynthesis.getVoices(); } catch (_) {}
+  }
   function speakText(text) {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = state.lang === 'fr' ? 'fr-FR' : 'ar-TN';
-    u.rate = 0.92; u.volume = 1.0;
-    window.speechSynthesis.speak(u);
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      const u = new SpeechSynthesisUtterance(text);
+      const wantPrefix = state.lang === 'fr' ? 'fr' : 'ar';
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const matched = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(wantPrefix));
+      if (matched) {
+        u.voice = matched;
+        u.lang = matched.lang;
+      } else {
+        u.lang = state.lang === 'fr' ? 'fr-FR' : 'ar-SA';
+      }
+      u.rate = 0.92; u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    } catch (_) {}
   }
 
   function cleanProfileName() {
@@ -2780,7 +2794,7 @@
 
   function renderQuickChips() {
     const box = $('chatQuickChips'); if (!box) return; box.replaceChildren();
-    const chips = state.lang === 'fr' ? ['Bonjour ☀️', 'Belle journée 😊', 'Bien dit 👍'] : ['Good morning ☀️', 'Wonderful day 😊', 'Well said 👍'];
+    const chips = state.lang === 'fr' ? ['Bonjour ☀️', 'Belle journée 😊', 'Bien dit 👍'] : ['صباح الخير ☀️', 'يوم سعيد 😊', 'أحسنت 👍'];
     chips.forEach((txt) => {
       const b = document.createElement('button'); b.type = 'button';
       b.className = 'tap-btn shrink-0 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-950';
@@ -2960,7 +2974,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v105 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v106 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -4362,8 +4376,8 @@
     const box = $('dcQuickChips'); if (!box) return; box.replaceChildren();
     const isFr = state.lang === 'fr';
     const chips = userRole === 'senior'
-      ? (isFr ? ['Merci de passer m\'aider', 'Besoin d\'aide pour charger le téléphone', 'Je souhaite modifier mon traitement', 'Je me sens un peu fatigué(e)'] : ['Please come help me', 'Need help charging phone', 'I want to adjust my medication', 'Feeling a bit unwell'])
-      : (isFr ? ['💚 Nous pensons à toi, comment vas-tu ?', '💊 N\'oublie pas ton médicament', '❤️ Nous t\'aimons, repose-toi bien', 'Je passerai vous voir bientôt'] : ['💚 Thinking of you, how are you today?', '💊 Don\'t forget your afternoon meds', '❤️ Love you, get some rest', 'Visiting you soon']);
+      ? (isFr ? ['Merci de passer m\'aider', 'Besoin d\'aide pour charger le téléphone', 'Je souhaite modifier mon traitement', 'Je me sens un peu fatigué(e)'] : ['أحتاج إلى مساعدة في المنزل', 'أحتاج مساعدة لشحن الهاتف', 'أريد تعديل موعد دوائي', 'أشعر ببعض التعب'])
+      : (isFr ? ['💚 Nous pensons à toi, comment vas-tu ?', '💊 N\'oublie pas ton médicament', '❤️ Nous t\'aimons, repose-toi bien', 'Je passerai vous voir bientôt'] : ['💚 نفكر فيك، كيف حالك اليوم؟', '💊 لا تنسَ دواءك في موعده', '❤️ نحبك، ارتح جيداً', 'سأزورك قريباً']);
     chips.forEach((txt) => {
       const b = document.createElement('button'); b.type = 'button'; b.style.minHeight = '32px';
       b.className = 'rounded-full border border-teal-300 bg-teal-50 px-3 py-1 text-xs font-extrabold text-teal-950';
@@ -5017,9 +5031,9 @@
         if (card && msgs && msgs[0]) {
           const m = msgs[0];
           const icon = m.sender_role === 'nurse' ? '🩺' : '💚';
-          $('familyReassuranceSender').textContent = `${icon} ${isFr ? 'Message de' : 'Message from'} ${m.sender_name || (isFr ? 'votre proche' : 'your family')}`;
+          $('familyReassuranceSender').textContent = `${icon} ${isFr ? 'Message de' : 'رسالة من'} ${m.sender_name || (isFr ? 'votre proche' : 'عائلتك')}`;
           $('familyReassuranceTime').textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-          $('familyReassuranceText').textContent = m.message_text || (isFr ? '🎤 Message vocal pour vous' : '🎤 Voice message for you');
+          $('familyReassuranceText').textContent = m.message_text || (isFr ? '🎤 Message vocal pour vous' : '🎤 رسالة صوتية لك');
           const aud = $('familyReassuranceAudio');
           if (m.audio_data && aud) { aud.src = m.audio_data; aud.classList.remove('hidden'); }
           else if (aud) { aud.classList.add('hidden'); }
