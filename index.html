@@ -159,11 +159,11 @@
       </div>
 
       <!-- Camera Upload Button (top-right of portrait) -->
-      <label for="seniorAvatarInput" class="tap-btn absolute top-3 right-3 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#0E5A3E]/90 text-sm text-white shadow-md backdrop-blur-sm" title="Photo">📷</label>
+      <label for="seniorAvatarInput" class="tap-btn absolute top-3 ltr:right-3 rtl:left-3 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#0E5A3E]/90 text-sm text-white shadow-md backdrop-blur-sm" title="Photo">📷</label>
       <input id="seniorAvatarInput" type="file" accept="image/*" class="hidden" />
 
       <!-- Left Greeting & Brand -->
-      <div class="relative z-10 max-w-[66%] space-y-1.5 pr-2">
+      <div class="relative z-10 ltr:pr-[44%] rtl:pl-[44%] space-y-1.5">
         <div class="flex items-center gap-1.5">
           <svg class="h-6 w-6 text-[#0E5A3E]" viewBox="0 0 32 32" fill="none" aria-hidden="true">
             <path d="M22 8.5A8.5 8.5 0 1 0 22 23.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
@@ -1029,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v115-TN',
+    VERSION: 'v117-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1599,11 +1599,11 @@
         msgBtn.className = hasUnreadCareDm
           ? 'tap-btn rounded-2xl border border-rose-600 bg-rose-600 px-3 py-2.5 text-xs font-black text-white shadow-sm animate-pulse'
           : 'tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-xs font-black text-[#163024]';
-        msgBtn.textContent = hasUnreadCareDm ? '🔴 Chat' : '💬 Chat';
+        msgBtn.textContent = hasUnreadCareDm ? (isFr ? '🔴 Chat' : '🔴 دردشة') : (isFr ? '💬 Chat' : '💬 دردشة');
         msgBtn.addEventListener('click', () => {
           localStorage.setItem('cg_care_seen_dm_' + sp.id, String(Date.now()));
           msgBtn.className = 'tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-xs font-black text-[#163024]';
-          msgBtn.textContent = '💬 Chat';
+          msgBtn.textContent = isFr ? '💬 Chat' : '💬 دردشة';
           CG.openDirectCareModal(sp.id, sp.display_name);
         });
         acts.appendChild(msgBtn);
@@ -2298,10 +2298,12 @@
   }
 
   // Battery Monitor
+  let lastSyncedBatteryPct = null;
   async function syncBatteryToSupabase(pct, charging) {
     if (!client || !currentUser || !currentSeniorId) return;
     try {
       const { error: batErr } = await client.from('device_status').insert({ senior_id: currentSeniorId, battery_percent: pct, is_charging: !!charging });
+      if (!batErr) lastSyncedBatteryPct = pct;
       if (batErr) window.__lastSyncErr = (window.__lastSyncErr ? window.__lastSyncErr + ' | ' : '') + 'Bat: ' + batErr.message;
       if (pct <= 30 && !charging) {
         await client.from('alerts').insert({ senior_id: currentSeniorId, alert_type: 'low_battery', severity: pct <= 15 ? 'critical' : 'warning', status: 'open', message: `Low phone battery: ${pct}%` });
@@ -2325,6 +2327,9 @@
       batteryLowAlerted = false; pendingLowBatterySpeak = '';
       badge.className = 'inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-extrabold text-slate-800';
       topBanner.classList.add('hidden');
+    }
+    if (lastSyncedBatteryPct === null || Math.abs(pct - lastSyncedBatteryPct) >= 2) {
+      syncBatteryToSupabase(pct, charging);
     }
   }
   document.addEventListener('pointerdown', () => {
@@ -3005,7 +3010,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v115 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v117 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -3320,7 +3325,7 @@
             left.append(cb, txt);
             const fSel = document.createElement('select'); fSel.className = 'rounded-lg border border-slate-300 bg-white px-1.5 py-0.5 text-xs font-extrabold';
             fSel.style.minHeight = '32px';
-            [1, 2, 3, 4].forEach((n) => { const o = document.createElement('option'); o.value = String(n); o.textContent = n + 'x/j'; if (n === autoFreq) o.selected = true; fSel.appendChild(o); });
+            [1, 2, 3, 4].forEach((n) => { const o = document.createElement('option'); o.value = String(n); o.textContent = state.lang === 'fr' ? (n + 'x/j') : (n + ' مرات/يوم'); if (n === autoFreq) o.selected = true; fSel.appendChild(o); });
             fSel.addEventListener('change', () => { cb.dataset.freq = fSel.value; });
             row.append(left, fSel);
             listEl.appendChild(row);
@@ -4844,7 +4849,7 @@
           } else {
             $('plansFeedback').textContent = isFr
               ? 'Paiement Stripe prêt à être activé : ajoutez votre lien Stripe Payment Link dans index.html.'
-              : 'Stripe checkout ready: add your Stripe Payment Link URL in index.html to go live.';
+              : 'الدفع الإلكتروني غير مفعّل حالياً في هذه النسخة التجريبية.';
             $('plansFeedback').classList.remove('hidden');
           }
         });
