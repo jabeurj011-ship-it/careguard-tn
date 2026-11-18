@@ -1073,7 +1073,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v124-TN',
+    VERSION: 'v125-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -5766,7 +5766,7 @@
       reqBtn.className = 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
       reqBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
       reqBtn.addEventListener('click', async () => {
-        await sendVisitRequest({ mode: 'direct', nurseUserId: n.user_id, nurseName: dispName });
+        await sendVisitRequest({ mode: 'direct', nurseUserId: n.user_id, nurseName: dispName, triggerBtn: reqBtn });
       });
       btns.appendChild(reqBtn);
       card.appendChild(btns);
@@ -5792,41 +5792,78 @@
     return { lat: lat || null, lng: lng || null, phone: String(phone || '').trim() };
   }
 
-  async function sendVisitRequest({ mode, nurseUserId, nurseName }) {
+  let isSendingVisitReq = false;
+  async function sendVisitRequest({ mode, nurseUserId, nurseName, triggerBtn }) {
+    if (isSendingVisitReq) return;
     const client = CG.getClient(), user = CG.getCurrentUser();
     const stEl = $('fnStatusMsg');
     const isFr = CG.getState().lang === 'fr';
     if (!client || !user) return;
-    const sid = CG.getSeniorId ? CG.getSeniorId() : null;
-    const gps = getRequesterGpsAndPhone();
-    const payload = {
-      senior_id: sid,
-      requester_user_id: user.id,
-      requester_name: CG.getRealDisplayName(),
-      requester_phone: gps.phone || null,
-      care_reason: getSelectedCareReason(),
-      senior_lat: gps.lat,
-      senior_lng: gps.lng,
-      request_mode: mode || 'direct',
-      nurse_user_id: mode === 'open' ? null : nurseUserId,
-      nurse_name: mode === 'open' ? null : (nurseName || 'Nurse'),
-      status: mode === 'open' ? 'open' : 'pending'
-    };
-    const { data: inserted, error } = await client.from('nurse_visit_requests').insert(payload).select('id').single();
-    if (stEl) {
-      stEl.classList.remove('hidden');
-      if (error) {
-        stEl.textContent = '⚠️ ' + error.message;
-      } else if (mode === 'open') {
-        stEl.textContent = isFr
-          ? '⚡ Demande envoyée à tous les infirmiers disponibles ! En attente d\'acceptation...'
-          : '⚡ تم إرسال الطلب لكل الممرضين المتاحين! في انتظار قبول أقرب ممرض...';
-        if (inserted && inserted.id) watchOpenRequestAcceptance(inserted.id);
+    isSendingVisitReq = true;
+    const bcBtn = $('fnBroadcastBtn');
+    if (bcBtn) bcBtn.disabled = true;
+    if (triggerBtn) triggerBtn.disabled = true;
+    try {
+      const reqMode = mode || 'direct';
+      // Guard against duplicate active requests from repeated taps
+      let existingQ = client
+        .from('nurse_visit_requests')
+        .select('id')
+        .eq('requester_user_id', user.id);
+      if (reqMode === 'open') {
+        existingQ = existingQ.eq('request_mode', 'open').eq('status', 'open');
       } else {
-        stEl.textContent = isFr
-          ? `✓ Demande envoyée à ${nurseName || 'l\'infirmier'} !`
-          : `✓ تم إرسال طلب الزيارة إلى ${nurseName || 'الممرض'}!`;
+        existingQ = existingQ.eq('nurse_user_id', nurseUserId).eq('status', 'pending');
       }
+      const { data: existingRows } = await existingQ.limit(1);
+      if (existingRows && existingRows.length) {
+        const existingId = existingRows[0].id;
+        await client.from('nurse_visit_requests').update({ care_reason: getSelectedCareReason() }).eq('id', existingId);
+        if (stEl) {
+          stEl.classList.remove('hidden');
+          stEl.textContent = isFr
+            ? '✓ Votre demande est déjà active et en attente d\'acceptation.'
+            : '✓ طلبك مُرسل بالفعل وهو قيد الانتظار (لا حاجة لإعادة الإرسال).';
+        }
+        if (reqMode === 'open') watchOpenRequestAcceptance(existingId);
+        return;
+      }
+
+      const sid = CG.getSeniorId ? CG.getSeniorId() : null;
+      const gps = getRequesterGpsAndPhone();
+      const payload = {
+        senior_id: sid,
+        requester_user_id: user.id,
+        requester_name: CG.getRealDisplayName(),
+        requester_phone: gps.phone || null,
+        care_reason: getSelectedCareReason(),
+        senior_lat: gps.lat,
+        senior_lng: gps.lng,
+        request_mode: reqMode,
+        nurse_user_id: reqMode === 'open' ? null : nurseUserId,
+        nurse_name: reqMode === 'open' ? null : (nurseName || 'Nurse'),
+        status: reqMode === 'open' ? 'open' : 'pending'
+      };
+      const { data: inserted, error } = await client.from('nurse_visit_requests').insert(payload).select('id').single();
+      if (stEl) {
+        stEl.classList.remove('hidden');
+        if (error) {
+          stEl.textContent = '⚠️ ' + error.message;
+        } else if (reqMode === 'open') {
+          stEl.textContent = isFr
+            ? '⚡ Demande envoyée à tous les infirmiers disponibles ! En attente d\'acceptation...'
+            : '⚡ تم إرسال الطلب لكل الممرضين المتاحين! في انتظار قبول أقرب ممرض...';
+          if (inserted && inserted.id) watchOpenRequestAcceptance(inserted.id);
+        } else {
+          stEl.textContent = isFr
+            ? `✓ Demande envoyée à ${nurseName || 'l\'infirmier'} !`
+            : `✓ تم إرسال طلب الزيارة إلى ${nurseName || 'الممرض'}!`;
+        }
+      }
+    } finally {
+      isSendingVisitReq = false;
+      if (bcBtn) bcBtn.disabled = false;
+      if (triggerBtn) triggerBtn.disabled = false;
     }
   }
 
