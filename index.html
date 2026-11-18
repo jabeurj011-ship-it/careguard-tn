@@ -426,6 +426,15 @@
       <button id="careTabLinkBtn" type="button" class="tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]">👥 فريق الرعاية</button>
     </div>
 
+    <div id="careLinkBox" class="rounded-3xl border border-teal-200 bg-white p-3.5 shadow-sm space-y-2">
+      <p id="careLinkTitle" class="text-sm font-black text-slate-900">ربط مسنّ عبر الرمز (CG-...)</p>
+      <div class="flex gap-2">
+        <input id="careCodeInput" autocomplete="off" type="text" dir="ltr" placeholder="CG-123456" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-2 text-sm font-bold uppercase" />
+        <button id="careSendLinkBtn" type="button" class="tap-btn shrink-0 rounded-2xl bg-teal-700 px-5 py-2 text-sm font-extrabold text-white">ربط</button>
+      </div>
+      <p id="careLinkStatus" class="hidden text-xs font-extrabold"></p>
+    </div>
+
     <!-- TAB 1: PATIENTS -->
     <div id="carePanelPatients" class="space-y-3">
       <div id="careSummaryBar" class="hidden flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FFFDF9] p-3 shadow-sm">
@@ -433,7 +442,7 @@
         <div class="flex flex-1 items-center gap-1.5 min-w-[210px]">
           <input id="careFilterInput" autocomplete="off" type="search" placeholder="🔍 Nom ou code CG-..." class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-1.5 text-xs font-bold text-slate-900" />
           <button id="careAlertsOnlyBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-rose-300 bg-rose-50 px-2.5 py-1.5 text-xs font-extrabold text-rose-900">🚨</button>
-          <button id="careAddPatientQuickBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white shadow-sm">+ Patient</button>
+          <button id="careAddPatientQuickBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white shadow-sm">+ مريض</button>
         </div>
       </div>
       <div id="careLinkedList" class="space-y-3"></div>
@@ -565,14 +574,6 @@
         <span>›</span>
       </button>
 
-      <div class="rounded-3xl border border-teal-200 bg-white p-4 shadow-sm space-y-2.5">
-        <p id="careLinkTitle" class="text-base font-black text-slate-900">Lier un senior par son code (CG-...)</p>
-        <div class="flex gap-2">
-          <input id="careCodeInput" autocomplete="off" type="text" dir="ltr" placeholder="CG-123456" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-2.5 text-base font-bold uppercase" />
-          <button id="careSendLinkBtn" type="button" class="tap-btn shrink-0 rounded-2xl bg-teal-700 px-5 py-2.5 text-base font-extrabold text-white">Lier</button>
-        </div>
-        <p id="careLinkStatus" class="hidden text-xs font-extrabold"></p>
-      </div>
       <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm flex flex-wrap gap-2">
         <button id="carePlansBtn" type="button" class="tap-btn rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs font-extrabold text-amber-950">⭐ Plan & Abonnement</button>
         <button id="careSwitchRoleBtn" type="button" class="tap-btn rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-xs font-extrabold text-slate-800">Changer rôle</button>
@@ -1028,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v111-TN',
+    VERSION: 'v114-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1084,6 +1085,7 @@
     if ($('carePanelPatients')) $('carePanelPatients').classList.toggle('hidden', tab !== 'patients');
     if ($('carePanelAlerts')) $('carePanelAlerts').classList.toggle('hidden', tab !== 'alerts');
     if ($('carePanelLink')) $('carePanelLink').classList.toggle('hidden', tab !== 'link');
+    if ($('careLinkBox')) $('careLinkBox').classList.toggle('hidden', tab === 'alerts');
 
     const activeCls = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white shadow-sm';
     const idleCls = 'tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]';
@@ -1636,6 +1638,7 @@
     const currentUser = CG.getCurrentUser();
     if (!list || !client || !currentUser) { if (list) list.replaceChildren(); return; }
     const state = CG.getState();
+    const userRole = CG.getUserRole ? CG.getUserRole() : '';
     const isFr = state.lang === 'fr';
     try {
       const { data: rawLinks, error } = await client
@@ -3002,7 +3005,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v111 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v114 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -3189,6 +3192,7 @@
     if ($('npSpecEditBtn')) $('npSpecEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
     if ($('careLinkTitle')) $('careLinkTitle').textContent = isFr ? 'Lier un senior par son code (CG-...)' : 'ربط مسنّ عبر الرمز (CG-...)';
     if ($('careSendLinkBtn')) $('careSendLinkBtn').textContent = isFr ? 'Lier' : 'ربط';
+    if ($('careAddPatientQuickBtn')) $('careAddPatientQuickBtn').textContent = isFr ? '+ Patient' : '+ مريض';
     if ($('seniorPendingLinksTitle')) $('seniorPendingLinksTitle').textContent = isFr ? 'Nouvelles demandes de liaison :' : 'طلبات ربط جديدة:';
     if ($('directCareTitle')) $('directCareTitle').textContent = 'الرسائل';
     if ($('directCareBadge')) $('directCareBadge').textContent = isFr ? 'مباشر' : 'مباشر';
@@ -3883,17 +3887,20 @@
     $('roleGateCard').classList.toggle('hidden', hasRole);
     const isSenior = userRole === 'senior';
     const isCare = ['family', 'nurse', 'center'].includes(userRole);
-    $('bottomNav').classList.toggle('hidden', !isSenior || activeTab === 'chat');
-    if ($('careBottomNav')) $('careBottomNav').classList.toggle('hidden', !isCare);
-    if (!hasRole) {
+    if (!hasRole || !currentUser) {
+      $('bottomNav').classList.add('hidden');
+      if ($('careBottomNav')) $('careBottomNav').classList.add('hidden');
       $('homeTabView').classList.add('hidden');
       $('medsTabView').classList.add('hidden');
       $('apptsTabView').classList.add('hidden');
       $('settingsTabView').classList.add('hidden');
+      $('chatPageView').classList.add('hidden');
       $('carePortalView').classList.add('hidden');
-      $('authCard').classList.add('hidden');
+      $('authCard').classList.toggle('hidden', !hasRole);
       return;
     }
+    $('bottomNav').classList.toggle('hidden', !isSenior || activeTab === 'chat');
+    if ($('careBottomNav')) $('careBottomNav').classList.toggle('hidden', !isCare);
     if (isSenior) {
       $('carePortalView').classList.add('hidden');
       switchTab(activeTab === 'care' ? 'home' : activeTab);
