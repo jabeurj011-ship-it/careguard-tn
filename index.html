@@ -1025,6 +1025,18 @@
         <span id="fnAvailOnlyLbl">🟢 Dispo</span>
       </label>
     </div>
+    <div class="mt-2.5 rounded-2xl border border-[#DFD5C5] bg-white p-3 space-y-2">
+      <label id="fnCareReasonLbl" for="fnCareReasonSelect" class="block text-xs font-black text-[#0E5A3E]">🩺 سبب الطلب / الخدمة المطلوبة:</label>
+      <select id="fnCareReasonSelect" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-bold text-[#163024]">
+        <option value="💉 حقنة / إبرة">💉 حقنة / إبرة (Injection)</option>
+        <option value="🩹 تغيير ضمادات">🩹 تغيير ضمادات (Pansement)</option>
+        <option value="💧 تركيب سيروم / مصل">💧 تركيب سيروم / مصل (Sérum / Perfusion)</option>
+        <option value="🩺 قياس ضغط / سكري">🩺 قياس ضغط / سكري (Tension / Glycémie)</option>
+        <option value="🏥 رعاية شاملة / مساعدة">🏥 رعاية شاملة / مساعدة (Soins complets)</option>
+        <option value="other">✍️ سبب آخر...</option>
+      </select>
+      <input id="fnCareReasonNote" type="text" autocomplete="off" placeholder="أضف تفاصيل إضافية (اختياري)..." class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold text-[#163024]" />
+    </div>
     <button id="fnBroadcastBtn" type="button" class="tap-btn mt-2.5 flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-4 py-3 text-start shadow-sm">
       <div>
         <p id="fnBroadcastTitle" class="text-sm font-black text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
@@ -1061,7 +1073,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v123-TN',
+    VERSION: 'v124-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -5762,6 +5774,13 @@
     });
   }
 
+  function getSelectedCareReason() {
+    const sel = $('fnCareReasonSelect') ? $('fnCareReasonSelect').value : '';
+    const note = $('fnCareReasonNote') ? $('fnCareReasonNote').value.trim() : '';
+    if (sel === 'other') return note || (CG.getState().lang === 'fr' ? 'Autre soin' : 'خدمة تمريضية');
+    return note ? `${sel} — ${note}` : sel;
+  }
+
   function getRequesterGpsAndPhone() {
     let lat = userSearchLat, lng = userSearchLng;
     try {
@@ -5785,6 +5804,7 @@
       requester_user_id: user.id,
       requester_name: CG.getRealDisplayName(),
       requester_phone: gps.phone || null,
+      care_reason: getSelectedCareReason(),
       senior_lat: gps.lat,
       senior_lng: gps.lng,
       request_mode: mode || 'direct',
@@ -5840,6 +5860,8 @@
     if ($('fnModalTitle')) $('fnModalTitle').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن أقرب ممرض';
     if ($('fnModalSub')) $('fnModalSub').textContent = isFr ? 'Infirmiers vérifiés en Tunisie triés par proximité' : 'ممرضون موثقون في تونس مرتبون حسب القرب';
     if ($('fnAvailOnlyLbl')) $('fnAvailOnlyLbl').textContent = isFr ? '🟢 Dispo' : '🟢 متاح';
+    if ($('fnCareReasonLbl')) $('fnCareReasonLbl').textContent = isFr ? '🩺 Service demandé :' : '🩺 سبب الطلب / الخدمة المطلوبة:';
+    if ($('fnCareReasonNote')) $('fnCareReasonNote').placeholder = isFr ? 'Détails supplémentaires (optionnel)...' : 'أضف تفاصيل إضافية (اختياري)...';
     if ($('fnBroadcastTitle')) $('fnBroadcastTitle').textContent = isFr ? '⚡ Demander le 1er infirmier dispo (Uber)' : '⚡ طلب أقرب ممرض متاح الآن';
     if ($('fnBroadcastSub')) $('fnBroadcastSub').textContent = isFr ? 'Envoyé à tous — le premier qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
     if ($('fnStatusMsg')) $('fnStatusMsg').classList.add('hidden');
@@ -5971,6 +5993,13 @@
       top.append(nm, tag);
       card.appendChild(top);
 
+      if (r.care_reason) {
+        const rsn = document.createElement('p');
+        rsn.className = 'rounded-xl bg-[#EAF4EE] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E]';
+        rsn.textContent = (isFr ? '🩺 Service demandé : ' : '🩺 الخدمة المطلوبة: ') + r.care_reason;
+        card.appendChild(rsn);
+      }
+
       const when = r.created_at ? new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
       const meta = document.createElement('p'); meta.className = 'text-[11px] font-bold text-[#5C6F63]';
       meta.textContent = (when ? `🕒 ${when}` : '') + (r.senior_lat && r.senior_lng ? (isFr ? ' • 📍 GPS prêt' : ' • 📍 الموقع جاهز') : '');
@@ -6073,7 +6102,7 @@
     if (!client || !user) return;
     const { data, error } = await client
       .from('nurse_visit_requests')
-      .select('id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, nurse_user_id, accepted_by_user_id, status, created_at')
+      .select('id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, nurse_user_id, accepted_by_user_id, status, created_at')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
       .limit(40);
@@ -6094,7 +6123,7 @@
       const row = document.createElement('div');
       row.className = 'flex items-center justify-between gap-2 rounded-2xl bg-white p-2.5 border border-emerald-200 text-xs';
       const nm = document.createElement('span'); nm.className = 'font-black text-[#163024]';
-      nm.textContent = (r.request_mode === 'open' ? '⚡ ' : '') + (r.requester_name || 'مريض') + (isFr ? ' demande une visite' : ' طلب زيارة');
+      nm.textContent = (r.request_mode === 'open' ? '⚡ ' : '') + (r.requester_name || 'مريض') + (r.care_reason ? ` • ${r.care_reason}` : (isFr ? ' demande une visite' : ' طلب زيارة'));
       const btns = document.createElement('div'); btns.className = 'flex gap-1.5';
       const acc = document.createElement('button'); acc.type = 'button';
       acc.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1 text-[11px] font-black text-white'; acc.textContent = '✓';
