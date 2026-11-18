@@ -556,7 +556,7 @@
           </div>
         </div>
         <label class="flex items-center gap-2 text-xs font-bold text-[#163024]">
-          <input id="npDirectoryOptIn" type="checkbox" class="h-4 w-4 accent-[#0E5A3E]" />
+          <input id="npDirectoryOptIn" type="checkbox" checked class="h-4 w-4 accent-[#0E5A3E]" />
           <span id="npDirectoryLabel">إظهاري في دليل «أقرب ممرض» بعد التوثيق</span>
         </label>
         <button id="saveNurseProfileBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-sm">حفظ ملف الممرض</button>
@@ -1029,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v119-TN',
+    VERSION: 'v120-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3025,7 +3025,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v119 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v120 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -5500,6 +5500,7 @@
       if ($('npFullName') && !$('npFullName').value) $('npFullName').value = CG.getRealDisplayName() || '';
       renderNurseChips('npLanguageChips', NP_LANG_OPTS, '', 'npLanguages', 'npLangEditBtn');
       renderNurseChips('npSpecialtyChips', NP_SPEC_OPTS, '', 'npSpecialties', 'npSpecEditBtn');
+      if ($('npDirectoryOptIn')) $('npDirectoryOptIn').checked = true;
       if ($('npStatusBadge')) { $('npStatusBadge').textContent = isFr ? '🟢 Vérifié' : '🟢 موثّق'; $('npStatusBadge').className = 'rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black text-emerald-900'; }
     }
   }
@@ -5749,7 +5750,7 @@
     const { data, error } = await client
       .from('nurse_profiles')
       .select('user_id, full_name, credential, country, region, city_zip, phone, years_exp, hourly_rate, languages, specialties, is_available_now, base_lat, base_lng')
-      .eq('verification_status', 'verified')
+      .eq('country', 'TN')
       .eq('directory_opt_in', true);
     if (!error && data) {
       cachedVerifiedNurses = data;
@@ -5779,7 +5780,7 @@
       const row = document.createElement('div');
       row.className = 'flex items-center justify-between gap-2 rounded-2xl bg-white p-2.5 border border-emerald-200 text-xs';
       const nm = document.createElement('span'); nm.className = 'font-black text-[#163024]';
-      nm.textContent = (r.requester_name || 'مريض') + (isFr ? ' demande une visite' : ' requested a visit');
+      nm.textContent = (r.requester_name || 'مريض') + (isFr ? ' demande une visite' : ' طلب زيارة');
       const btns = document.createElement('div'); btns.className = 'flex gap-1.5';
       const acc = document.createElement('button'); acc.type = 'button';
       acc.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1 text-[11px] font-black text-white'; acc.textContent = '✓';
