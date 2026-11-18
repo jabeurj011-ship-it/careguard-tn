@@ -370,8 +370,8 @@
     <div class="space-y-2 px-1">
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0 flex-1">
-          <h2 id="carePortalTitle" class="font-serif-brand truncate text-2xl font-extrabold leading-tight text-[#0E5A3E]">Family Dashboard</h2>
-          <p id="carePortalSub" class="truncate text-xs font-semibold text-[#5C6F63]">Suivi de votre proche</p>
+          <h2 id="carePortalTitle" class="font-serif-brand truncate text-2xl font-extrabold leading-tight text-[#0E5A3E]">لوحة العائلة</h2>
+          <p id="carePortalSub" class="truncate text-xs font-semibold text-[#5C6F63]">متابعة قريبك</p>
         </div>
         <div class="relative shrink-0">
           <div id="careSelfAvatar" class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#E6DCCB] bg-[#0E5A3E] text-base font-black text-white shadow-sm">C</div>
@@ -380,16 +380,16 @@
         </div>
       </div>
       <div class="flex items-center justify-end gap-2">
-        <button id="careEnablePushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-900" style="min-height:34px;">🔔 Push</button>
-        <button id="careRefreshBtn" type="button" class="tap-btn rounded-full border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-extrabold text-[#0E5A3E]" style="min-height:34px;">🔄 Refresh</button>
-        <button id="careSignOutBtn" type="button" class="hidden tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-800" style="min-height:34px;">🚪 Sign Out</button>
+        <button id="careEnablePushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-900" style="min-height:34px;">🔔 الإشعارات</button>
+        <button id="careRefreshBtn" type="button" class="tap-btn rounded-full border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-extrabold text-[#0E5A3E]" style="min-height:34px;">🔄 تحديث</button>
+        <button id="careSignOutBtn" type="button" class="hidden tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-800" style="min-height:34px;">🚪 خروج</button>
       </div>
     </div>
 
     <!-- 3-Day Nurse Verification Grace Banner -->
     <div id="nurseGraceBanner" class="hidden flex items-center justify-between gap-2 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs font-extrabold text-amber-950">
-      <span id="nurseGraceText">⏳ 3 days left to complete your Nurse Profile & License.</span>
-      <button id="nurseGraceOpenBtn" type="button" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-[11px] font-black text-white">Profile ›</button>
+      <span id="nurseGraceText">⏳ بقي 3 أيام لإكمال ملف الممرض والترخيص.</span>
+      <button id="nurseGraceOpenBtn" type="button" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-[11px] font-black text-white">الملف ›</button>
     </div>
 
     <!-- Nurse 2-Card KPI Summary (Matched to 1000061832) -->
@@ -400,7 +400,7 @@
         </div>
         <div>
           <p id="nurseKpiPatientsVal" class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">0</p>
-          <p id="nurseKpiPatientsLbl" class="mt-0.5 text-xs font-bold text-[#3C5044]">Patient</p>
+          <p id="nurseKpiPatientsLbl" class="mt-0.5 text-xs font-bold text-[#3C5044]">مريض</p>
         </div>
       </div>
       <div class="flex items-center gap-3 rounded-[22px] border border-[#F2D1D1] bg-gradient-to-b from-[#FFF6F6] to-[#FDEAEA] px-3.5 py-3 shadow-sm">
@@ -409,21 +409,21 @@
         </div>
         <div>
           <p id="nurseKpiAlertVal" class="font-serif-brand text-2xl font-extrabold leading-none text-rose-800">0</p>
-          <p id="nurseKpiAlertLbl" class="mt-0.5 text-xs font-bold text-rose-700">Needs Attention</p>
+          <p id="nurseKpiAlertLbl" class="mt-0.5 text-xs font-bold text-rose-700">يحتاج متابعة</p>
         </div>
       </div>
     </div>
 
     <!-- Family Editorial Summary Pill -->
     <div id="careEditorialPill" class="flex items-center justify-center gap-3 rounded-full border border-[#EAE0CF] bg-[#F5EFE3] px-4 py-2 text-xs font-extrabold text-[#163024]">
-      <span id="careEditorialSummaryText">🟢 0 patient</span>
+      <span id="careEditorialSummaryText">🟢 0 مريض</span>
     </div>
 
     <!-- Clean 3-Tab Navigation Bar (synced with Care Bottom Nav) -->
     <div class="grid grid-cols-3 gap-2 rounded-2xl border border-[#E6DCCB] bg-white p-1.5 shadow-sm">
-      <button id="careTabPatientsBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white">🏠 Dashboard</button>
-      <button id="careTabAlertsBtn" type="button" class="tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]">🕒 Activity (0)</button>
-      <button id="careTabLinkBtn" type="button" class="tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]">👥 Care Team</button>
+      <button id="careTabPatientsBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white">🏠 لوحة المتابعة</button>
+      <button id="careTabAlertsBtn" type="button" class="tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]">🕒 التنبيهات (0)</button>
+      <button id="careTabLinkBtn" type="button" class="tap-btn rounded-xl bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#3C5044]">👥 فريق الرعاية</button>
     </div>
 
     <!-- TAB 1: PATIENTS -->
@@ -453,10 +453,10 @@
             <h3 id="npCardTitle" class="font-serif-brand text-xl font-extrabold text-[#0E5A3E]">🩺 Nurse Profile & License</h3>
             <p id="npCardSub" class="text-xs font-bold text-[#5C6F63]">Complete within 3 days to stay active & verified</p>
           </div>
-          <span id="npStatusBadge" class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black text-amber-900">⏳ Pending</span>
+          <span id="npStatusBadge" class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black text-amber-900">⏳ قيد المراجعة</span>
         </div>
         <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          <input id="npFullName" type="text" placeholder="Full Legal Name" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+          <input id="npFullName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <select id="npCredential" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold">
             <option value="INF_MAJOR">Infirmier(ère) Major / ممرض رئيسي</option>
             <option value="INF_PRINCIPAL">Infirmier(ère) Principal(e) / ممرض أول</option>
@@ -495,57 +495,73 @@
           </select>
           <input id="npCityZip" type="text" placeholder="المدينة والترقيم البريدي (مثال: قابس 6000)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npRadius" type="number" min="1" max="200" value="25" placeholder="نطاق التنقل (كم)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
-          <input id="npLicenseNum" type="text" placeholder="رقم الترخيص / البطاقة المهنية" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
-          <input id="npLicenseExp" type="date" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npPhone" type="tel" dir="ltr" placeholder="هاتف تونسي: +216 22 345 678" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npYearsExp" type="number" min="0" max="60" placeholder="سنوات الخبرة" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npHourlyRate" type="number" min="10" max="500" placeholder="التعريفة بالساعة (د.ت)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
         </div>
         <div class="rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] p-3 space-y-2">
           <div class="flex items-center justify-between gap-2">
-            <p id="npLangTitle" class="text-xs font-black text-[#0E5A3E]">🗣️ Languages Spoken:</p>
-            <button id="npLangEditBtn" type="button" class="hidden rounded-full border border-[#D8CEBE] bg-white px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]">✎ Edit</button>
+            <p id="npLangTitle" class="text-xs font-black text-[#0E5A3E]">🗣️ اللغات المتقنة:</p>
+            <button id="npLangEditBtn" type="button" class="hidden rounded-full border border-[#D8CEBE] bg-white px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]">✎ تعديل</button>
           </div>
           <div id="npLanguageChips" class="flex flex-wrap gap-1.5"></div>
-          <input id="npLanguages" type="text" placeholder="Other language (optional)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-bold" />
+          <input id="npLanguages" type="text" placeholder="لغة أخرى (اختياري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-bold" />
         </div>
         <div class="rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] p-3 space-y-2">
           <div class="flex items-center justify-between gap-2">
-            <p id="npSpecTitle" class="text-xs font-black text-[#0E5A3E]">🩺 Nurse Specialties:</p>
-            <button id="npSpecEditBtn" type="button" class="hidden rounded-full border border-[#D8CEBE] bg-white px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]">✎ Edit</button>
+            <p id="npSpecTitle" class="text-xs font-black text-[#0E5A3E]">🩺 التخصصات التمريضية:</p>
+            <button id="npSpecEditBtn" type="button" class="hidden rounded-full border border-[#D8CEBE] bg-white px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]">✎ تعديل</button>
           </div>
           <div id="npSpecialtyChips" class="flex flex-wrap gap-1.5"></div>
-          <input id="npSpecialties" type="text" placeholder="Other specialty (optional)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-bold" />
+          <input id="npSpecialties" type="text" placeholder="تخصص آخر (اختياري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-bold" />
         </div>
         <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2">
-          <button id="npSetGpsBtn" type="button" class="tap-btn rounded-xl border border-[#0E5A3E] bg-white px-3 py-1.5 text-xs font-black text-[#0E5A3E]">📍 Set Work Area GPS</button>
+          <button id="npSetGpsBtn" type="button" class="tap-btn rounded-xl border border-[#0E5A3E] bg-white px-3 py-1.5 text-xs font-black text-[#0E5A3E]">📍 تحديد موقع العمل GPS</button>
           <span id="npGpsStatus" class="text-[11px] font-bold text-[#3C5044]"></span>
           <label class="flex items-center gap-1.5 text-xs font-black text-[#0E5A3E]">
             <input id="npAvailableNow" type="checkbox" class="h-4 w-4 accent-[#0E5A3E]" />
-            <span id="npAvailableLabel">🟢 Available Now</span>
+            <span id="npAvailableLabel">🟢 متاح الآن</span>
           </label>
         </div>
-        <div class="rounded-2xl border border-dashed border-[#C7D8CE] bg-[#F4F9F5] p-3 space-y-1.5">
-          <p id="npDocLabel" class="text-xs font-black text-[#0E5A3E]">📄 Upload Diploma, License, ID & Background Check</p>
-          <input id="npDocInput" type="file" accept="image/*,.pdf" class="w-full text-xs font-bold text-slate-700" />
-          <p id="npDocStatus" class="text-[11px] font-bold text-[#3C5044]"></p>
+        <div class="rounded-2xl border border-dashed border-[#C7D8CE] bg-[#F4F9F5] p-3 space-y-2.5">
+          <p id="npDocLabel" class="text-xs font-black text-[#0E5A3E]">📄 الوثائق الإجبارية (3 وثائق في 4 ملفات):</p>
+          <div class="space-y-1">
+            <label id="npDocDiplomaLbl" class="block text-[11px] font-black text-[#163024]">1. الدبلوم / الشهادة العلمية *</label>
+            <input id="npDocDiplomaInput" type="file" accept="image/*,.pdf" class="w-full text-xs font-bold text-slate-700" />
+            <p id="npDocDiplomaStatus" class="text-[11px] font-bold text-[#3C5044]"></p>
+          </div>
+          <div class="space-y-1">
+            <label id="npDocWorkLbl" class="block text-[11px] font-black text-[#163024]">2. شهادة عمل *</label>
+            <input id="npDocWorkInput" type="file" accept="image/*,.pdf" class="w-full text-xs font-bold text-slate-700" />
+            <p id="npDocWorkStatus" class="text-[11px] font-bold text-[#3C5044]"></p>
+          </div>
+          <div class="space-y-1">
+            <label id="npDocCinFrontLbl" class="block text-[11px] font-black text-[#163024]">3. بطاقة التعريف الوطنية (الوجه الأمامي) *</label>
+            <input id="npDocCinFrontInput" type="file" accept="image/*,.pdf" class="w-full text-xs font-bold text-slate-700" />
+            <p id="npDocCinFrontStatus" class="text-[11px] font-bold text-[#3C5044]"></p>
+          </div>
+          <div class="space-y-1">
+            <label id="npDocCinBackLbl" class="block text-[11px] font-black text-[#163024]">4. بطاقة التعريف الوطنية (الوجه الخلفي) *</label>
+            <input id="npDocCinBackInput" type="file" accept="image/*,.pdf" class="w-full text-xs font-bold text-slate-700" />
+            <p id="npDocCinBackStatus" class="text-[11px] font-bold text-[#3C5044]"></p>
+          </div>
         </div>
         <label class="flex items-center gap-2 text-xs font-bold text-[#163024]">
           <input id="npDirectoryOptIn" type="checkbox" class="h-4 w-4 accent-[#0E5A3E]" />
-          <span id="npDirectoryLabel">Show me in "Find Nearest Nurse" directory once verified</span>
+          <span id="npDirectoryLabel">إظهاري في دليل «أقرب ممرض» بعد التوثيق</span>
         </label>
-        <button id="saveNurseProfileBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-sm">Save Nurse Profile</button>
+        <button id="saveNurseProfileBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-sm">حفظ ملف الممرض</button>
         <p id="npSaveStatus" class="hidden text-center text-xs font-extrabold"></p>
       </div>
       <!-- Incoming Nurse Visit Requests (Nurse / Center only) -->
       <div id="nurseVisitReqBox" class="hidden rounded-3xl border-2 border-emerald-300 bg-emerald-50/70 p-4 space-y-2.5 shadow-sm">
-        <p id="nurseVisitReqTitle" class="text-sm font-black text-[#0E5A3E]">🩺 Demandes de visite reçues</p>
+        <p id="nurseVisitReqTitle" class="text-sm font-black text-[#0E5A3E]">🩺 طلبات الزيارة الواردة</p>
         <div id="nurseVisitReqList" class="space-y-2"></div>
       </div>
 
       <!-- Find Nearest Nurse Launcher (Family / Care) -->
       <button id="openFindNurseCareBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-3xl border border-[#C7DFCE] bg-[#EFF7F1] px-4 py-3.5 text-sm font-black text-[#0E5A3E] shadow-sm">
-        <span id="openFindNurseCareLbl">🩺 Trouver un infirmier vérifié proche</span>
+        <span id="openFindNurseCareLbl">🩺 البحث عن أقرب ممرض موثّق</span>
         <span>›</span>
       </button>
 
@@ -679,15 +695,15 @@
   <div class="mx-auto grid max-w-xl grid-cols-4">
     <button id="careNavDashBtn" type="button" class="flex flex-col items-center justify-center py-2 text-[#0E5A3E] font-black" style="min-height:58px;">
       <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      <span id="careNavDashLabel" class="mt-0.5 text-xs">Dashboard</span>
+      <span id="careNavDashLabel" class="mt-0.5 text-xs">الرئيسية</span>
     </button>
     <button id="careNavActBtn" type="button" class="flex flex-col items-center justify-center py-2 text-[#5C6F63] font-bold" style="min-height:58px;">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 2"/></svg>
-      <span id="careNavActLabel" class="mt-0.5 text-xs">Activity</span>
+      <span id="careNavActLabel" class="mt-0.5 text-xs">التنبيهات</span>
     </button>
     <button id="careNavTeamBtn" type="button" class="flex flex-col items-center justify-center py-2 text-[#5C6F63] font-bold" style="min-height:58px;">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      <span id="careNavTeamLabel" class="mt-0.5 text-xs">Care Team</span>
+      <span id="careNavTeamLabel" class="mt-0.5 text-xs">فريق الرعاية</span>
     </button>
     <button id="careNavSetBtn" type="button" class="flex flex-col items-center justify-center py-2 text-[#5C6F63] font-bold" style="min-height:58px;">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1012,7 +1028,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v106-TN',
+    VERSION: 'v111-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1273,7 +1289,7 @@
       const alertPatients = cachedCardsData.filter((d) => d.kind === 'approved' && d.openAlerts.length > 0).length;
       const sumTxt = isFr
         ? `🟢 ${approvedCount} patient(s)${alertPatients ? ` • 🔴 ${alertPatients} à vérifier` : ''}`
-        : `🟢 ${approvedCount} patient(s)${alertPatients ? ` • 🔴 ${alertPatients} needs attention` : ''}`;
+        : `🟢 ${approvedCount} مريض${alertPatients ? ` • 🔴 ${alertPatients} يحتاج متابعة` : ''}`;
       const isNurseRole = (userRole === 'nurse' || userRole === 'center');
       if ($('nurseKpiGrid')) {
         $('nurseKpiGrid').classList.toggle('hidden', !isNurseRole);
@@ -1288,7 +1304,7 @@
       if ($('careSummaryText')) {
         $('careSummaryText').textContent = isFr
           ? `👥 ${approvedCount} patient(s) • 🚨 ${alertPatients} avec alertes`
-          : `👥 ${approvedCount} patient(s) • 🚨 ${alertPatients} with alerts`;
+          : `👥 ${approvedCount} مريض • 🚨 ${alertPatients} لديهم تنبيهات`;
       }
       const ab = $('careAlertsOnlyBtn');
       if (ab) {
@@ -1598,7 +1614,7 @@
       removeBtn.addEventListener('click', async () => {
         const msg = isFr
           ? `Retirer ${sp.display_name || 'ce patient'} de votre liste de suivi ?`
-          : `Remove ${sp.display_name || 'this patient'} from your care list?`;
+          : `إزالة ${sp.display_name || 'هذا المريض'} من قائمة المتابعة؟`;
         if (!window.confirm(msg)) return;
         const { error: delErr } = await client.from('senior_care_links').delete().eq('requester_user_id', currentUser.id).eq('senior_id', sp.id);
         if (delErr) { alert(CG.friendlyError(delErr)); return; }
@@ -2208,8 +2224,20 @@
       }
     } catch (_) {}
   }
-  if ('speechSynthesis' in window && window.speechSynthesis.getVoices) {
-    try { window.speechSynthesis.getVoices(); } catch (_) {}
+  let __cgVoices = [];
+  if ('speechSynthesis' in window) {
+    const refreshVoices = () => { try { __cgVoices = window.speechSynthesis.getVoices() || []; } catch (_) {} };
+    refreshVoices();
+    if ('onvoiceschanged' in window.speechSynthesis) window.speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+  function unlockSpeech() {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      const warm = new SpeechSynthesisUtterance(' ');
+      warm.volume = 0;
+      window.speechSynthesis.speak(warm);
+    } catch (_) {}
   }
   function speakText(text) {
     if (!('speechSynthesis' in window) || !text) return;
@@ -2218,7 +2246,7 @@
       if (window.speechSynthesis.paused) window.speechSynthesis.resume();
       const u = new SpeechSynthesisUtterance(text);
       const wantPrefix = state.lang === 'fr' ? 'fr' : 'ar';
-      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const voices = (__cgVoices && __cgVoices.length) ? __cgVoices : (window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : []);
       const matched = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(wantPrefix));
       if (matched) {
         u.voice = matched;
@@ -2283,7 +2311,7 @@
     txt.textContent = pct + '%' + (charging ? ' ⚡' : '');
     if (pct <= 30 && !charging) {
       badge.className = 'inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-extrabold text-rose-900';
-      const msg = state.lang === 'fr' ? `Batterie faible : ${pct}% restant — veuillez charger votre téléphone.` : `Low Battery: ${pct}% remaining — please charge your phone.`;
+      const msg = state.lang === 'fr' ? `Batterie faible : ${pct}% restant — veuillez charger votre téléphone.` : `البطارية منخفضة: بقي ${pct}% — يرجى شحن هاتفك.`;
       topBanner.textContent = msg; topBanner.classList.remove('hidden');
       if (!batteryLowAlerted) {
         batteryLowAlerted = true; pendingLowBatterySpeak = msg;
@@ -2400,7 +2428,7 @@
     if (!state.meds.length) {
       const empty = document.createElement('p');
       empty.className = 'rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-center text-base font-bold text-slate-500';
-      empty.textContent = state.lang === 'fr' ? "Aucun médicament enregistré — appuyez sur (+ Ajouter / Photo)." : 'No medications listed yet — tap (+ Add / Rx Photo).';
+      empty.textContent = state.lang === 'fr' ? "Aucun médicament enregistré — appuyez sur (+ Ajouter / Photo)." : 'لا توجد أدوية مسجلة بعد — اضغط (+ إضافة / صورة).';
       box.appendChild(empty);
       return;
     }
@@ -2477,7 +2505,7 @@
     if (!state.appts.length) {
       const empty = document.createElement('p');
       empty.className = 'rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-center text-base font-bold text-slate-500';
-      empty.textContent = state.lang === 'fr' ? "Aucun rendez-vous enregistré — appuyez sur (+ Ajouter)." : 'No appointments listed yet — tap (+ Add).';
+      empty.textContent = state.lang === 'fr' ? "Aucun rendez-vous enregistré — appuyez sur (+ Ajouter)." : 'لا توجد مواعيد مسجلة بعد — اضغط (+ إضافة).';
       box.appendChild(empty);
       return;
     }
@@ -2526,14 +2554,14 @@
     if (!body) return;
     body.replaceChildren();
     const isFr = state.lang === 'fr';
-    $('notifModalTitle').textContent = isFr ? 'Alertes et notifications' : 'Alerts & Notifications';
+    $('notifModalTitle').textContent = isFr ? 'Alertes et notifications' : 'التنبيهات والإشعارات';
 
     const items = [];
     if (lastBatteryPct <= 30 && !lastBatteryCharging) {
       items.push({
         cls: 'border-rose-300 bg-rose-50 text-rose-900',
-        title: isFr ? `🔋 Batterie faible (${lastBatteryPct}%)` : `🔋 Low Phone Battery (${lastBatteryPct}%)`,
-        sub: isFr ? 'Veuillez brancher le chargeur.' : 'Please plug in your charger now.'
+        title: isFr ? `🔋 Batterie faible (${lastBatteryPct}%)` : `🔋 بطارية الهاتف منخفضة (${lastBatteryPct}%)`,
+        sub: isFr ? 'Veuillez brancher le chargeur.' : 'يرجى توصيل الشاحن الآن.'
       });
     }
     const nowHHMMNotif = String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0');
@@ -2542,8 +2570,8 @@
       const isFuture = hasT && nowHHMMNotif < m.time;
       items.push({
         cls: isFuture ? 'border-slate-200 bg-slate-50 text-slate-700' : 'border-emerald-200 bg-emerald-50 text-slate-900',
-        title: (isFuture ? (isFr ? '⏰ À venir : ' : '⏰ Upcoming: ') : (isFr ? '💊 Médicament dû : ' : '💊 Medication due: ')) + (isFr ? m.nameAr : m.nameEn),
-        sub: (isFr ? 'Heure : ' : 'Time: ') + m.time,
+        title: (isFuture ? (isFr ? '⏰ À venir : ' : '⏰ قادم: ') : (isFr ? '💊 Médicament dû : ' : '💊 حان وقت الدواء: ')) + (isFr ? m.nameAr : m.nameEn),
+        sub: (isFr ? 'Heure : ' : 'الوقت: ') + m.time,
         medId: isFuture ? null : m.id,
         waitTime: isFuture ? m.time : null
       });
@@ -2552,7 +2580,7 @@
       const a = state.appts[0];
       items.push({
         cls: 'border-purple-200 bg-purple-50 text-slate-900',
-        title: (isFr ? '📅 Prochain RDV : ' : '📅 Upcoming Appointment: ') + (isFr ? a.doctorAr : a.doctorEn),
+        title: (isFr ? '📅 Prochain RDV : ' : '📅 موعد طبي قادم: ') + (isFr ? a.doctorAr : a.doctorEn),
         sub: a.date + ' • ' + a.time
       });
     }
@@ -2567,7 +2595,7 @@
       items.push({
         cls: 'border-teal-200 bg-teal-50 text-slate-900',
         title: isMine
-          ? (isFr ? `📤 Envoyé (${chLabel})` : `📤 Sent to ${chLabel}`)
+          ? (isFr ? `📤 Envoyé (${chLabel})` : `📤 أُرسلت إلى ${chLabel}`)
           : (`💬 ${dm.sender_name || chLabel}`),
         sub: (dm.message_text || (isFr ? '🎤 Message vocal' : '🎤 رسالة صوتية')) + (tStr ? ` • ${tStr}` : ''),
         openChannel: ch
@@ -2576,7 +2604,7 @@
 
     items.push({
       cls: 'border-sky-200 bg-sky-50 text-slate-900',
-      title: isFr ? `💧 Eau : ${state.waterCount} / 8 verres` : `💧 Water Intake: ${state.waterCount} / 8 glasses`,
+      title: isFr ? `💧 Eau : ${state.waterCount} / 8 verres` : `💧 شرب الماء: ${state.waterCount} / 8 أكواب`,
       sub: $('waterNextText').textContent || ''
     });
 
@@ -2593,7 +2621,7 @@
         btn.type = 'button';
         btn.className = 'shrink-0 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-extrabold text-white';
         btn.style.minHeight = '36px';
-        btn.textContent = isFr ? 'Fait ✓' : 'Done ✓';
+        btn.textContent = isFr ? 'Fait ✓' : 'تم ✓';
         btn.addEventListener('click', () => {
           const med = state.meds.find((x) => x.id === it.medId);
           if (med) {
@@ -2608,7 +2636,7 @@
       } else if (it.waitTime) {
         const badge = document.createElement('span');
         badge.className = 'shrink-0 rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-xs font-extrabold text-slate-600';
-        badge.textContent = (isFr ? '⏳ À ' : '⏳ At ') + it.waitTime;
+        badge.textContent = (isFr ? '⏳ À ' : '⏳ الساعة ') + it.waitTime;
         card.appendChild(badge);
       } else if (it.openChannel) {
         card.classList.add('cursor-pointer');
@@ -2643,7 +2671,7 @@
     const dispConditions = mapLegacyMed(p.conditions, 'conditions');
     const items = state.lang === 'fr'
       ? [['Nom :', displayName], ['Date de naissance :', p.dob || '-'], ['Tél. senior :', p.phone || '-'], ['Proche :', familyLabel], ['Tél. secours :', p.backupPhone || '-'], ['Médecin traitant :', doctorLabel], ['Adresse :', p.address || '-'], ['Groupe sanguin :', p.bloodType || '-'], ['Allergies :', dispAllergies], ['Pathologies :', dispConditions], ['Notes médicales :', p.medicalNotes || '-'], ['Médicaments :', medNames]]
-      : [['Name:', displayName], ['تاريخ الميلاد:', p.dob || '-'], ['Senior Phone:', p.phone || '-'], ['Close Family:', familyLabel], ['Backup Phone:', p.backupPhone || '-'], ['Doctor:', doctorLabel], ['Address:', p.address || '-'], ['Blood Type:', p.bloodType || '-'], ['Allergies:', dispAllergies], ['Conditions:', dispConditions], ['Notes:', p.medicalNotes || '-'], ['Medications:', medNames]];
+      : [['الاسم:', displayName], ['تاريخ الميلاد:', p.dob || '-'], ['هاتف المسنّ:', p.phone || '-'], ['قريب للطوارئ:', familyLabel], ['هاتف احتياطي:', p.backupPhone || '-'], ['الطبيب المعالج:', doctorLabel], ['العنوان:', p.address || '-'], ['فصيلة الدم:', p.bloodType || '-'], ['الحساسية:', dispAllergies], ['الأمراض المزمنة:', dispConditions], ['ملاحظات طبية:', p.medicalNotes || '-'], ['الأدوية:', medNames]];
     items.forEach(([k, v]) => {
       const line = document.createElement('div');
       line.className = 'flex flex-wrap justify-between gap-2 rounded-xl bg-rose-50 px-3.5 py-2';
@@ -2773,7 +2801,7 @@
     if (!reply) {
       reply = /médicament|medicament|prochain|quand|pilule|eau|med|next|when|pill/i.test(q)
         ? (state.lang === 'fr' ? nextTextAr : nextTextEn)
-        : (state.lang === 'fr' ? `${nextTextAr} Eau : ${state.waterCount}/8 verres.` : `${nextTextEn} Water: ${state.waterCount}/8 glasses.`);
+        : (state.lang === 'fr' ? `${nextTextAr} Eau : ${state.waterCount}/8 verres.` : `${nextTextAr} الماء: ${state.waterCount}/8 أكواب.`);
     }
     box.textContent = reply + (aiErrNote ? '\n[Gemini: ' + aiErrNote + ']' : '');
     speakText(reply);
@@ -2781,9 +2809,9 @@
 
   // Icebreakers, Quick Chips, Birthdays & Chat
   const ICEBREAKERS = [
-    { isFr: '☕ Café & Souvenirs : Quel est votre plus beau voyage ou souvenir ?', en: '☕ Coffee & Memories: Favorite trip or memory?' },
-    { isFr: '🌱 Loisirs : Quel passe-temps ou recette appréciez-vous ?', en: '🌱 Hobbies: What hobby or recipe do you enjoy?' },
-    { isFr: '🚶 Bien-être : Quelle habitude vous donne de l\'énergie ?', en: '🚶 Wellness: What habit keeps you energized?' }
+    { isFr: '☕ Café & Souvenirs : Quel est votre plus beau voyage ou souvenir ?', en: '☕ قهوة وذكريات: ما أجمل رحلة أو ذكرى في حياتك؟' },
+    { isFr: '🌱 Loisirs : Quel passe-temps ou recette appréciez-vous ?', en: '🌱 هوايات: ما الهواية أو الأكلة التي تحبها؟' },
+    { isFr: '🚶 Bien-être : Quelle habitude vous donne de l\'énergie ?', en: '🚶 الصحة: ما العادة اليومية التي تمنحك النشاط؟' }
   ];
   let iceIdx = new Date().getDate() % ICEBREAKERS.length;
   function renderIcebreaker() {
@@ -2816,11 +2844,11 @@
     const blocked = Array.isArray(state.blockedUserIds) ? state.blockedUserIds : [];
     const visibleRows = (rows || []).filter((r) => !blocked.includes(r.user_id));
     $('chatBlockedBar').classList.toggle('hidden', blocked.length === 0); $('chatBlockedBar').classList.toggle('flex', blocked.length > 0);
-    if (blocked.length) $('chatBlockedCountText').textContent = state.lang === 'fr' ? `Masqué(s) (${blocked.length})` : `Hidden (${blocked.length})`;
+    if (blocked.length) $('chatBlockedCountText').textContent = state.lang === 'fr' ? `Masqué(s) (${blocked.length})` : `مخفي (${blocked.length})`;
 
     if (!visibleRows.length) {
       const empty = document.createElement('p'); empty.className = 'py-8 text-center text-base font-bold text-slate-500';
-      empty.textContent = state.lang === 'fr' ? 'Aucun message ces dernières 24h — soyez le premier à écrire !' : 'No posts in the last 24h — be the first!';
+      empty.textContent = state.lang === 'fr' ? 'Aucun message ces dernières 24h — soyez le premier à écrire !' : 'لا توجد رسائل في آخر 24 ساعة — كن أول من يكتب!';
       box.appendChild(empty); return;
     }
 
@@ -2888,7 +2916,7 @@
         reactRow.appendChild(del);
       } else if (r.user_id) {
         const hideBtn = document.createElement('button'); hideBtn.type = 'button'; hideBtn.style.minHeight = '32px';
-        hideBtn.className = 'rounded-xl px-2 py-0.5 text-xs font-extrabold text-slate-600'; hideBtn.textContent = state.lang === 'fr' ? '🚫 Masquer' : '🚫 Hide';
+        hideBtn.className = 'rounded-xl px-2 py-0.5 text-xs font-extrabold text-slate-600'; hideBtn.textContent = state.lang === 'fr' ? '🚫 Masquer' : '🚫 إخفاء';
         hideBtn.addEventListener('click', () => { if (!Array.isArray(state.blockedUserIds)) state.blockedUserIds = []; if (!state.blockedUserIds.includes(r.user_id)) state.blockedUserIds.push(r.user_id); saveState(); renderChatMessages(rows); });
         reactRow.appendChild(hideBtn);
       }
@@ -2900,7 +2928,7 @@
     state.lastSeenCommunityMsgAt = Date.now(); saveState();
     if (typeof checkUnreadCareMessagesForSenior === 'function') checkUnreadCareMessagesForSenior();
     if (!client) return;
-    if (!currentUser) { renderChatMessages([]); showChatMsg(state.lang === 'fr' ? 'Connectez-vous avec Google pour participer.' : 'Sign in with Google first.', true); return; }
+    if (!currentUser) { renderChatMessages([]); showChatMsg(state.lang === 'fr' ? 'Connectez-vous avec Google pour participer.' : 'سجّل الدخول بحساب Google أولاً.', true); return; }
     try {
       const cutoffIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       await client.from('community_messages').delete().lt('created_at', cutoffIso);
@@ -2927,7 +2955,7 @@
     activeBirthdayNames = names;
     if (!names.length) { banner.classList.add('hidden'); banner.classList.remove('flex'); return; }
     banner.classList.remove('hidden'); banner.classList.add('flex');
-    $('chatBirthdayText').textContent = state.lang === 'fr' ? `🎂 Anniversaire : ${names.join(', ')} !` : `🎂 Birthday: ${names.join(', ')}!`;
+    $('chatBirthdayText').textContent = state.lang === 'fr' ? `🎂 Anniversaire : ${names.join(', ')} !` : `🎂 عيد ميلاد: ${names.join('، ')}!`;
   }
 
 
@@ -2974,7 +3002,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v106 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v111 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -3141,6 +3169,24 @@
     if ($('careRefreshBtn')) $('careRefreshBtn').textContent = isFr ? '🔄 Actualiser' : '🔄 تحديث';
     if ($('careSwitchRoleBtn')) $('careSwitchRoleBtn').textContent = isFr ? 'Changer rôle' : 'تغيير الدور';
     if ($('careSignOutBtn')) $('careSignOutBtn').textContent = isFr ? 'Quitter' : 'تسجيل الخروج';
+    if ($('careNavDashLabel')) $('careNavDashLabel').textContent = isFr ? 'Tableau' : 'الرئيسية';
+    if ($('careNavActLabel')) $('careNavActLabel').textContent = isFr ? 'Activité' : 'التنبيهات';
+    if ($('careNavTeamLabel')) $('careNavTeamLabel').textContent = isFr ? 'Équipe' : 'فريق الرعاية';
+    if ($('careNavSetLabel')) $('careNavSetLabel').textContent = isFr ? 'Paramètres' : 'الإعدادات';
+    if ($('nurseGraceOpenBtn')) $('nurseGraceOpenBtn').textContent = isFr ? 'Profil ›' : 'الملف ›';
+    if ($('npLangTitle')) $('npLangTitle').textContent = isFr ? '🗣️ Langues parlées :' : '🗣️ اللغات المتقنة:';
+    if ($('npSpecTitle')) $('npSpecTitle').textContent = isFr ? '🩺 Spécialités :' : '🩺 التخصصات التمريضية:';
+    if ($('npAvailableLabel')) $('npAvailableLabel').textContent = isFr ? '🟢 Disponible' : '🟢 متاح الآن';
+    if ($('npDocLabel')) $('npDocLabel').textContent = isFr ? '📄 Documents obligatoires (4 fichiers) :' : '📄 الوثائق الإجبارية (3 وثائق في 4 ملفات):';
+    if ($('npDocDiplomaLbl')) $('npDocDiplomaLbl').textContent = isFr ? '1. Diplôme d\'État *' : '1. الدبلوم / الشهادة العلمية *';
+    if ($('npDocWorkLbl')) $('npDocWorkLbl').textContent = isFr ? '2. Attestation de travail *' : '2. شهادة عمل *';
+    if ($('npDocCinFrontLbl')) $('npDocCinFrontLbl').textContent = isFr ? '3. CIN (Recto / Face avant) *' : '3. بطاقة التعريف الوطنية (الوجه الأمامي) *';
+    if ($('npDocCinBackLbl')) $('npDocCinBackLbl').textContent = isFr ? '4. CIN (Verso / Face arrière) *' : '4. بطاقة التعريف الوطنية (الوجه الخلفي) *';
+    if ($('npSetGpsBtn')) $('npSetGpsBtn').textContent = isFr ? '📍 Position GPS travail' : '📍 تحديد موقع العمل GPS';
+    if ($('openFindNurseCareLbl')) $('openFindNurseCareLbl').textContent = isFr ? '🩺 Trouver un infirmier vérifié proche' : '🩺 البحث عن أقرب ممرض موثّق';
+    if ($('nurseVisitReqTitle')) $('nurseVisitReqTitle').textContent = isFr ? '🩺 Demandes de visite reçues' : '🩺 طلبات الزيارة الواردة';
+    if ($('npLangEditBtn')) $('npLangEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
+    if ($('npSpecEditBtn')) $('npSpecEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
     if ($('careLinkTitle')) $('careLinkTitle').textContent = isFr ? 'Lier un senior par son code (CG-...)' : 'ربط مسنّ عبر الرمز (CG-...)';
     if ($('careSendLinkBtn')) $('careSendLinkBtn').textContent = isFr ? 'Lier' : 'ربط';
     if ($('seniorPendingLinksTitle')) $('seniorPendingLinksTitle').textContent = isFr ? 'Nouvelles demandes de liaison :' : 'طلبات ربط جديدة:';
@@ -3178,7 +3224,7 @@
   }
 
   $('langToggle').addEventListener('click', () => { state.lang = state.lang === 'fr' ? 'ar' : 'fr'; saveState(); applyLang(); });
-  $('voiceBtn').addEventListener('click', () => { playStrongRingtone(); setTimeout(() => speakText(state.lang === 'fr' ? "Bonjour de CareGuard, rappel pour votre médicament." : 'مرحباً من كيرغارد، تذكير بموعد دوائك.'), 900); });
+  $('voiceBtn').addEventListener('click', () => { unlockSpeech(); playStrongRingtone(); setTimeout(() => speakText(state.lang === 'fr' ? "Bonjour de CareGuard, rappel pour votre médicament." : 'مرحباً من كيرغارد، تذكير بموعد دوائك.'), 450); });
   $('testWaterAlertBtn').addEventListener('click', () => triggerWaterReminder(true));
 
   setInterval(checkWaterSchedule, 20000);
@@ -3199,13 +3245,13 @@
   $('chatCancelReplyBtn').addEventListener('click', () => { activeReplyTo = null; $('chatReplyBar').classList.add('hidden'); $('chatReplyBar').classList.remove('flex'); });
   $('chatSendBirthdayBtn').addEventListener('click', () => {
     const who = activeBirthdayNames.join(' & ');
-    sendCommunityPost(state.lang === 'fr' ? `🎂🎉 Joyeux anniversaire ${who} !` : `🎂🎉 Happy Birthday ${who}!`, null);
+    sendCommunityPost(state.lang === 'fr' ? `🎂🎉 Joyeux anniversaire ${who} !` : `🎂🎉 عيد ميلاد سعيد ${who}!`, null);
   });
   $('chatUnblockAllBtn').addEventListener('click', () => { state.blockedUserIds = []; saveState(); loadCommunityMessages(); });
 
   $('chatRecordBtn').addEventListener('click', async () => {
     if (isRecording && mediaRecorder) { mediaRecorder.stop(); return; }
-    if (!navigator.mediaDevices || !window.MediaRecorder) { showChatMsg(state.lang === 'fr' ? 'Enregistrement non supporté.' : 'Recording unsupported.', true); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder) { showChatMsg(state.lang === 'fr' ? 'Enregistrement non supporté.' : 'التسجيل الصوتي غير مدعوم في هذا المتصفح.', true); return; }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       recordedChunks = []; mediaRecorder = new MediaRecorder(stream); isRecording = true;
@@ -3245,7 +3291,7 @@
   $('aiAnalyzePhotoBtn').addEventListener('click', async () => {
     const st = $('aiPhotoStatus'); st.classList.remove('hidden');
     if (!pendingImageDataUrl) return;
-    if (!currentUser) { st.textContent = state.lang === 'fr' ? 'Connectez-vous avec Google pour lire l\'ordonnance.' : 'Sign in with Google to scan prescription.'; return; }
+    if (!currentUser) { st.textContent = state.lang === 'fr' ? 'Connectez-vous avec Google pour lire l\'ordonnance.' : 'سجّل الدخول بحساب Google لقراءة الوصفة.'; return; }
     st.textContent = state.lang === 'fr' ? 'Lecture...' : 'جاري القراءة...';
     try {
       const compressed = await compressImageDataUrl(pendingImageDataUrl, 900);
@@ -3359,36 +3405,36 @@
   });
 
   const REL_OPTIONS = [
-    { v: '', fr: 'Lien de parenté...', en: 'Relationship...' },
-    { v: 'Fils', fr: 'Fils', en: 'Son' },
-    { v: 'Fille', fr: 'Fille', en: 'Daughter' },
-    { v: 'Conjoint(e)', fr: 'Conjoint(e)', en: 'Spouse' },
-    { v: 'Frère', fr: 'Frère', en: 'Brother' },
-    { v: 'Sœur', fr: 'Sœur', en: 'Sister' },
-    { v: 'Petit-enfant', fr: 'Petit-enfant', en: 'Grandchild' },
-    { v: 'Aidant(e)', fr: 'Aidant(e)', en: 'Caregiver' },
-    { v: '__other__', fr: 'Autre...', en: 'Other...' }
+    { v: '', fr: 'Lien de parenté...', en: 'صلة القرابة...' },
+    { v: 'Fils', fr: 'Fils', en: 'الابن' },
+    { v: 'Fille', fr: 'Fille', en: 'الابنة' },
+    { v: 'Conjoint(e)', fr: 'Conjoint(e)', en: 'الزوج/الزوجة' },
+    { v: 'Frère', fr: 'Frère', en: 'الأخ' },
+    { v: 'Sœur', fr: 'Sœur', en: 'الأخت' },
+    { v: 'Petit-enfant', fr: 'Petit-enfant', en: 'الحفيد(ة)' },
+    { v: 'Aidant(e)', fr: 'Aidant(e)', en: 'مرافق(ة)' },
+    { v: '__other__', fr: 'Autre...', en: 'أخرى...' }
   ];
   const ALLERGY_OPTIONS = [
     { key: 'none', fr: 'Aucune', en: 'لا يوجد', aliases: ['aucune', 'none', 'ras'] },
     { key: 'penicillin', fr: 'Pénicilline', en: 'البنسلين', aliases: ['penicilline', 'pénicilline', 'penicillin', 'penicelline', 'البنسلين'] },
-    { key: 'aspirin', fr: 'Aspirine / AINS', en: 'Aspirin / NSAIDs', aliases: ['aspirine', 'aspirin', 'ains', 'nsaids'] },
-    { key: 'sulfa', fr: 'Sulfamides', en: 'Sulfa drugs', aliases: ['sulfamides', 'sulfa'] },
-    { key: 'iodine', fr: 'Iode', en: 'Iodine', aliases: ['iode', 'iodine'] },
-    { key: 'latex', fr: 'Latex', en: 'Latex', aliases: ['latex'] },
-    { key: 'nuts', fr: 'Arachides / Noix', en: 'Peanuts / Nuts', aliases: ['arachides', 'noix', 'peanuts', 'nuts'] },
-    { key: 'pollen', fr: 'Pollen / Poussière', en: 'Pollen / Dust', aliases: ['pollen', 'poussiere', 'poussière', 'dust'] }
+    { key: 'aspirin', fr: 'Aspirine / AINS', en: 'الأسبرين / مضادات الالتهاب', aliases: ['aspirine', 'aspirin', 'ains', 'nsaids'] },
+    { key: 'sulfa', fr: 'Sulfamides', en: 'السلفاميد', aliases: ['sulfamides', 'sulfa'] },
+    { key: 'iodine', fr: 'Iode', en: 'اليود', aliases: ['iode', 'iodine'] },
+    { key: 'latex', fr: 'Latex', en: 'اللاتكس', aliases: ['latex'] },
+    { key: 'nuts', fr: 'Arachides / Noix', en: 'الفول السوداني / المكسرات', aliases: ['arachides', 'noix', 'peanuts', 'nuts'] },
+    { key: 'pollen', fr: 'Pollen / Poussière', en: 'حبوب اللقاح / الغبار', aliases: ['pollen', 'poussiere', 'poussière', 'dust'] }
   ];
   const CONDITION_OPTIONS = [
-    { key: 'diabetes', fr: 'Diabète', en: 'Diabetes', aliases: ['diabete', 'diabète', 'diabetique', 'diabetes', 'السكري'] },
-    { key: 'hta', fr: 'HTA (Hypertension)', en: 'Hypertension (HTA)', aliases: ['hta', 'hypertension', 'tension', 'ضغط الدم'] },
-    { key: 'cardiac', fr: 'Cardiaque', en: 'Cardiac / Heart', aliases: ['cardiaque', 'cardiac', 'heart', 'coeur', 'cœur'] },
-    { key: 'asthma', fr: 'Asthme / BPCO', en: 'Asthma / COPD', aliases: ['asthme', 'asthma', 'bpco', 'copd'] },
-    { key: 'kidney', fr: 'Insuffisance rénale', en: 'Kidney disease', aliases: ['renale', 'rénale', 'kidney'] },
-    { key: 'cholesterol', fr: 'Cholestérol', en: 'Cholesterol', aliases: ['cholesterol', 'cholestérol'] },
-    { key: 'arthritis', fr: 'Arthrose', en: 'Arthritis', aliases: ['arthrose', 'arthritis'] },
-    { key: 'memory', fr: 'Mémoire / Alzheimer', en: 'Memory / Alzheimer', aliases: ['alzheimer', 'memoire', 'mémoire', 'memory'] },
-    { key: 'stroke', fr: 'AVC antérieur', en: 'Prior Stroke', aliases: ['avc', 'stroke'] }
+    { key: 'diabetes', fr: 'Diabète', en: 'السكري', aliases: ['diabete', 'diabète', 'diabetique', 'diabetes', 'السكري'] },
+    { key: 'hta', fr: 'HTA (Hypertension)', en: 'ضغط الدم (HTA)', aliases: ['hta', 'hypertension', 'tension', 'ضغط الدم'] },
+    { key: 'cardiac', fr: 'Cardiaque', en: 'أمراض القلب', aliases: ['cardiaque', 'cardiac', 'heart', 'coeur', 'cœur'] },
+    { key: 'asthma', fr: 'Asthme / BPCO', en: 'الربو / ضيق التنفس', aliases: ['asthme', 'asthma', 'bpco', 'copd'] },
+    { key: 'kidney', fr: 'Insuffisance rénale', en: 'أمراض الكلى', aliases: ['renale', 'rénale', 'kidney'] },
+    { key: 'cholesterol', fr: 'Cholestérol', en: 'الكوليسترول', aliases: ['cholesterol', 'cholestérol'] },
+    { key: 'arthritis', fr: 'Arthrose', en: 'التهاب المفاصل', aliases: ['arthrose', 'arthritis'] },
+    { key: 'memory', fr: 'Mémoire / Alzheimer', en: 'الذاكرة / الزهايمر', aliases: ['alzheimer', 'memoire', 'mémoire', 'memory'] },
+    { key: 'stroke', fr: 'AVC antérieur', en: 'جلطة سابقة (AVC)', aliases: ['avc', 'stroke'] }
   ];
 
   function renderMultiChips(containerId, options, currentVal, customInputId, hasExclusiveNone) {
@@ -3477,13 +3523,13 @@
       $('profFamilyRelInput').value = p.familyRelation || '';
     }
     $('profBackupPhoneInput').value = p.backupPhone || '';
-    if ($('profFamilyEmailInput')) { $('profFamilyEmailInput').value = p.familyEmail || ''; $('profFamilyEmailInput').placeholder = isFr ? "Email d'un proche (pour alertes)" : 'Close Family Email (for alerts)'; }
+    if ($('profFamilyEmailInput')) { $('profFamilyEmailInput').value = p.familyEmail || ''; $('profFamilyEmailInput').placeholder = isFr ? "Email d'un proche (pour alertes)" : 'بريد أحد الأقارب (للتنبيهات)'; }
     $('profDoctorNameInput').value = p.doctorName || ''; $('profDoctorPhoneInput').value = p.doctorPhone || '';
     $('profAddressInput').value = p.address || ''; $('profBloodInput').value = p.bloodType || '';
-    if ($('profAllergiesLabel')) $('profAllergiesLabel').textContent = isFr ? '⚠️ Allergies (choix multiple) :' : '⚠️ Allergies (multi-select):';
-    if ($('profConditionsLabel')) $('profConditionsLabel').textContent = isFr ? '🩺 Maladies chroniques (choix multiple) :' : '🩺 Chronic Conditions (multi-select):';
-    if ($('profAllergiesInput')) $('profAllergiesInput').placeholder = isFr ? 'Autre allergie (optionnel)' : 'Other allergy (optional)';
-    if ($('profConditionsInput')) $('profConditionsInput').placeholder = isFr ? 'Autre maladie chronique (optionnel)' : 'Other condition (optional)';
+    if ($('profAllergiesLabel')) $('profAllergiesLabel').textContent = isFr ? '⚠️ Allergies (choix multiple) :' : '⚠️ الحساسية (اختيار متعدد):';
+    if ($('profConditionsLabel')) $('profConditionsLabel').textContent = isFr ? '🩺 Maladies chroniques (choix multiple) :' : '🩺 الأمراض المزمنة (اختيار متعدد):';
+    if ($('profAllergiesInput')) $('profAllergiesInput').placeholder = isFr ? 'Autre allergie (optionnel)' : 'حساسية أخرى (اختياري)';
+    if ($('profConditionsInput')) $('profConditionsInput').placeholder = isFr ? 'Autre maladie chronique (optionnel)' : 'مرض مزمن آخر (اختياري)';
     renderMultiChips('profAllergyChips', ALLERGY_OPTIONS, p.allergies || '', 'profAllergiesInput', true);
     renderMultiChips('profConditionChips', CONDITION_OPTIONS, p.conditions || '', 'profConditionsInput', false);
     $('profMedicalNotesInput').value = p.medicalNotes || '';
@@ -3555,11 +3601,11 @@
   $('aiVoiceTalkBtn').addEventListener('click', () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const b = $('aiAnswerBox');
-    if (!SR) { b.classList.remove('hidden'); b.textContent = state.lang === 'fr' ? 'Utilisez Chrome pour la conversation vocale.' : 'Use Chrome for voice.'; return; }
+    if (!SR) { b.classList.remove('hidden'); b.textContent = state.lang === 'fr' ? 'Utilisez Chrome pour la conversation vocale.' : 'استخدم متصفح Chrome للمحادثة الصوتية.'; return; }
     const rec = new SR(); rec.lang = state.lang === 'fr' ? 'fr-FR' : 'ar-TN';
     $('aiVoiceBtnLabel').textContent = state.lang === 'fr' ? '🎤 Écoute en cours...' : '🎤 جاري الاستماع...';
     rec.onresult = (ev) => { const t = ev.results?.[0]?.[0]?.transcript || ''; $('aiQuestionInput').value = t; applyLang(); askAiQuestion(t); };
-    rec.onerror = () => { applyLang(); b.classList.remove('hidden'); b.textContent = state.lang === 'fr' ? "Voix non détectée ; vérifiez le micro ou écrivez votre question." : 'Could not hear voice; check mic permission or type.'; };
+    rec.onerror = () => { applyLang(); b.classList.remove('hidden'); b.textContent = state.lang === 'fr' ? "Voix non détectée ; vérifiez le micro ou écrivez votre question." : 'لم يتم التقاط الصوت؛ تحقق من إذن الميكروفون أو اكتب سؤالك.'; };
     rec.onend = () => applyLang();
     rec.start();
   });
@@ -3790,7 +3836,7 @@
     if (!navigator.onLine || !client || !currentSeniorId) {
       enqueueSync('checkin', {});
       fb.className = 'rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-extrabold text-amber-950';
-      fb.textContent = state.lang === 'fr' ? "⏳ Enregistré hors ligne — envoi dès le retour d'Internet." : '⏳ Saved offline — will sync when online.';
+      fb.textContent = state.lang === 'fr' ? "⏳ Enregistré hors ligne — envoi dès le retour d'Internet." : '⏳ محفوظ بدون إنترنت — سيتم الإرسال عند عودة الشبكة.';
       return;
     }
     try {
@@ -3802,14 +3848,14 @@
       await syncUnsyncedLocalItems();
       await flushPendingQueue();
       fb.className = 'rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-extrabold text-emerald-900';
-      fb.textContent = (state.lang === 'fr' ? '✓ Confirmation « Je vais bien » enregistrée sur le serveur.' : '✓ Confirmed on server!') + (window.__lastSyncErr ? ' ⚠️ ' + window.__lastSyncErr : '');
+      fb.textContent = (state.lang === 'fr' ? '✓ Confirmation « Je vais bien » enregistrée sur le serveur.' : '✓ تم التأكيد على الخادم!') + (window.__lastSyncErr ? ' ⚠️ ' + window.__lastSyncErr : '');
     } catch (err) {
       const msg = (err && (err.message || err.details)) || '';
       const isNet = !navigator.onLine || /fetch|network|timeout/i.test(msg);
       if (isNet) {
         enqueueSync('checkin', {});
         fb.className = 'rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-extrabold text-amber-950';
-        fb.textContent = (state.lang === 'fr' ? "⏳ Serveur injoignable — en file d'attente" : '⏳ Queued to retry') + (msg ? ` (${msg})` : '.');
+        fb.textContent = (state.lang === 'fr' ? "⏳ Serveur injoignable — en file d'attente" : '⏳ في انتظار إعادة المحاولة') + (msg ? ` (${msg})` : '.');
       } else {
         fb.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-2.5 text-sm font-extrabold text-rose-900';
         fb.textContent = '⚠️ ' + (msg || friendlyError(err));
@@ -3862,14 +3908,14 @@
       $('careSignOutBtn').classList.toggle('hidden', !currentUser);
       const isFr = state.lang === 'fr';
       const titles = {
-        family: isFr ? '👨‍👩‍👧 Espace Famille' : '👨‍👩‍👧 Family Dashboard',
-        nurse: isFr ? '🩺 Espace Infirmier(ère)' : '🩺 Nurse Follow-Up',
-        center: isFr ? '🏥 Centre de Soins à Domicile' : '🏥 Home Care Center'
+        family: isFr ? '👨‍👩‍👧 Espace Famille' : '👨‍👩‍👧 لوحة العائلة',
+        nurse: isFr ? '🩺 Espace Infirmier(ère)' : '🩺 متابعة الممرض',
+        center: isFr ? '🏥 Centre de Soins à Domicile' : '🏥 مركز الرعاية المنزلية'
       };
       const subs = {
-        family: isFr ? 'Suivre votre proche et envoyer des messages directs' : 'Monitor your loved one & send direct messages',
-        nurse: isFr ? 'Suivre le patient et échanger par vocal/écrit' : 'Follow patient meds & send voice/text messages',
-        center: isFr ? "Suivre les seniors à domicile en un coup d'œil" : 'Monitor seniors at home in one clear list'
+        family: isFr ? 'Suivre votre proche et envoyer des messages directs' : 'متابعة قريبك وإرسال رسائل مباشرة',
+        nurse: isFr ? 'Suivre le patient et échanger par vocal/écrit' : 'متابعة أدوية المريض وإرسال رسائل صوتية/كتابية',
+        center: isFr ? "Suivre les seniors à domicile en un coup d'œil" : 'متابعة المسنّين في المنزل في قائمة واضحة'
       };
       $('carePortalTitle').textContent = titles[userRole] || '';
       $('carePortalSub').textContent = subs[userRole] || '';
@@ -3912,7 +3958,7 @@
         const btns = document.createElement('div'); btns.className = 'flex gap-2';
         const okBtn = document.createElement('button'); okBtn.type = 'button'; okBtn.style.minHeight = '36px';
         okBtn.className = 'rounded-xl bg-emerald-700 px-3 py-1 text-xs font-extrabold text-white';
-        okBtn.textContent = isFr ? 'Accepter ✓' : 'Approve ✓';
+        okBtn.textContent = isFr ? 'Accepter ✓' : 'قبول ✓';
         okBtn.addEventListener('click', async () => {
           const { error } = await client.from('senior_care_links').update({ status: 'approved' }).eq('id', lk.id);
           if (error) { const errP = document.createElement('p'); errP.className = 'text-xs font-bold text-rose-700'; errP.textContent = friendlyError(error); list.prepend(errP); return; }
@@ -3920,7 +3966,7 @@
         });
         const noBtn = document.createElement('button'); noBtn.type = 'button'; noBtn.style.minHeight = '36px';
         noBtn.className = 'rounded-xl border border-rose-300 bg-rose-50 px-3 py-1 text-xs font-extrabold text-rose-800';
-        noBtn.textContent = isFr ? 'Refuser' : 'Reject';
+        noBtn.textContent = isFr ? 'Refuser' : 'رفض';
         noBtn.addEventListener('click', async () => {
           await client.from('senior_care_links').update({ status: 'rejected' }).eq('id', lk.id);
           loadPendingCareLinksForSenior();
@@ -3961,7 +4007,7 @@
       if (!links.length) {
         const p = document.createElement('p');
         p.className = 'rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-center text-sm font-bold text-slate-500';
-        p.textContent = isFr ? 'Aucun senior lié — entrez un code senior (CG-...) ci-dessus.' : 'No linked seniors yet — enter a senior code (CG-...) above.';
+        p.textContent = isFr ? 'Aucun senior lié — entrez un code senior (CG-...) ci-dessus.' : 'لا يوجد مسنّون مرتبطون بعد — أدخل رمز المسنّ (CG-...) أعلاه.';
         list.replaceChildren(p);
         return;
       }
@@ -4025,7 +4071,7 @@
         }
         info.appendChild(nameRow);
         const addr = document.createElement('p'); addr.className = 'text-xs font-bold text-slate-600';
-        addr.textContent = (sp.home_address || (isFr ? 'À domicile' : 'At Home')) + (sp.senior_phone ? ' • ' + sp.senior_phone : '');
+        addr.textContent = (sp.home_address || (isFr ? 'À domicile' : 'في المنزل')) + (sp.senior_phone ? ' • ' + sp.senior_phone : '');
         info.appendChild(addr);
         const mParts = [];
         if (sp.blood_type) mParts.push('🩸 ' + sp.blood_type);
@@ -4061,7 +4107,7 @@
             const hdrRow = document.createElement('div');
             hdrRow.className = 'flex items-center justify-between gap-2 pb-1 border-b border-rose-200 text-xs font-black text-rose-900';
             const hdrTxt = document.createElement('span');
-            hdrTxt.textContent = isFr ? `🚨 ${grouped.size} alertes actives` : `🚨 ${grouped.size} active alerts`;
+            hdrTxt.textContent = isFr ? `🚨 ${grouped.size} alertes actives` : `🚨 ${grouped.size} تنبيهات نشطة`;
             const ackAllBtn = document.createElement('button');
             ackAllBtn.type = 'button';
             ackAllBtn.className = 'rounded-xl bg-rose-800 px-2.5 py-1 text-[11px] font-extrabold text-white';
@@ -4183,7 +4229,7 @@
           const msgBtn = document.createElement('button');
           msgBtn.type = 'button';
           msgBtn.className = 'tap-btn rounded-xl bg-teal-700 px-3.5 py-2 text-xs font-extrabold text-white';
-          msgBtn.textContent = isFr ? '🎤 Chat' : '🎤 Chat';
+          msgBtn.textContent = isFr ? '🎤 دردشة' : '🎤 دردشة';
           msgBtn.addEventListener('click', () => openDirectCareModal(sp.id, sp.display_name));
           acts.appendChild(msgBtn);
         }
@@ -4194,7 +4240,7 @@
         removeBtn.addEventListener('click', async () => {
           const msg = isFr
             ? `Retirer ${sp.display_name || 'ce patient'} de votre liste de suivi ?`
-            : `Remove ${sp.display_name || 'this patient'} from your care list?`;
+            : `إزالة ${sp.display_name || 'هذا المريض'} من قائمة المتابعة؟`;
           if (!window.confirm(msg)) return;
           const { error: delErr } = await client
             .from('senior_care_links')
@@ -4224,7 +4270,7 @@
     const isFr = state.lang === 'fr';
     const { sp, lastChk, batPct, batVal, medList, takenSet, waterToday, apptList, openAlerts } = ctx;
     $('cfsTitle').textContent = sp.display_name || 'المسنّ';
-    $('cfsSub').textContent = (sp.home_address || (isFr ? 'À domicile' : 'At Home')) + (sp.senior_phone ? ' • ' + sp.senior_phone : '');
+    $('cfsSub').textContent = (sp.home_address || (isFr ? 'À domicile' : 'في المنزل')) + (sp.senior_phone ? ' • ' + sp.senior_phone : '');
     const body = $('cfsBody'); body.replaceChildren();
 
     const makeSec = (title, cls) => {
@@ -4236,45 +4282,45 @@
     };
 
     // Overview KPIs
-    const kpi = makeSec(isFr ? '📊 Résumé en direct' : '📊 Live Summary', 'border-teal-200 bg-teal-50/50');
+    const kpi = makeSec(isFr ? '📊 Résumé en direct' : '📊 الملخص المباشر', 'border-teal-200 bg-teal-50/50');
     const kRow = document.createElement('div'); kRow.className = 'flex flex-wrap gap-2 text-xs font-extrabold';
     [
-      '✓ ' + (isFr ? 'Confirmation : ' : 'Check-in: ') + lastChk,
-      '🔋 ' + (isFr ? 'Batterie : ' : 'Battery: ') + batPct,
-      '💧 ' + (isFr ? 'Eau : ' : 'Water: ') + waterToday + '/8',
-      '💊 ' + (isFr ? 'Pris : ' : 'Taken: ') + medList.filter((m) => takenSet.has(m.id)).length + '/' + medList.length
+      '✓ ' + (isFr ? 'Confirmation : ' : 'التأكيد: ') + lastChk,
+      '🔋 ' + (isFr ? 'Batterie : ' : 'البطارية: ') + batPct,
+      '💧 ' + (isFr ? 'Eau : ' : 'الماء: ') + waterToday + '/8',
+      '💊 ' + (isFr ? 'Pris : ' : 'المتناول: ') + medList.filter((m) => takenSet.has(m.id)).length + '/' + medList.length
     ].forEach((t) => { const s = document.createElement('span'); s.className = 'rounded-full bg-white px-2.5 py-1 border border-teal-200 text-slate-900'; s.textContent = t; kRow.appendChild(s); });
     kpi.appendChild(kRow); body.appendChild(kpi);
 
     // Medical Profile
-    const medProf = makeSec(isFr ? '🩺 Profil médical & Contacts' : '🩺 Medical Profile & Contacts', 'border-slate-200 bg-slate-50');
+    const medProf = makeSec(isFr ? '🩺 Profil médical & Contacts' : '🩺 الملف الطبي وجهات الاتصال', 'border-slate-200 bg-slate-50');
     [
-      [isFr ? 'Groupe sanguin' : 'Blood Type', sp.blood_type || '-'],
+      [isFr ? 'Groupe sanguin' : 'فصيلة الدم', sp.blood_type || '-'],
       [isFr ? 'الحساسية' : 'الحساسية', sp.allergies === 'البنسلين' ? (isFr ? 'Pénicilline' : 'البنسلين') : (sp.allergies || '-')],
       [isFr ? 'Pathologies' : 'الأمراض المزمنة', (sp.conditions === 'السكري، ضغط الدم' || sp.conditions === 'السكري, ضغط الدم') ? (isFr ? 'Diabète, Hypertension' : 'السكري، ضغط الدم') : (sp.conditions || '-')],
-      [isFr ? 'Médecin' : 'Doctor', (sp.doctor_name || '-') + (sp.doctor_phone ? ' (' + sp.doctor_phone + ')' : '')],
-      [isFr ? 'Tél. urgence' : 'Emergency Phone', sp.emergency_phone || '-'],
-      [isFr ? 'Email proche' : 'Family Email', sp.family_email || '-'],
-      [isFr ? 'Notes' : 'Notes', sp.medical_notes || '-']
+      [isFr ? 'Médecin' : 'الطبيب', (sp.doctor_name || '-') + (sp.doctor_phone ? ' (' + sp.doctor_phone + ')' : '')],
+      [isFr ? 'Tél. urgence' : 'هاتف الطوارئ', sp.emergency_phone || '-'],
+      [isFr ? 'Email proche' : 'بريد العائلة', sp.family_email || '-'],
+      [isFr ? 'ملاحظات' : 'ملاحظات', sp.medical_notes || '-']
     ].forEach(([k, v]) => {
       const r = document.createElement('p'); r.className = 'text-xs font-bold text-slate-700';
       r.textContent = k + ': ' + v; medProf.appendChild(r);
     });
     body.appendChild(medProf);
 
-    const notesSec = makeSec(isFr ? '📝 Notes de suivi partagées (Famille & Infirmier)' : '📝 Shared Care Notes (Family & Nurse Only)', 'border-amber-200 bg-amber-50/60');
+    const notesSec = makeSec(isFr ? '📝 Notes de suivi partagées (Famille & Infirmier)' : '📝 ملاحظات الرعاية المشتركة (العائلة والممرض)', 'border-amber-200 bg-amber-50/60');
     const notesList = document.createElement('div');
     notesList.className = 'space-y-1.5 max-h-40 overflow-y-auto';
     const noteRow = document.createElement('div');
     noteRow.className = 'flex gap-1.5 pt-1';
     const noteInput = document.createElement('input');
     noteInput.type = 'text';
-    noteInput.placeholder = isFr ? 'Ex: Fatigué aujourd’hui, besoin d’aide...' : 'e.g. Tired today, needs bathing help...';
+    noteInput.placeholder = isFr ? 'Ex: Fatigué aujourd’hui, besoin d’aide...' : 'مثال: متعب اليوم، يحتاج مساعدة...';
     noteInput.className = 'w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold';
     const noteBtn = document.createElement('button');
     noteBtn.type = 'button';
     noteBtn.className = 'shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
-    noteBtn.textContent = isFr ? 'Ajouter' : 'Add';
+    noteBtn.textContent = isFr ? 'Ajouter' : 'إضافة';
     noteRow.append(noteInput, noteBtn);
     notesSec.append(notesList, noteRow);
     body.appendChild(notesSec);
@@ -4292,7 +4338,7 @@
       notesList.replaceChildren();
       if (!rows.length) {
         const emp = document.createElement('p'); emp.className = 'text-[11px] font-bold text-slate-500';
-        emp.textContent = isFr ? 'Aucune note partagée pour le moment.' : 'No shared care notes yet.';
+        emp.textContent = isFr ? 'Aucune note partagée pour le moment.' : 'لا توجد ملاحظات مشتركة بعد.';
         notesList.appendChild(emp); return;
       }
       rows.forEach((n) => {
@@ -4330,9 +4376,9 @@
     }
 
     // Medications Today
-    const medSec = makeSec(isFr ? '💊 Détail des médicaments' : '💊 Medication Details', 'border-sky-200 bg-sky-50/40');
+    const medSec = makeSec(isFr ? '💊 Détail des médicaments' : '💊 تفاصيل الأدوية', 'border-sky-200 bg-sky-50/40');
     if (!medList.length) {
-      const p = document.createElement('p'); p.className = 'text-xs font-bold text-slate-500'; p.textContent = isFr ? 'Aucun médicament' : 'No medications'; medSec.appendChild(p);
+      const p = document.createElement('p'); p.className = 'text-xs font-bold text-slate-500'; p.textContent = isFr ? 'Aucun médicament' : 'لا توجد أدوية'; medSec.appendChild(p);
     } else {
       medList.forEach((m) => {
         const isT = takenSet.has(m.id);
@@ -4346,7 +4392,7 @@
     body.appendChild(medSec);
 
     // Appointments
-    const apSec = makeSec(isFr ? '📅 Rendez-vous' : '📅 Appointments', 'border-purple-200 bg-purple-50/40');
+    const apSec = makeSec(isFr ? '📅 Rendez-vous' : '📅 المواعيد', 'border-purple-200 bg-purple-50/40');
     if (!apptList.length) {
       const p = document.createElement('p'); p.className = 'text-xs font-bold text-slate-500'; p.textContent = isFr ? 'Aucun rendez-vous' : 'لا توجد مواعيد'; apSec.appendChild(p);
     } else {
@@ -4362,7 +4408,7 @@
     body.appendChild(apSec);
 
     if (Array.isArray(openAlerts) && openAlerts.length) {
-      const alSec = makeSec(isFr ? '🚨 Alertes ouvertes' : '🚨 Open Alerts', 'border-rose-300 bg-rose-50');
+      const alSec = makeSec(isFr ? '🚨 Alertes ouvertes' : '🚨 التنبيهات المفتوحة', 'border-rose-300 bg-rose-50');
       openAlerts.forEach((al) => { const p = document.createElement('p'); p.className = 'text-xs font-extrabold text-rose-900'; p.textContent = '• ' + (al.message || al.alert_type); alSec.appendChild(p); });
       body.appendChild(alSec);
     }
@@ -4420,8 +4466,8 @@
     if (!tabsWrap || !fBtn || !nBtn) return;
     const isCare = (userRole === 'nurse' || userRole === 'center' || userRole === 'family');
     tabsWrap.classList.toggle('hidden', isCare);
-    fBtn.textContent = isFr ? '💚 Famille (Privé)' : '💚 Family (Private)';
-    nBtn.textContent = isFr ? '🩺 Infirmier (Privé)' : '🩺 Nurse (Private)';
+    fBtn.textContent = isFr ? '💚 Famille (Privé)' : '💚 العائلة (خاص)';
+    nBtn.textContent = isFr ? '🩺 Infirmier (Privé)' : '🩺 الممرض (خاص)';
     fBtn.className = activeDcChannel === 'family'
       ? 'tap-btn rounded-xl bg-emerald-700 px-3 py-2 text-xs font-black text-white shadow-sm'
       : 'tap-btn rounded-xl px-3 py-2 text-xs font-black text-slate-700';
@@ -4465,7 +4511,7 @@
           sendSwNotification('💬 ' + (dm.sender_name || 'CareGuard'), preview, 'dm-' + dm.id);
         }
       } else if (hasNewComm) {
-        setMessagesTileHighlight(true, isFr ? ('🗣️ Salon : ' + (cm.author_name || 'Nouveau')) : ('🗣️ Chat: ' + (cm.author_name || 'New')));
+        setMessagesTileHighlight(true, isFr ? ('🗣️ Salon : ' + (cm.author_name || 'Nouveau')) : ('🗣️ الصالون: ' + (cm.author_name || 'جديد')));
       } else {
         setMessagesTileHighlight(false, '');
       }
@@ -4484,10 +4530,10 @@
     if (userRole === 'nurse' || userRole === 'center') activeDcChannel = 'nurse';
     else if (userRole === 'family') activeDcChannel = 'family';
     updateDcChannelTabsUI();
-    $('dcModalTitle').textContent = seniorName ? ((isFr ? 'Discussion avec : ' : 'Chat with: ') + seniorName) : (isFr ? 'Messages privés' : 'Private Messages');
+    $('dcModalTitle').textContent = seniorName ? ((isFr ? 'Discussion avec : ' : 'محادثة مع: ') + seniorName) : (isFr ? 'Messages privés' : 'الرسائل الخاصة');
     $('dcModalSub').textContent = activeDcChannel === 'nurse'
-      ? (isFr ? '🩺 Canal privé : Senior ↔ Infirmier(ère)' : '🩺 Private channel: Senior ↔ Nurse')
-      : (isFr ? '💚 Canal privé : Senior ↔ Famille' : '💚 Private channel: Senior ↔ Family');
+      ? (isFr ? '🩺 Canal privé : Senior ↔ Infirmier(ère)' : '🩺 قناة خاصة: المسنّ ↔ الممرض')
+      : (isFr ? '💚 Canal privé : Senior ↔ Famille' : '💚 قناة خاصة: المسنّ ↔ العائلة');
     renderDcQuickChips();
     $('directCareModal').classList.remove('hidden');
     if (userRole === 'senior') {
@@ -4533,7 +4579,7 @@
       box.replaceChildren();
       if (!data || !data.length) {
         const p = document.createElement('p'); p.className = 'py-6 text-center text-sm font-bold text-slate-500';
-        p.textContent = isFr ? 'Aucun message — envoyez un vocal ou une demande rapide.' : 'No messages yet — send a voice message or quick request.';
+        p.textContent = isFr ? 'Aucun message — envoyez un vocal ou une demande rapide.' : 'لا توجد رسائل بعد — أرسل رسالة صوتية أو طلباً سريعاً.';
         box.appendChild(p); return;
       }
       data.forEach((m) => {
@@ -4577,7 +4623,7 @@
   async function sendDirectCareMessage(text, audioData) {
     const isFr = state.lang === 'fr';
     if (!client || !currentUser || !dcTargetSeniorId) {
-      $('dcStatusMsg').textContent = isFr ? "Connectez-vous d'abord." : 'Sign in first.';
+      $('dcStatusMsg').textContent = isFr ? "Connectez-vous d'abord." : 'سجّل الدخول أولاً.';
       $('dcStatusMsg').classList.remove('hidden'); return false;
     }
     const payload = {
@@ -4631,7 +4677,7 @@
     } catch (_) {
       const isFr = state.lang === 'fr';
       if ($('dcStatusMsg')) {
-        $('dcStatusMsg').textContent = isFr ? 'Autorisez le microphone pour enregistrer un message vocal.' : 'Please allow microphone access to record a voice message.';
+        $('dcStatusMsg').textContent = isFr ? 'Autorisez le microphone pour enregistrer un message vocal.' : 'يرجى السماح بالوصول للميكروفون لتسجيل رسالة صوتية.';
         $('dcStatusMsg').classList.remove('hidden');
       }
     }
@@ -4733,16 +4779,16 @@
 
   function renderPlansModal() {
     const isFr = state.lang === 'fr';
-    $('plansModalTitle').textContent = isFr ? 'Abonnements CareGuard' : 'CareGuard Plans';
+    $('plansModalTitle').textContent = isFr ? 'Abonnements CareGuard' : 'باقات CareGuard';
     const planLabel = userPlan === 'plus' ? 'CareGuard Plus' : (userPlan === 'agency' ? (isFr ? 'Infirmier / Agence' : 'Nurse / Agency') : (isFr ? 'Gratuit' : 'مجاني'));
-    $('plansCurrentBadge').textContent = (isFr ? 'Plan actuel : ' : 'Current plan: ') + planLabel;
+    $('plansCurrentBadge').textContent = (isFr ? 'Plan actuel : ' : 'الباقة الحالية: ') + planLabel;
     const box = $('plansCardsList'); box.replaceChildren();
     $('plansFeedback').classList.add('hidden');
     const plans = [
       {
         id: 'free',
-        title: isFr ? 'Gratuit (Découverte)' : 'Free (Starter)',
-        price: isFr ? '0 € / mois' : '$0 / month',
+        title: isFr ? 'Gratuit (Découverte)' : 'مجاني (للتجربة)',
+        price: isFr ? '0 DT / mois' : '0 د.ت / شهر',
         feats: isFr
           ? ['1 senior • Bouton "Je vais bien" & Eau', 'Fiche d\'urgence médicale & Salon', '1 proche lié']
           : ['1 senior • "I\'m OK" & Water reminders', 'Emergency Medical ID & Lounge', '1 linked family member'],
@@ -4751,7 +4797,7 @@
       {
         id: 'plus',
         title: 'CareGuard Plus',
-        price: isFr ? '7 € / mois' : '$7 / month',
+        price: isFr ? '29 DT / mois' : '29 د.ت / شهر',
         feats: isFr
           ? ['Lecture IA sécurisée des ordonnances', 'Famille + Infirmier liés', 'Alertes serveur auto (15 min) + Vocaux']
           : ['Server-secured AI prescription scan', 'Linked Family + Nurse', 'Auto server alerts (15m) + Voice chat'],
@@ -4759,11 +4805,11 @@
       },
       {
         id: 'agency',
-        title: isFr ? 'Infirmier / Soins à domicile' : 'Nurse / Home Care Agency',
-        price: isFr ? '24 € / mois' : '$24 / month',
+        title: isFr ? 'Infirmier / Soins à domicile' : 'ممرض / مركز رعاية',
+        price: isFr ? '89 DT / mois' : '89 د.ت / شهر',
         feats: isFr
           ? ['Suivi multi-patients illimité', 'Tableau complet médicaments, eau & RDV', 'Alertes temps réel & messagerie directe']
-          : ['Unlimited multi-patient monitoring', 'Full meds, water & appointment log', 'Real-time alerts & direct chat'],
+          : ['متابعة عدد غير محدود من المرضى', 'سجل كامل للأدوية والماء والمواعيد', 'تنبيهات فورية ومحادثة مباشرة'],
         url: STRIPE_AGENCY_URL
       }
     ];
@@ -4781,7 +4827,7 @@
       if (pl.id !== 'free' && !active) {
         const btn = document.createElement('button'); btn.type = 'button';
         btn.className = 'tap-btn w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-extrabold text-white';
-        btn.textContent = pl.url ? (isFr ? 'Passer à cette offre' : 'Upgrade to this plan') : (isFr ? 'Bientôt disponible (Stripe)' : 'Coming soon (Stripe)');
+        btn.textContent = pl.url ? (isFr ? 'Passer à cette offre' : 'الترقية لهذه الباقة') : (isFr ? 'Bientôt disponible (Stripe)' : 'قريباً');
         btn.addEventListener('click', () => {
           if (pl.url) {
             const sep = pl.url.includes('?') ? '&' : '?';
@@ -4842,19 +4888,19 @@
     const client = CG.getClient(), user = CG.getCurrentUser();
     if (!client || !user) return;
     if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert(isFr ? 'Push non supporté sur ce navigateur.' : 'Web Push is not supported on this browser.');
+      alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الويب غير مدعومة في هذا المتصفح.');
       return;
     }
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
-      alert(isFr ? 'Activez les notifications dans les paramètres.' : 'Please allow notifications in browser settings.');
+      alert(isFr ? 'Activez les notifications dans les paramètres.' : 'يرجى تفعيل الإشعارات من إعدادات المتصفح.');
       return;
     }
     try {
       const res = await fetch(window.CG_CONFIG.SUPABASE_URL + '/functions/v1/notify-alerts-ts?vapid=1');
       const json = await res.json();
       if (!json || !json.publicKey) {
-        alert(isFr ? 'Clé VAPID non configurée sur le serveur.' : 'VAPID public key is not configured on the server yet.');
+        alert(isFr ? 'Clé VAPID non configurée sur le serveur.' : 'مفتاح الإشعارات غير مهيأ على الخادم.');
         return;
       }
       const reg = await navigator.serviceWorker.ready;
@@ -4956,7 +5002,7 @@
     try {
       dataUrl = await compressAvatarDataUrl(file);
     } catch (_) {
-      showAvatarToast(isFr ? 'Impossible de lire cette image.' : 'Unable to read this image.', true);
+      showAvatarToast(isFr ? 'Impossible de lire cette image.' : 'تعذر قراءة هذه الصورة.', true);
       return;
     }
     if (!dataUrl) return;
@@ -4979,9 +5025,9 @@
     }
 
     if (saveErr) {
-      showAvatarToast((isFr ? 'Erreur sauvegarde photo : ' : 'Photo save error: ') + (saveErr.message || 'SQL avatar_url?'), true);
+      showAvatarToast((isFr ? 'Erreur sauvegarde photo : ' : 'خطأ في حفظ الصورة: ') + (saveErr.message || 'SQL avatar_url?'), true);
     } else if (isSenior) {
-      showAvatarToast(isFr ? '✓ Photo enregistrée !' : '✓ Photo saved!', false);
+      showAvatarToast(isFr ? '✓ Photo enregistrée !' : '✓ تم حفظ الصورة!', false);
     }
   }
 
@@ -5085,7 +5131,7 @@
       const st = CG.getState(), isFr = st.lang === 'fr';
       const statusEl = $('emSosStatus');
       const client = CG.getClient(), user = CG.getCurrentUser(), sid = CG.getSeniorId ? CG.getSeniorId() : null;
-      if (statusEl) { statusEl.textContent = isFr ? '📡 Localisation & envoi SOS...' : '📡 Getting location & sending SOS...'; statusEl.classList.remove('hidden'); }
+      if (statusEl) { statusEl.textContent = isFr ? '📡 Localisation & envoi SOS...' : '📡 تحديد الموقع وإرسال استغاثة SOS...'; statusEl.classList.remove('hidden'); }
 
       const sendAlert = async (lat, lng) => {
         const p = st.profile || {};
@@ -5110,9 +5156,9 @@
               headers: { 'Content-Type': 'application/json' },
               body: '{}'
             }).catch(() => {});
-            if (statusEl) statusEl.textContent = isFr ? '✅ SOS + position envoyés à votre famille et infirmier !' : '✅ SOS + location sent to family & nurse!';
+            if (statusEl) statusEl.textContent = isFr ? '✅ SOS + position envoyés à votre famille et infirmier !' : '✅ تم إرسال الاستغاثة والموقع للعائلة والممرض!';
           } catch (e) {
-            if (statusEl) statusEl.textContent = (isFr ? 'Erreur SOS : ' : 'SOS Error: ') + (e.message || '');
+            if (statusEl) statusEl.textContent = (isFr ? 'Erreur SOS : ' : 'خطأ في SOS: ') + (e.message || '');
           }
         }
       };
@@ -5133,8 +5179,8 @@
     $('setHomeGpsBtn').addEventListener('click', () => {
       const isFr = CG.getState().lang === 'fr';
       const stEl = $('homeGpsStatus'), linkEl = $('homeGpsMapLink');
-      if (!navigator.geolocation) { if (stEl) stEl.textContent = isFr ? 'GPS non supporté.' : 'GPS not supported.'; return; }
-      if (stEl) stEl.textContent = isFr ? '📡 Détection de votre position...' : '📡 Detecting home coordinates...';
+      if (!navigator.geolocation) { if (stEl) stEl.textContent = isFr ? 'GPS non supporté.' : 'الموقع الجغرافي غير مدعوم.'; return; }
+      if (stEl) stEl.textContent = isFr ? '📡 Détection de votre position...' : '📡 تحديد إحداثيات المنزل...';
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude, lng = pos.coords.longitude;
         try { localStorage.setItem('cg_home_gps', JSON.stringify({ lat, lng, radius: 250 })); } catch (_) {}
@@ -5145,7 +5191,7 @@
         if (stEl) stEl.textContent = `✅ ${lat.toFixed(5)}, ${lng.toFixed(5)} (250m)`;
         if (linkEl) { linkEl.href = `https://maps.google.com/?q=${lat},${lng}`; linkEl.classList.remove('hidden'); }
       }, () => {
-        if (stEl) stEl.textContent = isFr ? 'Autorisez le GPS dans le navigateur.' : 'Please allow location permission.';
+        if (stEl) stEl.textContent = isFr ? 'Autorisez le GPS dans le navigateur.' : 'يرجى السماح بصلاحية الموقع.';
       }, { enableHighAccuracy: true, timeout: 8000 });
     });
   }
@@ -5232,9 +5278,9 @@
   setTimeout(checkSenior4hReminder, 3500);
 
   // Nurse / Caregiver Profile & 3-Day Verification Logic
-  let uploadedNurseDocPath = '';
-  const NP_LANG_OPTS = ['English', 'Français', 'Español', 'العربية', 'Mandarin'];
-  const NP_SPEC_OPTS = ['Alzheimer / Dementia', 'Medication Mgmt', 'Wound Care', 'Post-Op', 'Mobility & Bathing', 'Diabetes / Vitals', 'Palliative Care'];
+  let uploadedNurseDocs = { diploma: '', work: '', cin_front: '', cin_back: '' };
+  const NP_LANG_OPTS = ['العربية', 'Français', 'English', 'Italiano', 'Español', 'Deutsch'];
+  const NP_SPEC_OPTS = ['الزهايمر / الذاكرة', 'تنظيم الأدوية', 'تغيير الضمادات', 'رعاية ما بعد الجراحة', 'المساعدة والحركة', 'السكري والضغط', 'الرعاية التلطيفية'];
 
   function setNurseChipsCollapsed(containerId, extraInputId, editBtnId, collapsed) {
     const box = $(containerId), inp = $(extraInputId), editBtn = $(editBtnId);
@@ -5343,9 +5389,7 @@
       if ($('npRegion')) $('npRegion').value = np.region || '';
       if ($('npCityZip')) $('npCityZip').value = np.city_zip || '';
       if ($('npRadius') && np.service_radius_km) $('npRadius').value = np.service_radius_km;
-      if ($('npLicenseNum')) $('npLicenseNum').value = np.license_number || '';
-      if ($('npLicenseExp')) $('npLicenseExp').value = np.license_expiry || '';
-      if ($('npPhone')) $('npPhone').value = np.phone || '';
+                  if ($('npPhone')) $('npPhone').value = np.phone || '';
       if ($('npYearsExp') && np.years_exp != null) $('npYearsExp').value = np.years_exp;
       if ($('npHourlyRate') && np.hourly_rate != null) $('npHourlyRate').value = np.hourly_rate;
       if ($('npLanguages')) $('npLanguages').value = renderNurseChips('npLanguageChips', NP_LANG_OPTS, np.languages || '', 'npLanguages', 'npLangEditBtn');
@@ -5358,8 +5402,19 @@
       }
       if ($('npDirectoryOptIn')) $('npDirectoryOptIn').checked = !!np.directory_opt_in;
       if (np.doc_path) {
-        uploadedNurseDocPath = np.doc_path;
-        if ($('npDocStatus')) $('npDocStatus').textContent = (isFr ? '✓ Document joint : ' : '✓ Document uploaded: ') + np.doc_path.split('/').pop();
+        try {
+          const parsed = JSON.parse(np.doc_path);
+          if (parsed && typeof parsed === 'object') uploadedNurseDocs = Object.assign({ diploma: '', work: '', cin_front: '', cin_back: '' }, parsed);
+        } catch (_) {
+          uploadedNurseDocs.diploma = String(np.doc_path);
+        }
+        const showDocOk = (statusId, p) => {
+          if (p && $(statusId)) $(statusId).textContent = (isFr ? '✓ Joint : ' : '✓ تم الإرفاق: ') + String(p).split('/').pop();
+        };
+        showDocOk('npDocDiplomaStatus', uploadedNurseDocs.diploma);
+        showDocOk('npDocWorkStatus', uploadedNurseDocs.work);
+        showDocOk('npDocCinFrontStatus', uploadedNurseDocs.cin_front);
+        showDocOk('npDocCinBackStatus', uploadedNurseDocs.cin_back);
       }
       const st = np.verification_status || 'pending';
       if ($('npStatusBadge')) {
@@ -5373,7 +5428,7 @@
           const deadline = np.onboarding_deadline_at ? new Date(np.onboarding_deadline_at).getTime() : (Date.now() + 3 * 86400000);
           const daysLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 86400000));
           if ($('nurseGraceText')) {
-            $('nurseGraceText').textContent = np.license_number
+            $('nurseGraceText').textContent = np.doc_path
               ? (isFr ? '📋 Dossier soumis — vérification en cours.' : '📋 تم إرسال الملف — المراجعة جارية.')
               : (isFr ? `⏳ Il vous reste ${daysLeft} jour(s) pour compléter votre profil infirmier.` : `⏳ بقي ${daysLeft} يوم(أيام) لإكمال ملف الممرض والترخيص.`);
           }
@@ -5392,24 +5447,30 @@
     });
   }
 
-  if ($('npDocInput')) {
-    $('npDocInput').addEventListener('change', async (e) => {
+  [
+    ['npDocDiplomaInput', 'npDocDiplomaStatus', 'diploma'],
+    ['npDocWorkInput', 'npDocWorkStatus', 'work'],
+    ['npDocCinFrontInput', 'npDocCinFrontStatus', 'cin_front'],
+    ['npDocCinBackInput', 'npDocCinBackStatus', 'cin_back']
+  ].forEach(([inputId, statusId, key]) => {
+    if (!$(inputId)) return;
+    $(inputId).addEventListener('change', async (e) => {
       const f = e.target.files && e.target.files[0];
       const client = CG.getClient(), user = CG.getCurrentUser();
       const isFr = CG.getState().lang === 'fr';
       if (!f || !client || !user) return;
-      if ($('npDocStatus')) $('npDocStatus').textContent = isFr ? 'Envoi du document...' : 'Uploading document...';
+      if ($(statusId)) $(statusId).textContent = isFr ? 'Envoi en cours...' : 'جاري الرفع...';
       const cleanName = f.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = `${user.id}/${Date.now()}_${cleanName}`;
+      const path = `${user.id}/${key}_${Date.now()}_${cleanName}`;
       const { error } = await client.storage.from('nurse-docs').upload(path, f, { upsert: true });
       if (error) {
-        if ($('npDocStatus')) $('npDocStatus').textContent = (isFr ? 'Erreur envoi : ' : 'Upload error: ') + error.message;
+        if ($(statusId)) $(statusId).textContent = (isFr ? 'Erreur : ' : 'خطأ: ') + error.message;
       } else {
-        uploadedNurseDocPath = path;
-        if ($('npDocStatus')) $('npDocStatus').textContent = (isFr ? '✓ Document envoyé : ' : '✓ Uploaded: ') + cleanName;
+        uploadedNurseDocs[key] = path;
+        if ($(statusId)) $(statusId).textContent = (isFr ? '✓ Envoyé : ' : '✓ تم الرفع: ') + cleanName;
       }
     });
-  }
+  });
 
   if ($('npLangEditBtn')) $('npLangEditBtn').addEventListener('click', () => setNurseChipsCollapsed('npLanguageChips', 'npLanguages', 'npLangEditBtn', false));
   if ($('npSpecEditBtn')) $('npSpecEditBtn').addEventListener('click', () => setNurseChipsCollapsed('npSpecialtyChips', 'npSpecialties', 'npSpecEditBtn', false));
@@ -5419,7 +5480,7 @@
       const isFr = CG.getState().lang === 'fr';
       const stEl = $('npGpsStatus');
       if (!navigator.geolocation) { if (stEl) stEl.textContent = 'No GPS'; return; }
-      if (stEl) stEl.textContent = isFr ? '📡 Détection...' : '📡 Detecting...';
+      if (stEl) stEl.textContent = isFr ? '📡 Détection...' : '📡 جاري التحديد...';
       navigator.geolocation.getCurrentPosition((pos) => {
         if (stEl) {
           stEl.dataset.lat = String(pos.coords.latitude);
@@ -5427,7 +5488,7 @@
           stEl.textContent = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
         }
       }, () => {
-        if (stEl) stEl.textContent = isFr ? 'GPS refusé' : 'GPS denied';
+        if (stEl) stEl.textContent = isFr ? 'GPS refusé' : 'تم رفض إذن الموقع';
       }, { enableHighAccuracy: true, timeout: 8000 });
     });
   }
@@ -5444,11 +5505,21 @@
         if (stEl) {
           stEl.classList.remove('hidden');
           stEl.className = 'text-center text-xs font-extrabold text-rose-800';
-          stEl.textContent = isFr ? '⚠️ Numéro US / Canada requis (+1 XXX-XXX-XXXX).' : '⚠️ US / Canada phone number required (+1 XXX-XXX-XXXX).';
+          stEl.textContent = isFr ? '⚠️ Numéro US / Canada requis (+1 XXX-XXX-XXXX).' : '⚠️ رقم الهاتف التونسي غير صالح (8 أرقام مطلوبة، مثال: 22345678).';
         }
         return;
       }
       if (normPhone && $('npPhone')) $('npPhone').value = normPhone;
+      if (!uploadedNurseDocs.diploma || !uploadedNurseDocs.work || !uploadedNurseDocs.cin_front || !uploadedNurseDocs.cin_back) {
+        if (stEl) {
+          stEl.classList.remove('hidden');
+          stEl.className = 'text-center text-xs font-extrabold text-rose-800';
+          stEl.textContent = isFr
+            ? '⚠️ Veuillez joindre les 4 fichiers obligatoires (Diplôme, Attestation de travail, CIN Recto et Verso).'
+            : '⚠️ يرجى إرفاق الأوراق المطلوبة الأربعة (الدبلوم، شهادة العمل، وبطاقة التعريف من الأمام والخلف).';
+        }
+        return;
+      }
       const payload = {
         user_id: user.id,
         full_name: ($('npFullName').value || '').trim(),
@@ -5457,8 +5528,8 @@
         region: ($('npRegion').value || '').trim(),
         city_zip: ($('npCityZip').value || '').trim(),
         service_radius_km: Number($('npRadius').value || 25),
-        license_number: ($('npLicenseNum').value || '').trim(),
-        license_expiry: $('npLicenseExp').value || null,
+        license_number: null,
+        license_expiry: null,
         phone: normPhone || null,
         years_exp: $('npYearsExp').value ? Number($('npYearsExp').value) : null,
         hourly_rate: $('npHourlyRate').value ? Number($('npHourlyRate').value) : null,
@@ -5467,7 +5538,7 @@
         is_available_now: !!$('npAvailableNow').checked,
         base_lat: $('npGpsStatus').dataset.lat ? Number($('npGpsStatus').dataset.lat) : null,
         base_lng: $('npGpsStatus').dataset.lng ? Number($('npGpsStatus').dataset.lng) : null,
-        doc_path: uploadedNurseDocPath || null,
+        doc_path: JSON.stringify(uploadedNurseDocs),
         directory_opt_in: !!$('npDirectoryOptIn').checked,
         onboarding_deadline_at: new Date(Date.now() + 3 * 86400000).toISOString()
       };
@@ -5548,7 +5619,7 @@
       badge.className = n.is_available_now
         ? 'shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-black text-emerald-900'
         : 'shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-600';
-      badge.textContent = n.is_available_now ? (isFr ? '🟢 Dispo' : '🟢 Available') : (isFr ? '⚪ Occupé' : '⚪ Busy');
+      badge.textContent = n.is_available_now ? (isFr ? '🟢 Dispo' : '🟢 متاح') : (isFr ? '⚪ Occupé' : '⚪ مشغول');
       top.append(left, badge);
       card.appendChild(top);
 
@@ -5570,7 +5641,7 @@
       }
       const reqBtn = document.createElement('button'); reqBtn.type = 'button';
       reqBtn.className = 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
-      reqBtn.textContent = isFr ? '📋 Demander une visite' : '📋 Request Visit';
+      reqBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
       reqBtn.addEventListener('click', async () => {
         const client = CG.getClient(), user = CG.getCurrentUser();
         const stEl = $('fnStatusMsg');
@@ -5588,7 +5659,7 @@
           stEl.classList.remove('hidden');
           stEl.textContent = error
             ? ('⚠️ ' + error.message)
-            : (isFr ? `✓ Demande envoyée à ${n.full_name || 'l\'infirmier'} !` : `✓ Visit request sent to ${n.full_name || 'nurse'}!`);
+            : (isFr ? `✓ Demande envoyée à ${n.full_name || 'l\'infirmier'} !` : `✓ تم إرسال طلب الزيارة إلى ${n.full_name || 'الممرض'}!`);
         }
       });
       btns.appendChild(reqBtn);
@@ -5601,7 +5672,7 @@
     const isFr = CG.getState().lang === 'fr';
     if ($('fnModalTitle')) $('fnModalTitle').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن أقرب ممرض';
     if ($('fnModalSub')) $('fnModalSub').textContent = isFr ? 'ممرضون موثقون في تونس مرتبون حسب القرب' : 'Verified nurses (US & Canada) sorted by proximity';
-    if ($('fnAvailOnlyLbl')) $('fnAvailOnlyLbl').textContent = isFr ? '🟢 Dispo' : '🟢 Available';
+    if ($('fnAvailOnlyLbl')) $('fnAvailOnlyLbl').textContent = isFr ? '🟢 Dispo' : '🟢 متاح';
     if ($('fnStatusMsg')) $('fnStatusMsg').classList.add('hidden');
     if ($('findNurseModal')) $('findNurseModal').classList.remove('hidden');
 
