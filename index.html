@@ -1029,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v120-TN',
+    VERSION: 'v121-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3025,7 +3025,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v120 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v121 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -5579,12 +5579,13 @@
         user_id: user.id,
         full_name: ($('npFullName').value || '').trim(),
         credential: $('npCredential').value,
+        credential_type: $('npCredential').value || 'RN',
         country: $('npCountry').value,
         region: ($('npRegion').value || '').trim(),
         city: ($('npCityZip').value || '').trim() || ($('npRegion').value || '').trim() || 'Tunisie',
         city_zip: ($('npCityZip').value || '').trim(),
         service_radius_km: Number($('npRadius').value || 25),
-        license_number: null,
+        license_number: 'TN-BETA',
         license_expiry: null,
         phone: normPhone || null,
         years_exp: $('npYearsExp').value ? Number($('npYearsExp').value) : null,
