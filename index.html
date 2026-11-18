@@ -91,6 +91,9 @@
   <!-- Low Battery Top Alert Banner -->
   <div id="topBatteryBanner" class="hidden rounded-2xl border-2 border-rose-500 bg-rose-50 px-4 py-3 text-base font-black text-rose-900 shadow-sm"></div>
 
+  <!-- Accepted Nurse Visit Banner (Visible to Senior/Requester when a nurse accepts) -->
+  <div id="seniorAcceptedVisitBox" class="hidden rounded-3xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-md space-y-3"></div>
+
   <!-- Role Chooser Gate (Shown on first visit or when switching role) -->
   <section id="roleGateCard" class="hidden rounded-3xl border-2 border-emerald-200 bg-white p-5 shadow-sm space-y-4">
     <div class="text-center">
@@ -1042,10 +1045,10 @@
         <p id="fnBroadcastTitle" class="text-sm font-black text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
         <p id="fnBroadcastSub" class="text-[11px] font-bold text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك</p>
       </div>
-      <span class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
+      <span id="fnBroadcastActionBadge" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
     </button>
+    <div id="fnStatusMsg" class="hidden mt-2 rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-3.5 py-2.5 text-center text-xs font-black text-[#0E5A3E] shadow-sm"></div>
     <div id="fnNurseList" class="my-3 flex-1 space-y-2.5 overflow-y-auto pr-1 min-h-[200px]"></div>
-    <p id="fnStatusMsg" class="hidden text-center text-xs font-extrabold text-[#0E5A3E]"></p>
   </div>
 </div>
 <!-- Modal: Dedicated Nurse Visit Requests Window (Uber-style + Google Maps) -->
@@ -1073,7 +1076,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v127-TN',
+    VERSION: 'v130-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -5763,8 +5766,12 @@
       top.append(leftWrap, badge);
       card.appendChild(top);
 
+      const ratingTxt = n.reviewCount > 0
+        ? (isFr ? `⭐ ${n.avgRating.toFixed(1)} (${n.reviewCount} avis)` : `⭐ ${n.avgRating.toFixed(1)} (${n.reviewCount} تقييم)`)
+        : (isFr ? '⭐ Nouveau' : '⭐ ممرض جديد');
       const meta = document.createElement('p'); meta.className = 'text-[11px] font-bold text-[#3C5044]';
       meta.textContent = [
+        ratingTxt,
         n.hourly_rate ? (isFr ? `${n.hourly_rate} DT/h` : `${n.hourly_rate} د.ت/س`) : '',
         n.years_exp ? (isFr ? `${n.years_exp} ans d'exp.` : `${n.years_exp} سنوات خبرة`) : '',
         n.languages ? `🗣️ ${n.languages}` : '',
@@ -5818,8 +5825,14 @@
     if (!client || !user) return;
     isSendingVisitReq = true;
     const bcBtn = $('fnBroadcastBtn');
+    const bcBadge = $('fnBroadcastActionBadge');
     if (bcBtn) bcBtn.disabled = true;
-    if (triggerBtn) triggerBtn.disabled = true;
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      triggerBtn.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري الإرسال...';
+    } else if (bcBadge) {
+      bcBadge.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري...';
+    }
     try {
       const reqMode = mode || 'direct';
       // Guard against duplicate active requests from repeated taps
@@ -5836,11 +5849,18 @@
       if (existingRows && existingRows.length) {
         const existingId = existingRows[0].id;
         await client.from('nurse_visit_requests').update({ care_reason: getSelectedCareReason() }).eq('id', existingId);
+        if (triggerBtn) {
+          triggerBtn.textContent = isFr ? '✓ Demande envoyée' : '✓ تم إرسال الطلب';
+          triggerBtn.className = 'tap-btn flex-1 rounded-xl border-2 border-emerald-500 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]';
+        } else if (bcBadge) {
+          bcBadge.textContent = isFr ? '✓ Envoyée' : '✓ تم الإرسال';
+          bcBadge.className = 'shrink-0 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-black text-white';
+        }
         if (stEl) {
           stEl.classList.remove('hidden');
           stEl.textContent = isFr
-            ? '✓ Votre demande est déjà active et en attente d\'acceptation.'
-            : '✓ طلبك مُرسل بالفعل وهو قيد الانتظار (لا حاجة لإعادة الإرسال).';
+            ? '✅ Votre demande est déjà envoyée et en attente d\'acceptation.'
+            : '✅ تم إرسال طلبك بالفعل وهو قيد الانتظار حالياً.';
         }
         if (reqMode === 'open') watchOpenRequestAcceptance(existingId);
         return;
@@ -5866,15 +5886,25 @@
         stEl.classList.remove('hidden');
         if (error) {
           stEl.textContent = '⚠️ ' + error.message;
+          if (triggerBtn) triggerBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
+          if (!triggerBtn && bcBadge) bcBadge.textContent = isFr ? '⚡ Envoyer' : '⚡ إرسال';
         } else if (reqMode === 'open') {
+          if (bcBadge) {
+            bcBadge.textContent = isFr ? '✓ Envoyée' : '✓ تم الإرسال';
+            bcBadge.className = 'shrink-0 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-black text-white';
+          }
           stEl.textContent = isFr
-            ? '⚡ Demande envoyée à tous les infirmiers disponibles ! En attente d\'acceptation...'
-            : '⚡ تم إرسال الطلب لكل الممرضين المتاحين! في انتظار قبول أقرب ممرض...';
+            ? '✅ Demande envoyée à tous les infirmiers disponibles ! En attente d\'acceptation...'
+            : '✅ تم إرسال الطلب لكل الممرضين المتاحين! في انتظار قبول أقرب ممرض...';
           if (inserted && inserted.id) watchOpenRequestAcceptance(inserted.id);
         } else {
+          if (triggerBtn) {
+            triggerBtn.textContent = isFr ? '✓ Demande envoyée' : '✓ تم إرسال الطلب';
+            triggerBtn.className = 'tap-btn flex-1 rounded-xl border-2 border-emerald-500 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]';
+          }
           stEl.textContent = isFr
-            ? `✓ Demande envoyée à ${nurseName || 'l\'infirmier'} !`
-            : `✓ تم إرسال طلب الزيارة إلى ${nurseName || 'الممرض'}!`;
+            ? `✅ Demande envoyée avec succès à ${nurseName || 'l\'infirmier'} !`
+            : `✅ تم إرسال طلب الزيارة بنجاح إلى ${nurseName || 'الممرض'}!`;
         }
       }
     } finally {
@@ -5901,6 +5931,7 @@
             stEl.textContent = isFr ? `✅ Demande acceptée par ${who} !` : `✅ تم قبول طلبك من طرف: ${who}!`;
           }
           if (CG.playMessengerChime) CG.playMessengerChime();
+          loadSeniorAcceptedVisit();
           try { client.removeChannel(reqWatchChannel); } catch (_) {}
           reqWatchChannel = null;
         }
@@ -5919,6 +5950,7 @@
     if ($('fnBroadcastTitle')) $('fnBroadcastTitle').textContent = isFr ? '⚡ Demander le 1er infirmier dispo (Uber)' : '⚡ طلب أقرب ممرض متاح الآن';
     if ($('fnBroadcastSub')) $('fnBroadcastSub').textContent = isFr ? 'Envoyé à tous — le premier qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
     if ($('fnStatusMsg')) $('fnStatusMsg').classList.add('hidden');
+    if ($('fnBroadcastActionBadge')) { $('fnBroadcastActionBadge').textContent = isFr ? '⚡ Envoyer' : '⚡ إرسال'; $('fnBroadcastActionBadge').className = 'shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white'; }
     if ($('findNurseModal')) $('findNurseModal').classList.remove('hidden');
 
     try {
@@ -5942,13 +5974,28 @@
     if (!error && data) {
       const uids = data.map((x) => x.user_id).filter(Boolean);
       const avMap = new Map();
+      const revMap = new Map();
       if (uids.length) {
         try {
-          const { data: profs } = await client.from('profiles').select('id, avatar_url').in('id', uids);
+          const [{ data: profs }, { data: revs }] = await Promise.all([
+            client.from('profiles').select('id, avatar_url').in('id', uids),
+            client.from('nurse_reviews').select('nurse_user_id, rating').in('nurse_user_id', uids)
+          ]);
           (profs || []).forEach((p) => { if (p.avatar_url) avMap.set(p.id, p.avatar_url); });
+          (revs || []).forEach((rv) => {
+            const cur = revMap.get(rv.nurse_user_id) || { sum: 0, count: 0 };
+            cur.sum += Number(rv.rating || 0);
+            cur.count += 1;
+            revMap.set(rv.nurse_user_id, cur);
+          });
         } catch (_) {}
       }
-      cachedVerifiedNurses = data.map((x) => Object.assign({}, x, { avatar_url: avMap.get(x.user_id) || '' }));
+      cachedVerifiedNurses = data.map((x) => {
+        const rv = revMap.get(x.user_id);
+        const avgRating = rv && rv.count ? (Math.round((rv.sum / rv.count) * 10) / 10) : 0;
+        const reviewCount = rv ? rv.count : 0;
+        return Object.assign({}, x, { avatar_url: avMap.get(x.user_id) || '', avgRating, reviewCount });
+      });
       renderFindNurseList();
     }
   }
@@ -6253,12 +6300,303 @@
   if ($('nrTabNewBtn')) $('nrTabNewBtn').addEventListener('click', () => setNrTab('new'));
   if ($('nrTabAccBtn')) $('nrTabAccBtn').addEventListener('click', () => setNrTab('accepted'));
   if ($('nrTabHistBtn')) $('nrTabHistBtn').addEventListener('click', () => setNrTab('history'));
+  let requesterRealtimeChannel = null;
+  async function renderPendingNurseReview(client, user, box, isFr) {
+    try {
+      const { data: compReqs } = await client
+        .from('nurse_visit_requests')
+        .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, created_at')
+        .eq('requester_user_id', user.id)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (!compReqs || !compReqs.length) { box.classList.add('hidden'); return; }
+      const r = compReqs[0];
+      if (localStorage.getItem('cg_skip_review_' + r.id)) { box.classList.add('hidden'); return; }
+      const nurseUid = r.accepted_by_user_id || r.nurse_user_id;
+      if (!nurseUid) { box.classList.add('hidden'); return; }
+      const { data: existingRev } = await client
+        .from('nurse_reviews')
+        .select('id')
+        .eq('visit_request_id', r.id)
+        .maybeSingle();
+      if (existingRev) { box.classList.add('hidden'); return; }
+
+      let np = null, avUrl = '';
+      try {
+        const [{ data: npData }, { data: profData }] = await Promise.all([
+          client.from('nurse_profiles').select('full_name, credential').eq('user_id', nurseUid).maybeSingle(),
+          client.from('profiles').select('avatar_url').eq('id', nurseUid).maybeSingle()
+        ]);
+        np = npData || null;
+        avUrl = (profData && profData.avatar_url) || '';
+      } catch (_) {}
+
+      const credLabels = {
+        INF_MAJOR: isFr ? 'Infirmier Major' : 'ممرض رئيسي',
+        INF_PRINCIPAL: isFr ? 'Infirmier Principal' : 'ممرض أول',
+        IDE: isFr ? 'Infirmier Diplômé' : 'ممرض مجاز',
+        AIDE: isFr ? 'Aide-soignant(e)' : 'عون تمريض'
+      };
+      const nurseName = (np && np.full_name) || r.accepted_by_name || r.nurse_name || (isFr ? 'Infirmier(ère)' : 'ممرض(ة)');
+      const credTxt = np && np.credential ? (credLabels[np.credential] || np.credential) : '';
+
+      box.replaceChildren();
+      box.className = 'rounded-3xl border-2 border-amber-400 bg-amber-50 p-4 shadow-md space-y-3';
+      const hdr = document.createElement('div');
+      hdr.className = 'flex items-center justify-between gap-2';
+      const title = document.createElement('p');
+      title.className = 'text-sm font-black text-amber-950';
+      title.textContent = isFr ? '⭐ Évaluez la visite de votre infirmier' : '⭐ قيّم خدمة الممرض بعد الزيارة';
+      const skipBtn = document.createElement('button');
+      skipBtn.type = 'button';
+      skipBtn.className = 'rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-[11px] font-black text-amber-900';
+      skipBtn.textContent = isFr ? 'Ignorer' : 'تخطي';
+      skipBtn.addEventListener('click', () => {
+        try { localStorage.setItem('cg_skip_review_' + r.id, '1'); } catch (_) {}
+        box.classList.add('hidden');
+      });
+      hdr.append(title, skipBtn);
+      box.appendChild(hdr);
+
+      const infoRow = document.createElement('div');
+      infoRow.className = 'flex items-center gap-3 rounded-2xl bg-white p-3 border border-amber-200';
+      const av = document.createElement('div');
+      av.className = 'h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-amber-300 bg-amber-100 flex items-center justify-center text-lg font-black text-amber-900';
+      if (avUrl) {
+        const img = document.createElement('img');
+        img.src = avUrl; img.alt = nurseName; img.className = 'h-full w-full object-cover';
+        av.appendChild(img);
+      } else {
+        av.textContent = nurseName.trim().charAt(0).toUpperCase();
+      }
+      const det = document.createElement('div'); det.className = 'min-w-0 flex-1';
+      const nmEl = document.createElement('p'); nmEl.className = 'text-sm font-black text-[#163024] truncate';
+      nmEl.textContent = nurseName + (credTxt ? ` • ${credTxt}` : '');
+      det.appendChild(nmEl);
+      if (r.care_reason) {
+        const rsnEl = document.createElement('p'); rsnEl.className = 'text-xs font-bold text-[#5C6F63]';
+        rsnEl.textContent = r.care_reason;
+        det.appendChild(rsnEl);
+      }
+      infoRow.append(av, det);
+      box.appendChild(infoRow);
+
+      let selectedRating = 5;
+      const starsRow = document.createElement('div');
+      starsRow.className = 'flex items-center justify-center gap-2 py-1';
+      const starBtns = [];
+      const refreshStars = () => {
+        starBtns.forEach((b, idx) => {
+          b.textContent = idx < selectedRating ? '★' : '☆';
+          b.className = idx < selectedRating
+            ? 'text-3xl leading-none text-amber-500 transition-transform active:scale-110'
+            : 'text-3xl leading-none text-slate-300 transition-transform active:scale-110';
+        });
+      };
+      for (let i = 1; i <= 5; i++) {
+        const sb = document.createElement('button');
+        sb.type = 'button';
+        sb.setAttribute('aria-label', String(i));
+        sb.addEventListener('click', () => { selectedRating = i; refreshStars(); });
+        starBtns.push(sb);
+        starsRow.appendChild(sb);
+      }
+      refreshStars();
+      box.appendChild(starsRow);
+
+      const commentIn = document.createElement('input');
+      commentIn.type = 'text';
+      commentIn.autocomplete = 'off';
+      commentIn.placeholder = isFr ? 'Commentaire (optionnel)...' : 'أضف تعليقاً قصيراً (اختياري)...';
+      commentIn.className = 'w-full rounded-2xl border border-amber-200 bg-white px-3.5 py-2 text-xs font-bold text-[#163024]';
+      box.appendChild(commentIn);
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white shadow-sm';
+      submitBtn.textContent = isFr ? '⭐ Envoyer mon avis' : '⭐ إرسال التقييم';
+      submitBtn.addEventListener('click', async () => {
+        submitBtn.disabled = true;
+        submitBtn.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري الحفظ...';
+        const { error: revErr } = await client.from('nurse_reviews').insert({
+          visit_request_id: r.id,
+          nurse_user_id: nurseUid,
+          reviewer_user_id: user.id,
+          reviewer_name: CG.getRealDisplayName ? CG.getRealDisplayName() : 'Patient',
+          rating: selectedRating,
+          comment: commentIn.value.trim() || null
+        });
+        if (revErr) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '⚠️ ' + revErr.message;
+          return;
+        }
+        box.replaceChildren();
+        const okP = document.createElement('p');
+        okP.className = 'text-center text-sm font-black text-[#0E5A3E] py-2';
+        okP.textContent = isFr ? '✅ Merci pour votre évaluation !' : '✅ شكراً لك! تم حفظ تقييمك للممرض بنجاح.';
+        box.appendChild(okP);
+        setTimeout(() => { box.classList.add('hidden'); }, 2500);
+      });
+      box.appendChild(submitBtn);
+      box.classList.remove('hidden');
+    } catch (_) {
+      box.classList.add('hidden');
+    }
+  }
+
+  async function loadSeniorAcceptedVisit() {
+    const box = $('seniorAcceptedVisitBox');
+    if (!box) return;
+    const client = CG.getClient(), user = CG.getCurrentUser();
+    const role = CG.getUserRole ? CG.getUserRole() : '';
+    if (!client || !user || (role !== 'senior' && role !== 'family')) {
+      box.classList.add('hidden');
+      return;
+    }
+    ensureRequesterVisitRealtime();
+    const isFr = CG.getState().lang === 'fr';
+    const { data: reqs, error } = await client
+      .from('nurse_visit_requests')
+      .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, accepted_at, created_at')
+      .eq('requester_user_id', user.id)
+      .eq('status', 'accepted')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error) {
+      box.classList.add('hidden');
+      return;
+    }
+    if (!reqs || !reqs.length) {
+      await renderPendingNurseReview(client, user, box, isFr);
+      return;
+    }
+    const r = reqs[0];
+    const nurseUid = r.accepted_by_user_id || r.nurse_user_id;
+    let np = null, avUrl = '';
+    if (nurseUid) {
+      try {
+        const [{ data: npData }, { data: profData }] = await Promise.all([
+          client.from('nurse_profiles').select('full_name, credential, phone, region, city_zip, years_exp, hourly_rate').eq('user_id', nurseUid).maybeSingle(),
+          client.from('profiles').select('avatar_url').eq('id', nurseUid).maybeSingle()
+        ]);
+        np = npData || null;
+        avUrl = (profData && profData.avatar_url) || '';
+      } catch (_) {}
+    }
+
+    const credLabels = {
+      INF_MAJOR: isFr ? 'Infirmier Major' : 'ممرض رئيسي',
+      INF_PRINCIPAL: isFr ? 'Infirmier Principal' : 'ممرض أول',
+      IDE: isFr ? 'Infirmier Diplômé' : 'ممرض مجاز',
+      AIDE: isFr ? 'Aide-soignant(e)' : 'عون تمريض'
+    };
+    const nurseName = (np && np.full_name) || r.accepted_by_name || r.nurse_name || (isFr ? 'Infirmier(ère)' : 'ممرض(ة)');
+    const credTxt = np && np.credential ? (credLabels[np.credential] || np.credential) : '';
+    const phone = (np && np.phone) || '';
+
+    box.replaceChildren();
+    box.className = 'rounded-3xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-md space-y-3';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between gap-2';
+    const title = document.createElement('p');
+    title.className = 'text-sm font-black text-[#0E5A3E]';
+    title.textContent = isFr ? '✅ Demande acceptée ! L\'infirmier arrive' : '✅ تم قبول طلبك! الممرض في طريقه إليك';
+    const doneBtn = document.createElement('button');
+    doneBtn.type = 'button';
+    doneBtn.className = 'rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-[11px] font-black text-[#0E5A3E]';
+    doneBtn.textContent = isFr ? '✓ Terminée' : '✓ تم الوصول';
+    doneBtn.addEventListener('click', async () => {
+      await client.from('nurse_visit_requests').update({ status: 'completed' }).eq('id', r.id);
+      await loadSeniorAcceptedVisit();
+    });
+    hdr.append(title, doneBtn);
+    box.appendChild(hdr);
+
+    const infoRow = document.createElement('div');
+    infoRow.className = 'flex items-center gap-3 rounded-2xl bg-white p-3 border border-emerald-200';
+    const av = document.createElement('div');
+    av.className = 'h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-emerald-300 bg-[#EAF4EE] flex items-center justify-center text-xl font-black text-[#0E5A3E]';
+    if (avUrl) {
+      const img = document.createElement('img');
+      img.src = avUrl; img.alt = nurseName; img.className = 'h-full w-full object-cover';
+      av.appendChild(img);
+    } else {
+      av.textContent = nurseName.trim().charAt(0).toUpperCase();
+    }
+    const details = document.createElement('div');
+    details.className = 'min-w-0 flex-1 space-y-0.5';
+    const nmEl = document.createElement('p');
+    nmEl.className = 'text-base font-black text-[#163024] truncate';
+    nmEl.textContent = nurseName + (credTxt ? ` • ${credTxt}` : '');
+    const metaEl = document.createElement('p');
+    metaEl.className = 'text-xs font-bold text-[#5C6F63]';
+    metaEl.textContent = [
+      np && (np.city_zip || np.region) ? [np.city_zip, np.region].filter(Boolean).join(', ') : '',
+      np && np.years_exp ? (isFr ? `${np.years_exp} ans d'exp.` : `${np.years_exp} سنوات خبرة`) : '',
+      np && np.hourly_rate ? (isFr ? `${np.hourly_rate} DT/h` : `${np.hourly_rate} د.ت/س`) : ''
+    ].filter(Boolean).join(' • ');
+    details.append(nmEl);
+    if (metaEl.textContent) details.appendChild(metaEl);
+    if (r.care_reason) {
+      const rsnEl = document.createElement('p');
+      rsnEl.className = 'text-xs font-black text-[#0E5A3E]';
+      rsnEl.textContent = (isFr ? '🩺 Service : ' : '🩺 الخدمة: ') + r.care_reason;
+      details.appendChild(rsnEl);
+    }
+    infoRow.append(av, details);
+    box.appendChild(infoRow);
+
+    if (phone) {
+      const btns = document.createElement('div');
+      btns.className = 'flex flex-wrap gap-2';
+      if (CG.safeTelHref && CG.safeTelHref(phone)) {
+        const callA = document.createElement('a');
+        callA.href = CG.safeTelHref(phone);
+        callA.className = 'tap-btn flex-1 text-center rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white shadow-sm';
+        callA.textContent = (isFr ? '📞 Appeler : ' : '📞 اتصال: ') + phone;
+        btns.appendChild(callA);
+      }
+      const digits = String(phone).replace(/\D/g, '');
+      const waDigits = digits.length === 8 ? ('216' + digits) : digits;
+      if (waDigits.length >= 8) {
+        const waA = document.createElement('a');
+        waA.href = 'https://wa.me/' + encodeURIComponent(waDigits);
+        waA.target = '_blank'; waA.rel = 'noopener noreferrer';
+        waA.className = 'tap-btn rounded-2xl border-2 border-emerald-500 bg-white px-4 py-2.5 text-sm font-black text-[#0E5A3E]';
+        waA.textContent = '💬 WhatsApp';
+        btns.appendChild(waA);
+      }
+      box.appendChild(btns);
+    }
+    box.classList.remove('hidden');
+  }
+
+  function ensureRequesterVisitRealtime() {
+    const client = CG.getClient(), user = CG.getCurrentUser();
+    if (!client || !user || requesterRealtimeChannel) return;
+    requesterRealtimeChannel = client.channel('cg-req-accepted-' + user.id)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nurse_visit_requests', filter: 'requester_user_id=eq.' + user.id }, async (payload) => {
+        const row = payload && payload.new;
+        if (row && row.status === 'accepted') {
+          if (CG.playMessengerChime) CG.playMessengerChime();
+          if (navigator.vibrate) { try { navigator.vibrate([300, 100, 300]); } catch (_) {} }
+          await loadSeniorAcceptedVisit();
+        } else if (row && (row.status === 'completed' || row.status === 'declined')) {
+          await loadSeniorAcceptedVisit();
+        }
+      })
+      .subscribe();
+  }
+
   const prevExtrasFn = CG.loadSereniteExtras;
   CG.loadSereniteExtras = function () {
     if (prevExtrasFn) prevExtrasFn();
     loadIncomingVisitRequests();
+    loadSeniorAcceptedVisit();
   };
-  setTimeout(loadIncomingVisitRequests, 1500);
+  setTimeout(() => { loadIncomingVisitRequests(); loadSeniorAcceptedVisit(); }, 1500);
 })();
 </script>
 
