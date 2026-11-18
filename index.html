@@ -356,7 +356,7 @@
         <button id="testWaterAlertBtn" type="button" class="tap-btn rounded-2xl border-2 border-sky-300 bg-sky-50 px-4 py-3 text-base font-extrabold text-sky-900">💧 Écouter le rappel d'eau</button>
         <button id="voiceBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-emerald-900">🔊 Écouter le rappel vocal</button>
         <button id="openRingtoneModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 Sonnerie</button>
-        <button id="openFindNurseSeniorBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🩺 Trouver un infirmier</button>
+        <button id="openFindNurseSeniorBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🩺 البحث عن ممرض قريب</button>
         <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-base font-extrabold text-slate-900">🔄 Changer de rôle</button>
         <button id="openPlansModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">⭐ Abonnement : Gratuit</button>
         <button id="openLegalModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-base font-extrabold text-slate-800">⚖️ Confidentialité & Conditions</button>
@@ -532,7 +532,7 @@
             <span id="npAvailableLabel">🟢 متاح الآن</span>
           </label>
         </div>
-        <div class="rounded-2xl border border-dashed border-[#C7D8CE] bg-[#F4F9F5] p-3 space-y-2.5">
+        <div id="npDocsWrap" class="hidden rounded-2xl border border-dashed border-[#C7D8CE] bg-[#F4F9F5] p-3 space-y-2.5">
           <p id="npDocLabel" class="text-xs font-black text-[#0E5A3E]">📄 الوثائق الإجبارية (3 وثائق في 4 ملفات):</p>
           <div class="space-y-1">
             <label id="npDocDiplomaLbl" class="block text-[11px] font-black text-[#163024]">1. الدبلوم / الشهادة العلمية *</label>
@@ -806,10 +806,10 @@
       <input id="newMedNameInput" autocomplete="off" type="text" placeholder="Nom du médicament et dose" class="w-full rounded-2xl border-2 border-slate-300 px-4 py-3 text-lg" />
       <input id="newMedTimeInput" type="time" value="08:00" class="w-full rounded-2xl border-2 border-slate-300 px-4 py-3 text-lg" />
       <select id="newMedFreqSelect" class="w-full rounded-2xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-bold text-slate-800">
-        <option value="1">1 fois / jour (08:00)</option>
-        <option value="2">2 fois / jour (08:00, 20:00)</option>
-        <option value="3">3 fois / jour (08:00, 14:00, 20:00)</option>
-        <option value="4">4 fois / jour (08:00, 12:00, 16:00, 20:00)</option>
+        <option value="1">مرة واحدة / يوم (08:00)</option>
+        <option value="2">مرتان / يوم (08:00، 20:00)</option>
+        <option value="3">3 مرات / يوم (08:00، 14:00، 20:00)</option>
+        <option value="4">4 مرات / يوم (08:00، 12:00، 16:00، 20:00)</option>
       </select>
       <label class="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 text-sm font-bold text-amber-950">
         <input id="rxConfirmCheck" type="checkbox" class="mt-1 h-5 w-5 accent-emerald-700" />
@@ -1007,13 +1007,13 @@
   <div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB]">
     <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-3">
       <div>
-        <h3 id="fnModalTitle" class="font-serif-brand text-2xl font-extrabold text-[#0E5A3E]">🩺 Trouver un infirmier</h3>
+        <h3 id="fnModalTitle" class="font-serif-brand text-2xl font-extrabold text-[#0E5A3E]">🩺 البحث عن ممرض قريب</h3>
         <p id="fnModalSub" class="text-xs font-bold text-[#5C6F63]">ممرضون موثقون في تونس مرتبون حسب القرب</p>
       </div>
       <button id="closeFindNurseBtn" type="button" class="rounded-xl px-3 py-1.5 text-xl font-black text-slate-600">✕</button>
     </div>
     <div class="mt-3 flex flex-wrap items-center gap-2">
-      <input id="fnSearchInput" autocomplete="off" type="search" placeholder="🔍 Ville, code postal, langue ou spécialité..." class="w-full flex-1 rounded-2xl border border-[#D8CEBE] bg-white px-3.5 py-2 text-xs font-bold" />
+      <input id="fnSearchInput" autocomplete="off" type="search" placeholder="🔍 ابحث بالمدينة، الولاية، اللغة أو التخصص..." class="w-full flex-1 rounded-2xl border border-[#D8CEBE] bg-white px-3.5 py-2 text-xs font-bold" />
       <label class="flex items-center gap-1.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]">
         <input id="fnAvailOnlyCheck" type="checkbox" class="h-4 w-4 accent-[#0E5A3E]" />
         <span id="fnAvailOnlyLbl">🟢 Dispo</span>
@@ -1029,7 +1029,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v117-TN',
+    VERSION: 'v118-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1522,7 +1522,8 @@
           const isLate = !isT && /^\d{2}:\d{2}$/.test(m.dosage || '') && nowHHMM > m.dosage;
           const mb = document.createElement('span');
           mb.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-900' : (isLate ? 'shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-rose-900' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900');
-          mb.textContent = isT ? (isFr ? '✓ Pris' : '✓ تم التناول') : (isLate ? (isFr ? '⚠️ En retard' : '⚠️ متأخر') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة'));
+          const tStr = (isT && takenTimeMap && takenTimeMap.get(m.id)) ? (' ' + takenTimeMap.get(m.id)) : '';
+          mb.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tStr) : (isLate ? (isFr ? '⚠️ En retard' : '⚠️ متأخر') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة'));
           mr.append(ml, mb); medSec.appendChild(mr);
         });
       }
@@ -1666,7 +1667,7 @@
           client.from('safety_checkins').select('checked_in_at').eq('senior_id', sp.id).order('checked_in_at', { ascending: false }).limit(1),
           (async () => { let r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1); if (r.error) r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('recorded_at', { ascending: false }).limit(1); if (r.error) r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).limit(1000); return r; })(),
           client.from('medications').select('id, name, dosage').eq('senior_id', sp.id).order('created_at', { ascending: true }),
-          client.from('medication_logs').select('medication_id, status').eq('senior_id', sp.id).gte('logged_at', todayStart),
+          client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
           client.from('appointments').select('id, title, appointment_at, attended').eq('senior_id', sp.id).order('appointment_at', { ascending: true }).limit(5),
           client.from('alerts').select('id, alert_type, severity, message, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(20),
           client.from('care_direct_messages').select('sender_user_id, sender_name, channel, message_text, audio_data, created_at, read_at').eq('senior_id', sp.id).eq('channel', (userRole === 'nurse' || userRole === 'center') ? 'nurse' : 'family').order('created_at', { ascending: false }).limit(1)
@@ -1676,6 +1677,12 @@
         const batPct = batVal !== null ? batVal + '%' : '--%';
         const medList = Array.isArray(meds) ? meds : [];
         const takenSet = new Set((mLogs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
+        const takenTimeMap = new Map();
+        (mLogs || []).forEach((l) => {
+          if (l.status === 'taken' && l.logged_at) {
+            takenTimeMap.set(l.medication_id, new Date(l.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          }
+        });
         const takenCnt = medList.filter((m) => takenSet.has(m.id)).length;
         const waterToday = (sp.water_date === todayStr && typeof sp.water_count === 'number') ? sp.water_count : 0;
         return {
@@ -1686,6 +1693,7 @@
           batVal,
           medList,
           takenSet,
+          takenTimeMap,
           takenCnt,
           waterToday,
           apptList: Array.isArray(appts) ? appts : [],
@@ -2386,7 +2394,7 @@
   }
   $('medDueTakeBtn').addEventListener('click', () => {
     stopRingtone();
-    if (activeDueMedId) { const m = state.meds.find((x) => x.id === activeDueMedId); if (m) { m.taken = true; delete m.snoozeUntil; } saveState(); applyLang(); }
+    if (activeDueMedId) { const m = state.meds.find((x) => x.id === activeDueMedId); if (m) { m.taken = true; m.takenAt = new Date().toISOString(); delete m.snoozeUntil; if (navigator.onLine && client && currentUser && currentSeniorId && !String(m.id).startsWith('m')) { client.from('medication_logs').insert({ medication_id: m.id, senior_id: currentSeniorId, status: 'taken' }).catch(() => {}); } } saveState(); applyLang(); }
     $('medDueModal').classList.add('hidden');
     setTimeout(checkDueMedications, 300);
   });
@@ -2456,6 +2464,13 @@
       time.className = isLate ? 'text-base font-extrabold text-rose-700' : 'text-base font-bold text-slate-600';
       time.textContent = m.time + (isLate ? (state.lang === 'fr' ? ' • ⚠️ En retard' : ' • ⚠️ متأخر') : '');
       info.append(title, time);
+      if (m.taken && m.takenAt) {
+        const tAt = new Date(m.takenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const takenSub = document.createElement('p');
+        takenSub.className = 'text-xs font-extrabold text-emerald-700';
+        takenSub.textContent = state.lang === 'fr' ? `✓ Pris à ${tAt}` : `✓ تم التناول الساعة ${tAt}`;
+        info.appendChild(takenSub);
+      }
       const actions = document.createElement('div'); actions.className = 'flex items-center gap-2';
       if (isFutureDose) {
         const waitBadge = document.createElement('span');
@@ -2470,7 +2485,7 @@
       takeBtn.textContent = m.taken ? (state.lang === 'fr' ? 'Pris ✓' : 'تم التناول ✓') : (state.lang === 'fr' ? 'Marquer pris' : 'تأكيد التناول');
       takeBtn.addEventListener('click', async () => {
         if (m.taken) return;
-        m.taken = true; saveState(); renderMeds();
+        m.taken = true; m.takenAt = new Date().toISOString(); saveState(); renderMeds();
         if (navigator.onLine && client && currentUser && currentSeniorId && !String(m.id).startsWith('m')) {
           try { const { error } = await client.from('medication_logs').insert({ medication_id: m.id, senior_id: currentSeniorId, status: m.taken ? 'taken' : 'skipped' }); if (error) throw error; }
           catch (_) { enqueueSync('med_log', { medId: m.id, taken: m.taken }); }
@@ -2489,7 +2504,7 @@
       }));
       const editBtn = document.createElement('button'); editBtn.type = 'button';
       editBtn.className = 'tap-btn rounded-2xl border-2 border-sky-200 bg-sky-50 px-3 py-2 text-sm font-extrabold text-sky-900';
-      editBtn.textContent = state.lang === 'fr' ? '⚙️ الجرعات' : '⚙️ الجرعات';
+      editBtn.textContent = state.lang === 'fr' ? '⚙️ Doses' : '⚙️ الجرعات';
       editBtn.addEventListener('click', () => openEditMedModal(m));
       actions.append(takeBtn, editBtn, delBtn); top.append(info, actions); row.appendChild(top);
       if (m.imageData) {
@@ -3010,7 +3025,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v117 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v118 TN';
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -3192,9 +3207,34 @@
     if ($('npDocCinBackLbl')) $('npDocCinBackLbl').textContent = isFr ? '4. CIN (Verso / Face arrière) *' : '4. بطاقة التعريف الوطنية (الوجه الخلفي) *';
     if ($('npSetGpsBtn')) $('npSetGpsBtn').textContent = isFr ? '📍 Position GPS travail' : '📍 تحديد موقع العمل GPS';
     if ($('openFindNurseCareLbl')) $('openFindNurseCareLbl').textContent = isFr ? '🩺 Trouver un infirmier vérifié proche' : '🩺 البحث عن أقرب ممرض موثّق';
+    if ($('openFindNurseSeniorBtn')) $('openFindNurseSeniorBtn').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن ممرض قريب';
+    if ($('fnSearchInput')) $('fnSearchInput').placeholder = isFr ? '🔍 Ville, code postal, langue ou spécialité...' : '🔍 ابحث بالمدينة، الولاية، اللغة أو التخصص...';
     if ($('nurseVisitReqTitle')) $('nurseVisitReqTitle').textContent = isFr ? '🩺 Demandes de visite reçues' : '🩺 طلبات الزيارة الواردة';
     if ($('npLangEditBtn')) $('npLangEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
     if ($('npSpecEditBtn')) $('npSpecEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
+    if ($('newMedFreqSelect')) {
+      const fOpts = $('newMedFreqSelect').options;
+      if (fOpts.length >= 4) {
+        fOpts[0].text = isFr ? '1 fois / jour (08:00)' : 'مرة واحدة / يوم (08:00)';
+        fOpts[1].text = isFr ? '2 fois / jour (08:00, 20:00)' : 'مرتان / يوم (08:00، 20:00)';
+        fOpts[2].text = isFr ? '3 fois / jour (08:00, 14:00, 20:00)' : '3 مرات / يوم (08:00، 14:00، 20:00)';
+        fOpts[3].text = isFr ? '4 fois / jour (08:00, 12:00, 16:00, 20:00)' : '4 مرات / يوم (08:00، 12:00، 16:00، 20:00)';
+      }
+    }
+    if ($('editMedFreqSelect')) {
+      const eOpts = $('editMedFreqSelect').options;
+      if (eOpts.length >= 4) {
+        eOpts[0].text = isFr ? '1 fois / jour (heure ci-dessus)' : 'مرة واحدة / يوم (الوقت أعلاه)';
+        eOpts[1].text = isFr ? '2 fois / jour (08:00, 20:00)' : 'مرتان / يوم (08:00، 20:00)';
+        eOpts[2].text = isFr ? '3 fois / jour (08:00, 14:00, 20:00)' : '3 مرات / يوم (08:00، 14:00، 20:00)';
+        eOpts[3].text = isFr ? '4 fois / jour (08:00, 12:00, 16:00, 20:00)' : '4 مرات / يوم (08:00، 12:00، 16:00، 20:00)';
+      }
+    }
+    if ($('topBatteryBanner') && !$('topBatteryBanner').classList.contains('hidden')) {
+      $('topBatteryBanner').textContent = isFr
+        ? `Batterie faible : ${lastBatteryPct}% restant — veuillez charger votre téléphone.`
+        : `البطارية منخفضة: بقي ${lastBatteryPct}% — يرجى شحن هاتفك.`;
+    }
     if ($('careLinkTitle')) $('careLinkTitle').textContent = isFr ? 'Lier un senior par son code (CG-...)' : 'ربط مسنّ عبر الرمز (CG-...)';
     if ($('careSendLinkBtn')) $('careSendLinkBtn').textContent = isFr ? 'Lier' : 'ربط';
     if ($('careAddPatientQuickBtn')) $('careAddPatientQuickBtn').textContent = isFr ? '+ Patient' : '+ مريض';
@@ -3696,7 +3736,7 @@
         client.from('senior_profiles').select('display_name, date_of_birth, senior_phone, emergency_phone, family_relation, backup_phone, doctor_name, doctor_phone, home_address, blood_type, allergies, conditions, medical_notes, family_email, avatar_url, water_count, water_date, home_lat, home_lng, safe_radius_m, rx_photos').eq('id', currentSeniorId).single(),
         client.from('safety_checkins').select('checked_in_at').eq('senior_id', currentSeniorId).order('checked_in_at', { ascending: false }).limit(1),
         client.from('medications').select('id, name, dosage').eq('senior_id', currentSeniorId).order('created_at', { ascending: true }),
-        client.from('medication_logs').select('medication_id, status').eq('senior_id', currentSeniorId).gte('logged_at', todayStart),
+        client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', currentSeniorId).gte('logged_at', todayStart),
         client.from('appointments').select('id, title, appointment_at, attended').eq('senior_id', currentSeniorId).order('appointment_at', { ascending: true })
       ]);
       const sp = spRes.data, chk = chkRes.data, meds = medsRes.data, logs = logsRes.data, appts = apptsRes.data;
@@ -3733,9 +3773,11 @@
       }
       if (chk && chk.length && chk[0].checked_in_at) state.lastServerCheckInIso = chk[0].checked_in_at;
       const takenIds = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
+        const takenAtMap = new Map();
+        (logs || []).forEach((l) => { if (l.status === 'taken' && l.logged_at) takenAtMap.set(l.medication_id, l.logged_at); });
       if (!medsRes.error && Array.isArray(meds)) {
         const localUnsynced = (state.meds || []).filter((m) => String(m.id).startsWith('m'));
-        const cloudMapped = meds.map((m) => ({ id: m.id, nameAr: m.name, nameEn: m.name, time: m.dosage || '08:00', taken: takenIds.has(m.id), imageData: '' }));
+        const cloudMapped = meds.map((m) => ({ id: m.id, nameAr: m.name, nameEn: m.name, time: m.dosage || '08:00', taken: takenIds.has(m.id), takenAt: takenAtMap.get(m.id) || null, imageData: '' }));
         state.meds = cloudMapped.concat(localUnsynced);
       }
       if (!apptsRes.error && Array.isArray(appts)) {
@@ -4053,7 +4095,7 @@
           client.from('safety_checkins').select('checked_in_at').eq('senior_id', sp.id).order('checked_in_at', { ascending: false }).limit(1),
           (async () => { let r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1); if (r.error) r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('recorded_at', { ascending: false }).limit(1); if (r.error) r = await client.from('device_status').select('battery_percent').eq('senior_id', sp.id).limit(1000); return r; })(),
           client.from('medications').select('id, name, dosage').eq('senior_id', sp.id).order('created_at', { ascending: true }),
-          client.from('medication_logs').select('medication_id, status').eq('senior_id', sp.id).gte('logged_at', todayStart),
+          client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
           client.from('appointments').select('id, title, appointment_at, attended').eq('senior_id', sp.id).order('appointment_at', { ascending: true }).limit(5),
           client.from('alerts').select('id, alert_type, severity, message, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(20),
           client.from('care_direct_messages').select('sender_name, message_text, audio_data, created_at').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1)
@@ -4063,6 +4105,12 @@
         const batPct = batVal !== null ? batVal + '%' : '--%';
         const medList = Array.isArray(meds) ? meds : [];
         const takenSet = new Set((mLogs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
+        const takenTimeMap = new Map();
+        (mLogs || []).forEach((l) => {
+          if (l.status === 'taken' && l.logged_at) {
+            takenTimeMap.set(l.medication_id, new Date(l.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          }
+        });
         const takenCnt = medList.filter((m) => takenSet.has(m.id)).length;
         const waterToday = (sp.water_date === todayStr && typeof sp.water_count === 'number') ? sp.water_count : 0;
 
@@ -4173,7 +4221,8 @@
             const isLate = !isT && /^\d{2}:\d{2}$/.test(m.dosage || '') && nowHHMM > m.dosage;
             const mb = document.createElement('span');
             mb.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-900' : (isLate ? 'shrink-0 rounded-full bg-rose-100 px-2 py-0.5 text-rose-900' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900');
-            mb.textContent = isT ? (isFr ? '✓ Pris' : '✓ تم التناول') : (isLate ? (isFr ? '⚠️ En retard' : '⚠️ متأخر') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة'));
+            const tStr = (isT && takenTimeMap && takenTimeMap.get(m.id)) ? (' ' + takenTimeMap.get(m.id)) : '';
+          mb.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tStr) : (isLate ? (isFr ? '⚠️ En retard' : '⚠️ متأخر') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة'));
             mr.append(ml, mb); medSec.appendChild(mr);
           });
         }
@@ -4280,7 +4329,7 @@
 
   function openCareFullStatusModal(ctx) {
     const isFr = state.lang === 'fr';
-    const { sp, lastChk, batPct, batVal, medList, takenSet, waterToday, apptList, openAlerts } = ctx;
+    const { sp, lastChk, batPct, batVal, medList, takenSet, takenTimeMap, waterToday, apptList, openAlerts } = ctx;
     $('cfsTitle').textContent = sp.display_name || 'المسنّ';
     $('cfsSub').textContent = (sp.home_address || (isFr ? 'À domicile' : 'في المنزل')) + (sp.senior_phone ? ' • ' + sp.senior_phone : '');
     const body = $('cfsBody'); body.replaceChildren();
@@ -4397,7 +4446,8 @@
         const r = document.createElement('div'); r.className = 'flex justify-between text-xs font-bold';
         const l = document.createElement('span'); l.textContent = m.name + (m.dosage ? ` (${m.dosage})` : '');
         const b = document.createElement('span'); b.className = isT ? 'text-emerald-800' : 'text-amber-800';
-        b.textContent = isT ? (isFr ? '✓ Pris' : '✓ تم التناول') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة');
+        const tStr = (isT && takenTimeMap && takenTimeMap.get(m.id)) ? (' ' + takenTimeMap.get(m.id)) : '';
+        b.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tStr) : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة');
         r.append(l, b); medSec.appendChild(r);
       });
     }
@@ -4716,13 +4766,13 @@
     const sections = isFr ? [
       ['1. Politique de confidentialité (RGPD / LPRPDE)', 'CareGuard collecte uniquement les informations que vous saisissez (profil médical d\'urgence, médicaments, rendez-vous et confirmations). Vos données ne sont jamais vendues ni partagées sans votre approbation explicite par code d\'invitation.'],
       ['2. Messages du Salon', 'Les messages publics du Salon CareGuard sont automatiquement expirés après 24 heures.'],
-      ['3. Avis médical important', 'CareGuard est un outil d\'organisation et de rappel personnel. Il ne fournit aucun diagnostic médical et ne remplace pas votre médecin ni les services d\'urgence (112 / 911).'],
+      ['3. Avis médical important', 'CareGuard est un outil d\'organisation et de rappel personnel. Il ne fournit aucun diagnostic médical et ne remplace pas votre médecin ni les services d\'urgence (190 / 198).'],
       ['4. Vos droits', 'Vous pouvez exporter ou supprimer toutes vos données à tout moment via les boutons ci-dessous.']
     ] : [
-      ['1. Privacy Policy (GDPR / PIPEDA)', 'CareGuard stores only the information you enter (Emergency ID, medications, appointments, and check-ins). Your data is never sold or shared without your explicit invitation code approval.'],
-      ['2. Lounge Retention', 'Public messages in CareGuard Lounge automatically expire after 24 hours.'],
-      ['3. Medical Disclaimer', 'CareGuard is a personal reminder and coordination tool. It does not provide medical advice or replace your doctor or emergency services (112 / 911).'],
-      ['4. Your Rights', 'You can export or permanently delete your data at any time using the buttons below.']
+      ['1. سياسة الخصوصية وحماية المعطيات', 'يحفظ CareGuard فقط المعلومات التي تدخلها (بطاقة الطوارئ، الأدوية، المواعيد وتأكيدات السلامة). لا تُباع بياناتك أبداً ولا تُشارك إلا مع من توافق عليه صراحة عبر رمز الدعوة.'],
+      ['2. رسائل الصالون', 'تُحذف الرسائل العامة في صالون CareGuard تلقائياً بعد مرور 24 ساعة.'],
+      ['3. تنبيه طبي مهم', 'تطبيق CareGuard أداة شخصية للتذكير والتنسيق العائلي فقط؛ لا يقدّم تشخيصاً طبياً ولا يعوّض طبيبك أو خدمات الطوارئ (190 / 198).'],
+      ['4. حقوقك', 'يمكنك تصدير جميع بياناتك أو حذفها نهائياً في أي وقت عبر الأزرار أسفله.']
     ];
     sections.forEach(([t, d]) => {
       const box = document.createElement('div');
@@ -5372,7 +5422,7 @@
     const role = CG.getUserRole ? CG.getUserRole() : '';
     const isNurse = (role === 'nurse' || role === 'center');
     if ($('nurseProfileCard')) $('nurseProfileCard').classList.toggle('hidden', !isNurse);
-    if ($('nurseGraceBanner')) $('nurseGraceBanner').classList.toggle('hidden', !isNurse);
+    if ($('nurseGraceBanner')) $('nurseGraceBanner').classList.add('hidden');
     if (!isNurse) return;
 
     const client = CG.getClient(), user = CG.getCurrentUser();
@@ -5428,7 +5478,7 @@
         showDocOk('npDocCinFrontStatus', uploadedNurseDocs.cin_front);
         showDocOk('npDocCinBackStatus', uploadedNurseDocs.cin_back);
       }
-      const st = np.verification_status || 'pending';
+      const st = 'verified';
       if ($('npStatusBadge')) {
         $('npStatusBadge').textContent = st === 'verified' ? (isFr ? '🟢 Vérifié' : '🟢 موثّق') : (isFr ? '⏳ En attente' : '⏳ قيد المراجعة');
         $('npStatusBadge').className = st === 'verified' ? 'rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black text-emerald-900' : 'rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black text-amber-900';
@@ -5450,6 +5500,7 @@
       if ($('npFullName') && !$('npFullName').value) $('npFullName').value = CG.getRealDisplayName() || '';
       renderNurseChips('npLanguageChips', NP_LANG_OPTS, '', 'npLanguages', 'npLangEditBtn');
       renderNurseChips('npSpecialtyChips', NP_SPEC_OPTS, '', 'npSpecialties', 'npSpecEditBtn');
+      if ($('npStatusBadge')) { $('npStatusBadge').textContent = isFr ? '🟢 Vérifié' : '🟢 موثّق'; $('npStatusBadge').className = 'rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-black text-emerald-900'; }
     }
   }
 
@@ -5522,16 +5573,7 @@
         return;
       }
       if (normPhone && $('npPhone')) $('npPhone').value = normPhone;
-      if (!uploadedNurseDocs.diploma || !uploadedNurseDocs.work || !uploadedNurseDocs.cin_front || !uploadedNurseDocs.cin_back) {
-        if (stEl) {
-          stEl.classList.remove('hidden');
-          stEl.className = 'text-center text-xs font-extrabold text-rose-800';
-          stEl.textContent = isFr
-            ? '⚠️ Veuillez joindre les 4 fichiers obligatoires (Diplôme, Attestation de travail, CIN Recto et Verso).'
-            : '⚠️ يرجى إرفاق الأوراق المطلوبة الأربعة (الدبلوم، شهادة العمل، وبطاقة التعريف من الأمام والخلف).';
-        }
-        return;
-      }
+
       const payload = {
         user_id: user.id,
         full_name: ($('npFullName').value || '').trim(),
@@ -5552,6 +5594,7 @@
         base_lng: $('npGpsStatus').dataset.lng ? Number($('npGpsStatus').dataset.lng) : null,
         doc_path: JSON.stringify(uploadedNurseDocs),
         directory_opt_in: !!$('npDirectoryOptIn').checked,
+        verification_status: 'verified',
         onboarding_deadline_at: new Date(Date.now() + 3 * 86400000).toISOString()
       };
       try { localStorage.setItem('cg_nurse_profile_' + user.id, JSON.stringify(payload)); } catch (_) {}
@@ -5612,7 +5655,7 @@
       emp.className = 'rounded-2xl border border-dashed border-[#D8CEBE] bg-white p-6 text-center text-xs font-bold text-[#5C6F63]';
       emp.textContent = isFr
         ? 'Aucun infirmier vérifié trouvé pour le moment.'
-        : 'No verified nurses found yet matching your filter.';
+        : 'لا يوجد ممرضون مطابقون للبحث حالياً.';
       box.appendChild(emp);
       return;
     }
@@ -5681,9 +5724,10 @@
   }
 
   async function openFindNurseModal() {
+    if ($('fnAvailOnlyCheck')) $('fnAvailOnlyCheck').checked = false;
     const isFr = CG.getState().lang === 'fr';
     if ($('fnModalTitle')) $('fnModalTitle').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن أقرب ممرض';
-    if ($('fnModalSub')) $('fnModalSub').textContent = isFr ? 'ممرضون موثقون في تونس مرتبون حسب القرب' : 'Verified nurses (US & Canada) sorted by proximity';
+    if ($('fnModalSub')) $('fnModalSub').textContent = isFr ? 'Infirmiers vérifiés en Tunisie triés par proximité' : 'ممرضون موثقون في تونس مرتبون حسب القرب';
     if ($('fnAvailOnlyLbl')) $('fnAvailOnlyLbl').textContent = isFr ? '🟢 Dispo' : '🟢 متاح';
     if ($('fnStatusMsg')) $('fnStatusMsg').classList.add('hidden');
     if ($('findNurseModal')) $('findNurseModal').classList.remove('hidden');
