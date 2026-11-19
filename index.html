@@ -172,9 +172,7 @@
         <div class="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#FAF3E6] via-[#FAF3E6]/75 to-transparent"></div>
       </div>
 
-      <!-- Camera Upload Button (top-right of portrait) -->
-      <label for="seniorAvatarInput" class="tap-btn absolute top-3 ltr:right-3 rtl:left-3 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#0E5A3E]/90 text-sm text-white shadow-md backdrop-blur-sm" title="Photo">📷</label>
-      <input id="seniorAvatarInput" type="file" accept="image/*" class="hidden" />
+
 
       <!-- Left Greeting & Brand -->
       <div class="relative z-10 ltr:pr-[44%] rtl:pl-[44%] space-y-1.5">
@@ -876,6 +874,11 @@
     </div>
     <p id="profilePrivacyNote" class="mt-1 text-sm font-bold text-slate-600">Ces données sont privées pour la fiche d'urgence et n'apparaissent jamais dans le salon.</p>
     <div class="mt-3 max-h-[68vh] space-y-2.5 overflow-y-auto pr-1">
+      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-4 py-2.5">
+        <span id="profPhotoLbl" class="text-sm font-extrabold text-[#163024]">📷 صورة المسنّ الشخصية</span>
+        <label for="seniorAvatarInput" id="profPhotoBtnLbl" class="tap-btn cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-2 text-xs font-black text-white shadow-sm">تغيير الصورة</label>
+        <input id="seniorAvatarInput" type="file" accept="image/*" class="hidden" />
+      </div>
       <input id="profNameInput" autocomplete="off" type="text" placeholder="Nom complet" class="w-full rounded-2xl border-2 border-slate-300 px-4 py-2.5 text-lg" />
       <label class="block text-sm font-extrabold text-slate-700">
         <span id="profDobLabel">Date de naissance :</span>
@@ -1119,7 +1122,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v144-TN',
+    VERSION: 'v146-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3287,6 +3290,8 @@
     $('rxConfirmLabel').textContent = isFr ? 'Je confirme que ce médicament correspond à l\'ordonnance de mon médecin.' : 'أؤكد أن هذا الدواء يطابق وصفة الطبيب.';
     $('saveNewMedBtn').textContent = isFr ? 'Enregistrer' : 'حفظ الدواء';
     $('profileModalTitle').textContent = isFr ? 'Mettre à jour les infos' : 'تحديث معلومات المسنّ';
+    if ($('profPhotoLbl')) $('profPhotoLbl').textContent = isFr ? '📷 Photo de profil' : '📷 صورة المسنّ الشخصية';
+    if ($('profPhotoBtnLbl')) $('profPhotoBtnLbl').textContent = isFr ? 'Changer la photo' : 'تغيير الصورة';
     $('profilePrivacyNote').textContent = isFr ? 'Ces données sont privées pour la fiche d\'urgence et n\'apparaissent jamais dans le salon.' : 'تُحفظ بسرية للبطاقة الطبية فقط ولا تظهر في الدردشة.';
     $('profNameInput').placeholder = isFr ? 'Nom complet' : 'الاسم الكامل';
     $('profDobLabel').textContent = isFr ? 'Date de naissance :' : 'تاريخ الميلاد:';
@@ -4949,8 +4954,72 @@
   if ($('openLegalModalBtn')) $('openLegalModalBtn').addEventListener('click', () => { renderLegalContent(); $('legalModal').classList.remove('hidden'); });
   if ($('closeLegalModalBtn')) $('closeLegalModalBtn').addEventListener('click', () => $('legalModal').classList.add('hidden'));
   if ($('exportMyDataBtn')) $('exportMyDataBtn').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile: state.profile, meds: state.meds, appts: state.appts, waterCount: state.waterCount }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'careguard-data.json'; a.click();
+    const isFr = state.lang === 'fr';
+    const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const p = state.profile || {};
+    const meds = Array.isArray(state.meds) ? state.meds : [];
+    const appts = Array.isArray(state.appts) ? state.appts : [];
+    const nowStr = new Date().toLocaleString(isFr ? 'fr-TN' : 'ar-TN');
+    const medRows = meds.length ? meds.map((m) => {
+      const nm = isFr ? (m.nameAr || m.nameEn) : (m.nameEn || m.nameAr);
+      const tAt = m.takenAt ? new Date(m.takenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      const st = m.taken
+        ? (isFr ? `✓ Pris${tAt ? ' (' + tAt + ')' : ''}` : `✓ تم التناول${tAt ? ' (' + tAt + ')' : ''}`)
+        : (isFr ? '⏳ En attente' : '⏳ لم يُؤخذ بعد');
+      return `<tr><td>${esc(nm)}</td><td>${esc(m.time || '-')}</td><td>${esc(st)}</td></tr>`;
+    }).join('') : `<tr><td colspan="3" style="text-align:center;color:#64748b;">${isFr ? 'Aucun médicament' : 'لا توجد أدوية مسجلة'}</td></tr>`;
+    const apptRows = appts.length ? appts.map((a) => `<tr><td>${esc(a.title || '')}</td><td>${esc((a.date || '') + ' ' + (a.time || ''))}</td></tr>`).join('')
+      : `<tr><td colspan="2" style="text-align:center;color:#64748b;">${isFr ? 'Aucun rendez-vous' : 'لا توجد مواعيد مسجلة'}</td></tr>`;
+
+    const docHtml = `<!DOCTYPE html>
+<html lang="${isFr ? 'fr' : 'ar'}" dir="${isFr ? 'ltr' : 'rtl'}">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CareGuard TN — ${isFr ? 'Rapport Médical' : 'التقرير الصحي للمسنّ'}</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;background:#FAF6EE;color:#163024;margin:0;padding:20px;line-height:1.65;}
+  .sheet{max-width:760px;margin:0 auto;background:#FFFDF9;border:1px solid #E6DCCB;border-radius:22px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.06);}
+  h1{color:#0E5A3E;margin:0 0 4px;font-size:1.5rem;}
+  .meta{color:#5C6F63;font-size:.85rem;margin-bottom:18px;}
+  h2{color:#0E5A3E;font-size:1.05rem;border-bottom:2px solid #E6DCCB;padding-bottom:6px;margin:20px 0 10px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .box{background:#FAF6EE;border:1px solid #E6DCCB;border-radius:14px;padding:10px 12px;font-size:.9rem;}
+  .lbl{font-size:.75rem;color:#5C6F63;font-weight:700;display:block;}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  th,td{border:1px solid #E6DCCB;padding:8px 10px;text-align:start;}
+  th{background:#EAF4EE;color:#0E5A3E;}
+  .print-btn{background:#0E5A3E;color:#fff;border:none;border-radius:12px;padding:10px 18px;font-weight:800;cursor:pointer;margin-bottom:14px;}
+  @media print{.print-btn{display:none;}body{background:#fff;padding:0;}.sheet{box-shadow:none;border:none;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <button class="print-btn" onclick="window.print()">🖨️ ${isFr ? 'Imprimer / Enregistrer en PDF' : 'طباعة / حفظ كـ PDF'}</button>
+  <h1>CareGuard TN — ${isFr ? 'Dossier Personnel' : 'الملف الصحي الشخصي'}</h1>
+  <div class="meta">${isFr ? 'Exporté le' : 'تاريخ التصدير'}: ${esc(nowStr)}</div>
+  <h2>${isFr ? '👤 Informations du senior' : '👤 بيانات المسنّ والبطاقة الطبية'}</h2>
+  <div class="grid">
+    <div class="box"><span class="lbl">${isFr ? 'Nom' : 'الاسم'}</span>${esc(p.name || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Date de naissance' : 'تاريخ الميلاد'}</span>${esc(p.dob || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Groupe sanguin' : 'فصيلة الدم'}</span>${esc(p.bloodType || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Téléphone' : 'الهاتف'}</span>${esc(p.phone || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Urgence' : 'رقم الطوارئ'}</span>${esc(p.emergencyPhone || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Adresse' : 'العنوان'}</span>${esc(p.address || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Allergies' : 'الحساسية'}</span>${esc(p.allergies || '-')}</div>
+    <div class="box"><span class="lbl">${isFr ? 'Maladies chroniques' : 'الأمراض المزمنة'}</span>${esc(p.conditions || '-')}</div>
+  </div>
+  <h2>${isFr ? '💊 Médicaments' : '💊 جدول الأدوية'}</h2>
+  <table><thead><tr><th>${isFr ? 'Médicament' : 'الدواء'}</th><th>${isFr ? 'Heure' : 'الموعد'}</th><th>${isFr ? 'Statut' : 'الحالة'}</th></tr></thead><tbody>${medRows}</tbody></table>
+  <h2>${isFr ? '📅 Rendez-vous médicaux' : '📅 المواعيد الطبية'}</h2>
+  <table><thead><tr><th>${isFr ? 'Rendez-vous' : 'الموعد'}</th><th>${isFr ? 'Date & Heure' : 'التاريخ والوقت'}</th></tr></thead><tbody>${apptRows}</tbody></table>
+  <h2>${isFr ? '💧 Hydratation aujourd\'hui' : '💧 شرب الماء اليوم'}</h2>
+  <div class="box">${esc(state.waterCount || 0)} / 8 ${isFr ? 'verres' : 'أكواب'}</div>
+</div>
+</body>
+</html>`;
+    const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'careguard-report.html'; a.click();
   });
   if ($('deleteMyDataBtn')) $('deleteMyDataBtn').addEventListener('click', () => {
     const label = state.lang === 'fr' ? 'toutes vos données CareGuard' : 'جميع بيانات CareGuard الخاصة بك';
