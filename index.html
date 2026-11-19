@@ -393,8 +393,7 @@
         </div>
         <div class="relative shrink-0">
           <div id="careSelfAvatar" class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#E6DCCB] bg-[#0E5A3E] text-base font-black text-white shadow-sm">C</div>
-          <label for="careAvatarInput" class="tap-btn absolute -bottom-1 -right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-white bg-[#0E5A3E] text-[10px] text-white shadow" title="Photo">📷</label>
-          <input id="careAvatarInput" type="file" accept="image/*" class="hidden" />
+
         </div>
       </div>
       <div class="flex items-center justify-end gap-2">
@@ -484,6 +483,11 @@
           <span id="npStatusBadge" class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black text-amber-900">⏳ قيد المراجعة</span>
         </div>
         <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <div class="col-span-full flex items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-3.5 py-2">
+            <span id="npPhotoLbl" class="text-xs font-extrabold text-[#163024]">📷 صورة الممرض الشخصية</span>
+            <label for="careAvatarInput" id="npPhotoBtnLbl" class="tap-btn cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white shadow-sm">تغيير الصورة</label>
+            <input id="careAvatarInput" type="file" accept="image/*" class="hidden" />
+          </div>
           <input id="npFullName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <select id="npCredential" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold">
             <option value="INF_MAJOR">Infirmier(ère) Major / ممرض رئيسي</option>
@@ -1068,10 +1072,10 @@
         <option value="male">👨‍⚕️ ممرض فقط (Homme uniquement)</option>
       </select>
     </div>
-    <button id="fnBroadcastBtn" type="button" class="tap-btn mt-2.5 flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-4 py-3 text-start shadow-sm">
-      <div>
-        <p id="fnBroadcastTitle" class="text-sm font-black text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
-        <p id="fnBroadcastSub" class="text-[11px] font-bold text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك</p>
+    <button id="fnBroadcastBtn" type="button" class="tap-btn mt-2.5 flex h-auto w-full items-center justify-between gap-2.5 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-3.5 py-3 text-start shadow-sm overflow-hidden">
+      <div class="min-w-0 flex-1 space-y-0.5">
+        <p id="fnBroadcastTitle" class="text-sm font-black leading-snug text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
+        <p id="fnBroadcastSub" class="text-[11px] font-bold leading-snug text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك</p>
       </div>
       <span id="fnBroadcastActionBadge" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
     </button>
@@ -1122,7 +1126,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v146-TN',
+    VERSION: 'v150-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1474,7 +1478,7 @@
         continue;
       }
 
-      const { sp, lastChk, batPct, batVal, medList, takenSet, takenCnt, waterToday, apptList, openAlerts, lastDm } = item;
+      const { sp, lastChk, batPct, batVal, medList, takenSet, takenTimeMap, takenCnt, waterToday, apptList, openAlerts, lastDm } = item;
       const card = document.createElement('div');
       card.className = 'rounded-[28px] border border-[#E6DCCB] bg-[#FFFDF9] p-5 shadow-[0_8px_24px_-10px_rgba(35,50,38,0.12)] space-y-4';
 
@@ -1680,7 +1684,7 @@
       fullBtn.type = 'button';
       fullBtn.className = 'tap-btn rounded-2xl bg-[#0E5A3E] px-3 py-2.5 text-xs font-black text-white shadow-sm';
       fullBtn.textContent = isFr ? '📋 État complet' : '📋 الحالة الكاملة';
-      fullBtn.addEventListener('click', () => CG.openCareFullStatusModal({ sp, lastChk, batPct, batVal, medList, takenSet, waterToday, apptList, openAlerts }));
+      fullBtn.addEventListener('click', () => CG.openCareFullStatusModal({ sp, lastChk, batPct, batVal, medList, takenSet, takenTimeMap, waterToday, apptList, openAlerts }));
       acts.appendChild(fullBtn);
 
       const spTelHref = CG.safeTelHref(sp.senior_phone);
@@ -2794,7 +2798,17 @@
           const med = state.meds.find((x) => x.id === it.medId);
           if (med) {
             med.taken = true;
-            if (typeof syncMedLog === 'function') syncMedLog(med);
+            med.takenAt = new Date().toISOString();
+            delete med.snoozeUntil;
+            if (navigator.onLine && client && currentUser && currentSeniorId && !String(med.id).startsWith('m')) {
+              try {
+                Promise.resolve(client.from('medication_logs').insert({ medication_id: med.id, senior_id: currentSeniorId, status: 'taken' }))
+                  .then((res) => { if (res && res.error) enqueueSync('med_log', { medicationId: med.id }); })
+                  .catch(() => enqueueSync('med_log', { medicationId: med.id }));
+              } catch (_) { enqueueSync('med_log', { medicationId: med.id }); }
+            } else if (currentUser && !String(med.id).startsWith('m')) {
+              enqueueSync('med_log', { medicationId: med.id });
+            }
           }
           saveState();
           applyLang();
@@ -4134,7 +4148,7 @@
   if ($('authSwitchRoleBtn')) $('authSwitchRoleBtn').addEventListener('click', () => setRole(''));
   $('careSwitchRoleBtn').addEventListener('click', () => setRole(''));
   $('careSignOutBtn').addEventListener('click', handleSignOut);
-  if ($('careRefreshBtn')) $('careRefreshBtn').addEventListener('click', loadCarePortalData);
+  if ($('careRefreshBtn')) $('careRefreshBtn').addEventListener('click', () => { loadCarePortalData(); if (window.CG && CG.loadSereniteExtras) CG.loadSereniteExtras(); });
 
   $('copySeniorCodeBtn').addEventListener('click', async () => {
     if (!myRegistrationCode) return;
@@ -5730,6 +5744,8 @@
     const client = CG.getClient(), user = CG.getCurrentUser();
     const isFr = CG.getState().lang === 'fr';
     if ($('npCardTitle')) $('npCardTitle').textContent = isFr ? '🩺 Profil Infirmier & Licence' : '🩺 ملف الممرض والترخيص المهني';
+    if ($('npPhotoLbl')) $('npPhotoLbl').textContent = isFr ? '📷 Photo de l\'infirmier' : '📷 صورة الممرض الشخصية';
+    if ($('npPhotoBtnLbl')) $('npPhotoBtnLbl').textContent = isFr ? 'Changer la photo' : 'تغيير الصورة';
     if ($('npCardSub')) $('npCardSub').textContent = isFr ? 'À compléter sous 3 jours pour rester vérifié' : 'أكمل بياناتك خلال 3 أيام لتبقى موثقاً ونشطاً';
     if ($('saveNurseProfileBtn')) $('saveNurseProfileBtn').textContent = isFr ? 'Enregistrer le profil' : 'حفظ ملف الممرض';
     if ($('npDirectoryLabel')) $('npDirectoryLabel').textContent = isFr ? 'Apparaître dans « Trouver un infirmier proche » après validation' : 'إظهاري في دليل «أقرب ممرض» بعد التوثيق';
@@ -6295,8 +6311,16 @@
     if ($('fnAvailOnlyLbl')) $('fnAvailOnlyLbl').textContent = isFr ? '🟢 Dispo' : '🟢 متاح';
     if ($('fnCareReasonLbl')) $('fnCareReasonLbl').textContent = isFr ? '🩺 Service demandé :' : '🩺 سبب الطلب / الخدمة المطلوبة:';
     if ($('fnCareReasonNote')) $('fnCareReasonNote').placeholder = isFr ? 'Détails supplémentaires (optionnel)...' : 'أضف تفاصيل إضافية (اختياري)...';
-    if ($('fnBroadcastTitle')) $('fnBroadcastTitle').textContent = isFr ? '⚡ Demander le 1er infirmier dispo (Uber)' : '⚡ طلب أقرب ممرض متاح الآن';
-    if ($('fnBroadcastSub')) $('fnBroadcastSub').textContent = isFr ? 'Envoyé à tous — le premier qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
+    if ($('fnBroadcastTitle')) $('fnBroadcastTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
+    if ($('fnBroadcastSub')) $('fnBroadcastSub').textContent = isFr ? 'Envoyé à tous — le 1er qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
+    if ($('fnGenderPrefSelect')) {
+      const opts = $('fnGenderPrefSelect').options;
+      if (opts && opts.length >= 3) {
+        opts[0].textContent = isFr ? '🤝 Peu importe (Homme ou Femme)' : '🤝 لا يهم (ممرض أو ممرضة)';
+        opts[1].textContent = isFr ? '👩‍⚕️ Infirmière uniquement' : '👩‍⚕️ ممرضة فقط';
+        opts[2].textContent = isFr ? '👨‍⚕️ Infirmier uniquement' : '👨‍⚕️ ممرض فقط';
+      }
+    }
     if ($('fnStatusMsg')) $('fnStatusMsg').classList.add('hidden');
     if ($('fnBroadcastActionBadge')) { $('fnBroadcastActionBadge').textContent = isFr ? '⚡ Envoyer' : '⚡ إرسال'; $('fnBroadcastActionBadge').className = 'shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white'; }
     if ($('findNurseModal')) $('findNurseModal').classList.remove('hidden');
@@ -6701,7 +6725,7 @@
 
     const { data, error } = await client
       .from('nurse_visit_requests')
-      .select('id, requester_user_id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at, accepted_at, completed_at')
+      .select('*')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
       .limit(40);
@@ -7182,7 +7206,7 @@
 
     const { data: reqs } = await client
       .from('nurse_visit_requests')
-      .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, request_mode, status, nurse_outcome, senior_outcome, created_at, accepted_at, completed_at')
+      .select('*')
       .eq('requester_user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(30);
