@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careguard-tn-v135';
+const CACHE_NAME = 'careguard-tn-v136';
 const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -68,9 +68,12 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(payload.title, {
       body: payload.body,
       tag: payload.tag || 'careguard-push',
-      vibrate: [300, 150, 300, 150, 400],
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      vibrate: [500, 200, 500, 200, 700],
       renotify: true,
-      requireInteraction: true
+      requireInteraction: true,
+      silent: false
     })
   );
 });

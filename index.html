@@ -370,6 +370,7 @@
         <button id="testWaterAlertBtn" type="button" class="tap-btn rounded-2xl border-2 border-sky-300 bg-sky-50 px-4 py-3 text-base font-extrabold text-sky-900">💧 Écouter le rappel d'eau</button>
         <button id="voiceBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-emerald-900">🔊 Écouter le rappel vocal</button>
         <button id="openRingtoneModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 Sonnerie</button>
+        <button id="seniorEnablePushBtn" type="button" class="tap-btn rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900">📲 تفعيل إشعارات الخلفية</button>
         <button id="openFindNurseSeniorBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🩺 البحث عن ممرض قريب</button>
         <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-base font-extrabold text-slate-900">🔄 Changer de rôle</button>
         <button id="openPlansModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">⭐ Abonnement : Gratuit</button>
@@ -1113,7 +1114,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v135-TN',
+    VERSION: 'v136-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3329,6 +3330,7 @@
     if ($('npSetGpsBtn')) $('npSetGpsBtn').textContent = isFr ? '📍 Position GPS travail' : '📍 تحديد موقع العمل GPS';
     if ($('openFindNurseCareLbl')) $('openFindNurseCareLbl').textContent = isFr ? '🩺 Trouver un infirmier vérifié proche' : '🩺 البحث عن أقرب ممرض موثّق';
     if ($('openFindNurseSeniorBtn')) $('openFindNurseSeniorBtn').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن ممرض قريب';
+    if ($('seniorEnablePushBtn') && !$('seniorEnablePushBtn').dataset.subscribed) $('seniorEnablePushBtn').textContent = isFr ? '📲 Activer les alertes en arrière-plan' : '📲 تفعيل إشعارات الخلفية';
     if ($('fnSearchInput')) $('fnSearchInput').placeholder = isFr ? '🔍 Ville, code postal, langue ou spécialité...' : '🔍 ابحث بالمدينة، الولاية، اللغة أو التخصص...';
     if ($('nurseVisitReqTitle')) $('nurseVisitReqTitle').textContent = isFr ? '🩺 Demandes de visite reçues' : '🩺 طلبات الزيارة الواردة';
     if ($('npLangEditBtn')) $('npLangEditBtn').textContent = isFr ? '✎ Modifier' : '✎ تعديل';
@@ -5122,15 +5124,28 @@
       }, { onConflict: 'endpoint' });
       if (error) throw error;
       if (btn) {
-        btn.className = 'tap-btn rounded-xl bg-emerald-700 px-3 py-2 text-xs font-extrabold text-white';
-        btn.textContent = isFr ? '🔔 Push ✓' : '🔔 Push ✓';
+        btn.className = 'tap-btn rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-extrabold text-white';
+        btn.textContent = isFr ? '🔔 Push ✓' : '🔔 مفعّلة ✓';
+      }
+      const sBtn = $('seniorEnablePushBtn');
+      if (sBtn) {
+        sBtn.dataset.subscribed = '1';
+        sBtn.className = 'tap-btn rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white';
+        sBtn.textContent = isFr ? '📲 Alertes arrière-plan ✓' : '📲 إشعارات الخلفية مفعّلة ✓';
       }
     } catch (e) {
-      alert(CG.friendlyError(e));
+      if (!window.__cgSilentPushSync) alert(CG.friendlyError(e));
     }
   }
 
   if ($('careEnablePushBtn')) $('careEnablePushBtn').addEventListener('click', subscribeCarePush);
+  if ($('seniorEnablePushBtn')) $('seniorEnablePushBtn').addEventListener('click', subscribeCarePush);
+  setTimeout(() => {
+    if ('Notification' in window && Notification.permission === 'granted' && CG.getCurrentUser && CG.getCurrentUser()) {
+      window.__cgSilentPushSync = true;
+      subscribeCarePush().finally(() => { window.__cgSilentPushSync = false; });
+    }
+  }, 3500);
 })();
 </script>
 
