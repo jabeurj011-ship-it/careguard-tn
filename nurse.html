@@ -603,7 +603,7 @@
       if (lk.status !== 'approved') return { lk, approved: false };
       const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
       const [{ data: meds }, { data: logs }] = await Promise.all([
-        S.client.from('medications').select('id, name, dosage, scheduled_time').eq('senior_id', sp.id),
+        S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
@@ -660,9 +660,7 @@
           mRow.className = 'flex items-center justify-between gap-2 text-xs font-bold';
           const l = document.createElement('span');
           l.className = 'truncate text-[#163024]';
-          const dosePart = m.dosage ? ` (${m.dosage})` : '';
-          const timePart = m.scheduled_time && !(m.dosage || '').includes(m.scheduled_time) ? ` • ${m.scheduled_time}` : '';
-          l.textContent = `${m.name || ''}${dosePart}${timePart}`;
+          l.textContent = `${m.name || ''}${m.dosage ? ' (' + m.dosage + ')' : ''}`;
           const r = document.createElement('span');
           r.className = isT
             ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0E5A3E]'
