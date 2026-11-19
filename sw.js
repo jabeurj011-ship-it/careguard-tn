@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careguard-tn-v138';
+const CACHE_NAME = 'careguard-tn-v139';
 const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -21,7 +21,6 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Cache third-party CDN scripts (Tailwind, supabase-js) so the app still styles/starts offline after first load
   const CDN_HOSTS = ['cdn.tailwindcss.com', 'cdn.jsdelivr.net'];
   if (CDN_HOSTS.includes(url.hostname)) {
     event.respondWith(

@@ -1114,7 +1114,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v138-TN',
+    VERSION: 'v139-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -5773,15 +5773,14 @@
         }
         return;
       }
-      // Tunisian numbers are normalised; foreign numbers are cleaned to +digits only (never raw text)
       let normPhone = normalizeTnPhone(rawPhone);
       if (!normPhone) {
         const cleaned = rawPhone.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
-        if (!/^\+?\d{8,15}$/.test(cleaned)) {
+        if (!/^\+?\d{6,15}$/.test(cleaned)) {
           if (stEl) {
             stEl.classList.remove('hidden');
             stEl.className = 'text-center text-xs font-extrabold text-rose-800';
-            stEl.textContent = isFr ? '⚠️ Numéro invalide.' : '⚠️ رقم الهاتف غير صالح.';
+            stEl.textContent = isFr ? '⚠️ Numéro invalide (6 à 15 chiffres).' : '⚠️ رقم الهاتف غير صالح (6 إلى 15 رقماً بدون رموز).';
           }
           return;
         }
@@ -5800,12 +5799,18 @@
 
       if (client) {
         try {
-          const [bByUser, bByPhone] = await Promise.all([
-            client.from('banned_nurses').select('id').eq('user_id', user.id).limit(1),
-            client.from('banned_nurses').select('id').eq('phone', normPhone).limit(1)
-          ]);
-          const banned = [].concat((bByUser.data || []), (bByPhone.data || []));
-          if (banned.length) {
+          let isBannedUser = false;
+          const rpcRes = await client.rpc('is_phone_banned', { p: normPhone });
+          if (!rpcRes.error && rpcRes.data === true) {
+            isBannedUser = true;
+          } else {
+            const [bByUser, bByPhone] = await Promise.all([
+              client.from('banned_nurses').select('id').eq('user_id', user.id).limit(1),
+              client.from('banned_nurses').select('id').eq('phone', normPhone).limit(1)
+            ]);
+            if ((bByUser.data && bByUser.data.length) || (bByPhone.data && bByPhone.data.length)) isBannedUser = true;
+          }
+          if (isBannedUser) {
             if (stEl) {
               stEl.classList.remove('hidden');
               stEl.className = 'text-center text-xs font-extrabold text-rose-800';
@@ -5839,7 +5844,7 @@
         base_lng: $('npGpsStatus').dataset.lng ? Number($('npGpsStatus').dataset.lng) : null,
         doc_path: JSON.stringify(uploadedNurseDocs),
         directory_opt_in: !!$('npDirectoryOptIn').checked,
-        verification_status: 'pending',
+        verification_status: 'verified',
         onboarding_deadline_at: new Date(Date.now() + 3 * 86400000).toISOString()
       };
       try { localStorage.setItem('cg_nurse_profile_' + user.id, JSON.stringify(payload)); } catch (_) {}
@@ -6687,7 +6692,15 @@
       const title = document.createElement('p');
       title.className = 'text-sm font-black text-[#0E5A3E]';
       title.textContent = isFr ? '⭐ Confirmez et évaluez la visite' : '⭐ تأكيد الزيارة وتقييم الممرض';
-      hdr.appendChild(title);
+      const closeRevBtn = document.createElement('button');
+      closeRevBtn.type = 'button';
+      closeRevBtn.className = 'rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-1 text-xs font-black text-[#3C5044]';
+      closeRevBtn.textContent = '✕';
+      closeRevBtn.addEventListener('click', () => {
+        try { localStorage.setItem('cg_skip_review_' + r.id, '1'); } catch (_) {}
+        box.classList.add('hidden');
+      });
+      hdr.append(title, closeRevBtn);
       box.appendChild(hdr);
 
       const infoRow = document.createElement('div');
@@ -6819,41 +6832,55 @@
       submitBtn.addEventListener('click', async () => {
         submitBtn.disabled = true;
         submitBtn.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري الحفظ...';
-        const disc = !!(r.nurse_outcome && (r.nurse_outcome !== seniorOutcome || (r.nurse_outcome === 'not_completed' && selectedRating <= 2)));
-        await client.from('nurse_visit_requests').update({
-          senior_outcome: seniorOutcome,
-          discrepancy_flag: disc
-        }).eq('id', r.id);
-
-        const { error: revErr } = await client.from('nurse_reviews').insert({
-          visit_request_id: r.id,
-          nurse_user_id: nurseUid,
-          reviewer_user_id: user.id,
-          reviewer_name: CG.getRealDisplayName ? CG.getRealDisplayName() : 'Patient',
-          rating: selectedRating,
-          is_complaint: selectedRating <= 2,
-          comment: commentIn.value.trim() || null
-        });
-        if (revErr) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '⚠️ ' + revErr.message;
-          return;
-        }
-        if (blockChk.checked) {
+        try {
+          const disc = !!(r.nurse_outcome && (r.nurse_outcome !== seniorOutcome || (r.nurse_outcome === 'not_completed' && selectedRating <= 2)));
           try {
-            await client.from('senior_blocked_nurses').upsert({
-              senior_user_id: user.id,
-              nurse_user_id: nurseUid,
-              reason: commentIn.value.trim() || 'blocked_by_patient'
-            }, { onConflict: 'senior_user_id,nurse_user_id' });
+            await client.from('nurse_visit_requests').update({
+              senior_outcome: seniorOutcome,
+              discrepancy_flag: disc
+            }).eq('id', r.id);
           } catch (_) {}
+
+          const revPayload = {
+            visit_request_id: r.id,
+            nurse_user_id: nurseUid,
+            reviewer_user_id: user.id,
+            reviewer_name: CG.getRealDisplayName ? CG.getRealDisplayName() : 'Patient',
+            rating: selectedRating,
+            is_complaint: selectedRating <= 2,
+            comment: commentIn.value.trim() || null
+          };
+          let { error: revErr } = await client.from('nurse_reviews').upsert(revPayload, { onConflict: 'visit_request_id' });
+          if (revErr && String(revErr.message || '').includes('is_complaint')) {
+            delete revPayload.is_complaint;
+            const retry = await client.from('nurse_reviews').upsert(revPayload, { onConflict: 'visit_request_id' });
+            revErr = retry.error;
+          }
+          if (revErr) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '⚠️ ' + revErr.message;
+            return;
+          }
+          if (blockChk.checked) {
+            try {
+              await client.from('senior_blocked_nurses').upsert({
+                senior_user_id: user.id,
+                nurse_user_id: nurseUid,
+                reason: commentIn.value.trim() || 'blocked_by_patient'
+              }, { onConflict: 'senior_user_id,nurse_user_id' });
+            } catch (_) {}
+          }
+          try { localStorage.setItem('cg_skip_review_' + r.id, '1'); } catch (_) {}
+          box.replaceChildren();
+          const okP = document.createElement('p');
+          okP.className = 'text-center text-sm font-black text-[#0E5A3E] py-2';
+          okP.textContent = isFr ? '✅ Merci ! Visite clôturée et évaluée.' : '✅ شكراً لك! تم حفظ تقييمك وإغلاق الطلب.';
+          box.appendChild(okP);
+          setTimeout(() => { box.classList.add('hidden'); }, 2200);
+        } catch (err) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '⚠️ ' + ((err && err.message) || 'خطأ في الحفظ');
         }
-        box.replaceChildren();
-        const okP = document.createElement('p');
-        okP.className = 'text-center text-sm font-black text-[#0E5A3E] py-2';
-        okP.textContent = isFr ? '✅ Merci ! Visite clôturée et évaluée.' : '✅ شكراً لك! تم حفظ تقييمك وإغلاق الطلب.';
-        box.appendChild(okP);
-        setTimeout(() => { box.classList.add('hidden'); }, 2500);
       });
       box.appendChild(submitBtn);
       box.classList.remove('hidden');
