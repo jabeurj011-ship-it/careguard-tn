@@ -1113,7 +1113,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v134-TN',
+    VERSION: 'v135-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -2465,11 +2465,14 @@
     });
     if (!dueList.length) return;
     const m = dueList[0];
-    const _k = m.id + '|' + today + '|' + m.time;
     if (!Array.isArray(state.alertedMedKeys)) state.alertedMedKeys = [];
-    if (!state.alertedMedKeys.includes(_k)) state.alertedMedKeys.push(_k);
-    delete m.snoozeUntil;
+    dueList.forEach((x) => {
+      const _k = x.id + '|' + today + '|' + x.time;
+      if (!state.alertedMedKeys.includes(_k)) state.alertedMedKeys.push(_k);
+      delete x.snoozeUntil;
+    });
     activeDueMedId = m.id;
+    window.__cgActiveDueMedIds = dueList.map((x) => x.id);
     const namesText = dueList.map((x) => (state.lang === 'fr' ? x.nameAr : x.nameEn)).join(' + ');
     $('medDueName').textContent = namesText;
     $('medDueTime').textContent = m.time;
@@ -2480,18 +2483,50 @@
   }
   $('medDueTakeBtn').addEventListener('click', () => {
     stopRingtone();
-    if (activeDueMedId) { const m = state.meds.find((x) => x.id === activeDueMedId); if (m) { m.taken = true; m.takenAt = new Date().toISOString(); delete m.snoozeUntil; if (navigator.onLine && client && currentUser && currentSeniorId && !String(m.id).startsWith('m')) { client.from('medication_logs').insert({ medication_id: m.id, senior_id: currentSeniorId, status: 'taken' }).catch(() => {}); } } saveState(); applyLang(); }
     $('medDueModal').classList.add('hidden');
-    setTimeout(checkDueMedications, 300);
+    const idsToMark = (Array.isArray(window.__cgActiveDueMedIds) && window.__cgActiveDueMedIds.length)
+      ? window.__cgActiveDueMedIds.slice()
+      : (activeDueMedId ? [activeDueMedId] : []);
+    window.__cgActiveDueMedIds = [];
+    activeDueMedId = null;
+    if (idsToMark.length) {
+      const nowIso = new Date().toISOString();
+      const cloudRows = [];
+      idsToMark.forEach((id) => {
+        const m = state.meds.find((x) => x.id === id);
+        if (m) {
+          m.taken = true;
+          m.takenAt = nowIso;
+          delete m.snoozeUntil;
+          if (navigator.onLine && client && currentUser && currentSeniorId && !String(m.id).startsWith('m')) {
+            cloudRows.push({ medication_id: m.id, senior_id: currentSeniorId, status: 'taken' });
+          }
+        }
+      });
+      saveState();
+      applyLang();
+      if (cloudRows.length) {
+        try { Promise.resolve(client.from('medication_logs').insert(cloudRows)).catch(() => {}); } catch (_) {}
+      }
+    }
   });
   $('medDueSnoozeBtn').addEventListener('click', () => {
     stopRingtone();
-    if (activeDueMedId) {
-      const m = state.meds.find((x) => x.id === activeDueMedId);
-      if (m) { m.snoozeUntil = Date.now() + 10 * 60000; saveState(); applyLang(); }
-    }
     $('medDueModal').classList.add('hidden');
-    setTimeout(checkDueMedications, 300);
+    const idsToSnooze = (Array.isArray(window.__cgActiveDueMedIds) && window.__cgActiveDueMedIds.length)
+      ? window.__cgActiveDueMedIds.slice()
+      : (activeDueMedId ? [activeDueMedId] : []);
+    window.__cgActiveDueMedIds = [];
+    activeDueMedId = null;
+    if (idsToSnooze.length) {
+      const untilTs = Date.now() + 10 * 60000;
+      idsToSnooze.forEach((id) => {
+        const m = state.meds.find((x) => x.id === id);
+        if (m) m.snoozeUntil = untilTs;
+      });
+      saveState();
+      applyLang();
+    }
   });
   setInterval(checkDueMedications, 10000);
 
