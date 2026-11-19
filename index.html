@@ -1114,7 +1114,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v136-TN',
+    VERSION: 'v137-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3147,7 +3147,7 @@
     document.documentElement.lang = isFr ? 'fr' : 'ar';
     document.documentElement.dir = isFr ? 'ltr' : 'rtl';
     $('appTitle').textContent = isFr ? 'CareGuard' : 'CareGuard';
-    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • v122 TN';
+    $('appSubtitle').textContent = (isFr ? 'Votre santé et sérénité' : 'صحتك وسكينتك') + ' • ' + ((window.CG_CONFIG && window.CG_CONFIG.VERSION) || 'TN');
     $('langToggleText').textContent = isFr ? 'عربي' : 'FR';
     $('heroWelcomeLabel').textContent = isFr ? 'Bonjour,' : 'مرحباً،';
     if ($('heroMoodSub')) $('heroMoodSub').textContent = isFr ? "Comment vous sentez-vous aujourd'hui ?" : 'كيف حالك اليوم؟';
@@ -5086,25 +5086,67 @@
     return out;
   }
 
-  async function subscribeCarePush() {
+  function setPushButtonsUI(active) {
+    const isFr = CG.getState().lang === 'fr';
     const btn = $('careEnablePushBtn');
+    const sBtn = $('seniorEnablePushBtn');
+    if (btn) {
+      btn.dataset.subscribed = active ? '1' : '';
+      btn.className = active
+        ? 'tap-btn rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-extrabold text-white'
+        : 'tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-900';
+      btn.textContent = active ? (isFr ? '🔔 Push ✓' : '🔔 مفعّلة ✓') : (isFr ? '🔔 Push' : '🔔 الإشعارات');
+    }
+    if (sBtn) {
+      sBtn.dataset.subscribed = active ? '1' : '';
+      sBtn.className = active
+        ? 'tap-btn rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white'
+        : 'tap-btn rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900';
+      sBtn.textContent = active
+        ? (isFr ? '📲 Alertes arrière-plan ✓ (Appuyer pour désactiver)' : '📲 إشعارات الخلفية مفعّلة ✓ (اضغط للإيقاف)')
+        : (isFr ? '📲 Activer les alertes en arrière-plan' : '📲 تفعيل إشعارات الخلفية');
+    }
+  }
+
+  async function subscribeCarePush() {
     const isFr = CG.getState().lang === 'fr';
     const client = CG.getClient(), user = CG.getCurrentUser();
     if (!client || !user) return;
     if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الويب غير مدعومة في هذا المتصفح.');
+      if (!window.__cgSilentPushSync) alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الويب غير مدعومة في هذا المتصفح.');
       return;
     }
+
+    const sBtn = $('seniorEnablePushBtn');
+    const cBtn = $('careEnablePushBtn');
+    const isCurrentlyOn = !window.__cgSilentPushSync && ((sBtn && sBtn.dataset.subscribed === '1') || (cBtn && cBtn.dataset.subscribed === '1'));
+    if (isCurrentlyOn) {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          const ep = sub.endpoint;
+          await sub.unsubscribe().catch(() => {});
+          try { await client.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', ep); } catch (_) {}
+        }
+        try { localStorage.setItem('cg_push_muted', '1'); } catch (_) {}
+        setPushButtonsUI(false);
+      } catch (e) {
+        alert(CG.friendlyError(e));
+      }
+      return;
+    }
+
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
-      alert(isFr ? 'Activez les notifications dans les paramètres.' : 'يرجى تفعيل الإشعارات من إعدادات المتصفح.');
+      if (!window.__cgSilentPushSync) alert(isFr ? 'Activez les notifications dans les paramètres.' : 'يرجى تفعيل الإشعارات من إعدادات المتصفح.');
       return;
     }
     try {
       const res = await fetch(window.CG_CONFIG.SUPABASE_URL + '/functions/v1/notify-alerts-ts?vapid=1');
       const json = await res.json();
       if (!json || !json.publicKey) {
-        alert(isFr ? 'Clé VAPID non configurée sur le serveur.' : 'مفتاح الإشعارات غير مهيأ على الخادم.');
+        if (!window.__cgSilentPushSync) alert(isFr ? 'Clé VAPID non configurée sur le serveur.' : 'مفتاح الإشعارات غير مهيأ على الخادم.');
         return;
       }
       const reg = await navigator.serviceWorker.ready;
@@ -5123,16 +5165,8 @@
         auth: raw.keys && raw.keys.auth ? raw.keys.auth : ''
       }, { onConflict: 'endpoint' });
       if (error) throw error;
-      if (btn) {
-        btn.className = 'tap-btn rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-extrabold text-white';
-        btn.textContent = isFr ? '🔔 Push ✓' : '🔔 مفعّلة ✓';
-      }
-      const sBtn = $('seniorEnablePushBtn');
-      if (sBtn) {
-        sBtn.dataset.subscribed = '1';
-        sBtn.className = 'tap-btn rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white';
-        sBtn.textContent = isFr ? '📲 Alertes arrière-plan ✓' : '📲 إشعارات الخلفية مفعّلة ✓';
-      }
+      try { localStorage.removeItem('cg_push_muted'); } catch (_) {}
+      setPushButtonsUI(true);
     } catch (e) {
       if (!window.__cgSilentPushSync) alert(CG.friendlyError(e));
     }
@@ -5141,7 +5175,8 @@
   if ($('careEnablePushBtn')) $('careEnablePushBtn').addEventListener('click', subscribeCarePush);
   if ($('seniorEnablePushBtn')) $('seniorEnablePushBtn').addEventListener('click', subscribeCarePush);
   setTimeout(() => {
-    if ('Notification' in window && Notification.permission === 'granted' && CG.getCurrentUser && CG.getCurrentUser()) {
+    const muted = localStorage.getItem('cg_push_muted') === '1';
+    if (!muted && 'Notification' in window && Notification.permission === 'granted' && CG.getCurrentUser && CG.getCurrentUser()) {
       window.__cgSilentPushSync = true;
       subscribeCarePush().finally(() => { window.__cgSilentPushSync = false; });
     }

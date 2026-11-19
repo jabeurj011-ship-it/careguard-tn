@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careguard-tn-v136';
+const CACHE_NAME = 'careguard-tn-v137';
 const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
