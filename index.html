@@ -62,6 +62,11 @@
     </div>
 
     <div class="flex items-center gap-1.5">
+      <button id="headerSeniorReqBtn" type="button" class="hidden tap-btn relative flex h-11 w-11 items-center justify-center rounded-full bg-[#FFFDF8] text-[#0E5A3E] shadow-sm border border-[#E8DFCE]" title="طلباتي">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </button>
       <button id="headerNurseReqBtn" type="button" class="hidden tap-btn relative flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-[#0E5A3E] shadow-sm border border-emerald-300" title="طلبات الزيارة">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -516,6 +521,10 @@
           <input id="npPhone" type="tel" dir="ltr" placeholder="هاتف تونسي: +216 22 345 678" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npYearsExp" type="number" min="0" max="60" placeholder="سنوات الخبرة" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
           <input id="npHourlyRate" type="number" min="10" max="500" placeholder="التعريفة بالساعة (د.ت)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+          <select id="npGender" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-2.5 py-2 text-xs font-bold">
+            <option value="male">👨‍⚕️ ممرض (Homme)</option>
+            <option value="female">👩‍⚕️ ممرضة (Femme)</option>
+          </select>
         </div>
         <div class="rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] p-3 space-y-2">
           <div class="flex items-center justify-between gap-2">
@@ -567,6 +576,10 @@
         <label class="flex items-center gap-2 text-xs font-bold text-[#163024]">
           <input id="npDirectoryOptIn" type="checkbox" checked class="h-4 w-4 accent-[#0E5A3E]" />
           <span id="npDirectoryLabel">إظهاري في دليل «أقرب ممرض» بعد التوثيق</span>
+        </label>
+        <label class="flex items-start gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-2.5 text-[11px] font-bold text-[#163024]">
+          <input id="npTermsAgree" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#0E5A3E]" />
+          <span id="npTermsAgreeLbl">أوافق على الشروط والأحكام وسياسة عدم استرجاع رسوم الاشتراك في حال إلغاء أو حظر الحساب بسبب المخالفة أو تكرار الشكاوى *</span>
         </label>
         <button id="saveNurseProfileBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-sm">حفظ ملف الممرض</button>
         <p id="npSaveStatus" class="hidden text-center text-xs font-extrabold"></p>
@@ -1039,6 +1052,11 @@
         <option value="other">✍️ سبب آخر...</option>
       </select>
       <input id="fnCareReasonNote" type="text" autocomplete="off" placeholder="أضف تفاصيل إضافية (اختياري)..." class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold text-[#163024]" />
+      <select id="fnGenderPrefSelect" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-bold text-[#163024]">
+        <option value="any">🤝 لا يهم (ممرض أو ممرضة)</option>
+        <option value="female">👩‍⚕️ ممرضة فقط (Femme uniquement)</option>
+        <option value="male">👨‍⚕️ ممرض فقط (Homme uniquement)</option>
+      </select>
     </div>
     <button id="fnBroadcastBtn" type="button" class="tap-btn mt-2.5 flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-4 py-3 text-start shadow-sm">
       <div>
@@ -1070,13 +1088,31 @@
     <p id="nrModalStatus" class="hidden text-center text-xs font-extrabold text-[#0E5A3E]"></p>
   </div>
 </div>
+<!-- Modal: Senior My Visit Requests & Reviews Window -->
+<div id="seniorRequestsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-3">
+  <div class="flex max-h-[92vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB]">
+    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-3">
+      <div>
+        <h3 id="srModalTitle" class="font-serif-brand text-2xl font-extrabold text-[#0E5A3E]">📋 طلباتي وتقييماتي</h3>
+        <p id="srModalSub" class="text-xs font-bold text-[#5C6F63]">متابعة طلبات الزيارة وتقييم الممرضين</p>
+      </div>
+      <button id="closeSeniorReqModalBtn" type="button" class="rounded-xl px-3 py-1.5 text-xl font-black text-slate-600">✕</button>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-1.5 rounded-2xl bg-[#F2ECE1] p-1">
+      <button id="srTabActBtn" type="button" class="rounded-xl bg-[#0E5A3E] px-2 py-2 text-xs font-black text-white">⏳ الجارية</button>
+      <button id="srTabAccBtn" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">✅ المقبولة</button>
+      <button id="srTabHistBtn" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">⭐ السجل</button>
+    </div>
+    <div id="srModalList" class="my-3 flex-1 space-y-2.5 overflow-y-auto pr-1 min-h-[220px]"></div>
+  </div>
+</div>
 
 <!-- ===== MODULE 1: CONFIG & HELPERS ===== -->
 <script>
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v130-TN',
+    VERSION: 'v132-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -4833,12 +4869,14 @@
       ['1. Politique de confidentialité (RGPD / LPRPDE)', 'CareGuard collecte uniquement les informations que vous saisissez (profil médical d\'urgence, médicaments, rendez-vous et confirmations). Vos données ne sont jamais vendues ni partagées sans votre approbation explicite par code d\'invitation.'],
       ['2. Messages du Salon', 'Les messages publics du Salon CareGuard sont automatiquement expirés après 24 heures.'],
       ['3. Avis médical important', 'CareGuard est un outil d\'organisation et de rappel personnel. Il ne fournit aucun diagnostic médical et ne remplace pas votre médecin ni les services d\'urgence (190 / 198).'],
-      ['4. Vos droits', 'Vous pouvez exporter ou supprimer toutes vos données à tout moment via les boutons ci-dessous.']
+      ['4. Vos droits', 'Vous pouvez exporter ou supprimer toutes vos données à tout moment via les boutons ci-dessous.'],
+      ['5. Conditions Infirmiers & Abonnement', 'En cas de suspension ou de suppression d\'un compte infirmier pour non-respect des règles ou plaintes répétées, les frais d\'abonnement déjà payés ne sont pas remboursables.']
     ] : [
       ['1. سياسة الخصوصية وحماية المعطيات', 'يحفظ CareGuard فقط المعلومات التي تدخلها (بطاقة الطوارئ، الأدوية، المواعيد وتأكيدات السلامة). لا تُباع بياناتك أبداً ولا تُشارك إلا مع من توافق عليه صراحة عبر رمز الدعوة.'],
       ['2. رسائل الصالون', 'تُحذف الرسائل العامة في صالون CareGuard تلقائياً بعد مرور 24 ساعة.'],
       ['3. تنبيه طبي مهم', 'تطبيق CareGuard أداة شخصية للتذكير والتنسيق العائلي فقط؛ لا يقدّم تشخيصاً طبياً ولا يعوّض طبيبك أو خدمات الطوارئ (190 / 198).'],
-      ['4. حقوقك', 'يمكنك تصدير جميع بياناتك أو حذفها نهائياً في أي وقت عبر الأزرار أسفله.']
+      ['4. حقوقك', 'يمكنك تصدير جميع بياناتك أو حذفها نهائياً في أي وقت عبر الأزرار أسفله.'],
+      ['5. شروط الممرضين والاشتراكات', 'في حال إلغاء أو حظر حساب الممرض بسبب مخالفة القواعد أو تراكم شكاوى المستفيدين، لا يحق له المطالبة باسترجاع أي رسوم اشتراك مدفوعة (غير قابلة للاسترجاع).']
     ];
     sections.forEach(([t, d]) => {
       const box = document.createElement('div');
@@ -5513,6 +5551,7 @@
     if (np) {
       if ($('npFullName')) $('npFullName').value = np.full_name || CG.getRealDisplayName() || '';
       if ($('npCredential') && np.credential) $('npCredential').value = np.credential;
+      if ($('npGender') && np.gender) $('npGender').value = np.gender;
       if ($('npCountry') && np.country) $('npCountry').value = np.country;
       if ($('npRegion')) $('npRegion').value = np.region || '';
       if ($('npCityZip')) $('npCityZip').value = np.city_zip || '';
@@ -5630,22 +5669,51 @@
       const stEl = $('npSaveStatus');
       if (!user) return;
       const rawPhone = ($('npPhone').value || '').trim();
-      const normPhone = normalizeTnPhone(rawPhone);
-      if (rawPhone && !normPhone) {
+      const digitsOnly = rawPhone.replace(/\D/g, '');
+      if (!rawPhone || digitsOnly.length < 6) {
         if (stEl) {
           stEl.classList.remove('hidden');
           stEl.className = 'text-center text-xs font-extrabold text-rose-800';
-          stEl.textContent = isFr ? '⚠️ Numéro US / Canada requis (+1 XXX-XXX-XXXX).' : '⚠️ رقم الهاتف التونسي غير صالح (8 أرقام مطلوبة، مثال: 22345678).';
+          stEl.textContent = isFr ? '⚠️ Numéro de téléphone obligatoire (min. 6 chiffres).' : '⚠️ رقم الهاتف إجباري (أدخل 6 أرقام على الأقل).';
         }
         return;
       }
-      if (normPhone && $('npPhone')) $('npPhone').value = normPhone;
+      const normPhone = normalizeTnPhone(rawPhone) || rawPhone;
+      if ($('npPhone')) $('npPhone').value = normPhone;
+
+      if ($('npTermsAgree') && !$('npTermsAgree').checked) {
+        if (stEl) {
+          stEl.classList.remove('hidden');
+          stEl.className = 'text-center text-xs font-extrabold text-rose-800';
+          stEl.textContent = isFr ? '⚠️ Veuillez accepter les conditions et la politique de non-remboursement.' : '⚠️ يجب الموافقة على الشروط وسياسة عدم استرجاع الاشتراك أولاً.';
+        }
+        return;
+      }
+
+      if (client) {
+        try {
+          const { data: banned } = await client
+            .from('banned_nurses')
+            .select('id')
+            .or(`user_id.eq.${user.id},phone.eq.${normPhone}`)
+            .limit(1);
+          if (banned && banned.length) {
+            if (stEl) {
+              stEl.classList.remove('hidden');
+              stEl.className = 'text-center text-xs font-extrabold text-rose-800';
+              stEl.textContent = isFr ? '🚫 Ce compte ou numéro est suspendu suite à des plaintes.' : '🚫 هذا الحساب أو الرقم محظور بسبب تكرار الشكاوى ولا يمكنه إعادة التسجيل.';
+            }
+            return;
+          }
+        } catch (_) {}
+      }
 
       const payload = {
         user_id: user.id,
         full_name: ($('npFullName').value || '').trim(),
         credential: $('npCredential').value,
         credential_type: $('npCredential').value || 'RN',
+        gender: $('npGender') ? $('npGender').value : 'male',
         country: $('npCountry').value,
         region: ($('npRegion').value || '').trim(),
         city: ($('npCityZip').value || '').trim() || ($('npRegion').value || '').trim() || 'Tunisie',
@@ -5707,6 +5775,8 @@
       return Object.assign({}, n, { distKm });
     }).filter((n) => {
       if (availOnly && !n.is_available_now) return false;
+      const gPref = $('fnGenderPrefSelect') ? $('fnGenderPrefSelect').value : 'any';
+      if ((gPref === 'female' || gPref === 'male') && (n.gender || 'male') !== gPref) return false;
       if (!q) return true;
       const hay = [n.full_name, n.credential, n.city_zip, n.region, n.languages, n.specialties].join(' ').toLowerCase();
       return hay.includes(q);
@@ -5835,6 +5905,25 @@
     }
     try {
       const reqMode = mode || 'direct';
+      // Mutual lock: senior cannot create a new request until previous accepted/unconfirmed visit is closed
+      const { data: unclosedReqs } = await client
+        .from('nurse_visit_requests')
+        .select('id, status, senior_outcome')
+        .eq('requester_user_id', user.id)
+        .in('status', ['accepted', 'completed'])
+        .is('senior_outcome', null)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (unclosedReqs && unclosedReqs.length) {
+        if (stEl) {
+          stEl.classList.remove('hidden');
+          stEl.textContent = isFr
+            ? '⚠️ Veuillez d\'abord confirmer et évaluer votre visite précédente avant d\'en demander une nouvelle.'
+            : '⚠️ يجب أولاً تأكيد إغلاق وتقييم زيارتك السابقة من الشاشة الرئيسية قبل إرسال طلب جديد.';
+        }
+        return;
+      }
+
       // Guard against duplicate active requests from repeated taps
       let existingQ = client
         .from('nurse_visit_requests')
@@ -5874,6 +5963,7 @@
         requester_name: CG.getRealDisplayName(),
         requester_phone: gps.phone || null,
         care_reason: getSelectedCareReason(),
+        preferred_gender: $('fnGenderPrefSelect') ? $('fnGenderPrefSelect').value : 'any',
         senior_lat: gps.lat,
         senior_lng: gps.lng,
         request_mode: reqMode,
@@ -5968,9 +6058,10 @@
     if (!client) return;
     const { data, error } = await client
       .from('nurse_profiles')
-      .select('user_id, full_name, credential, country, region, city_zip, phone, years_exp, hourly_rate, languages, specialties, is_available_now, base_lat, base_lng')
+      .select('user_id, full_name, credential, gender, country, region, city_zip, phone, years_exp, hourly_rate, languages, specialties, is_available_now, is_banned, base_lat, base_lng')
       .eq('country', 'TN')
-      .eq('directory_opt_in', true);
+      .eq('directory_opt_in', true)
+      .neq('is_banned', true);
     if (!error && data) {
       const uids = data.map((x) => x.user_id).filter(Boolean);
       const avMap = new Map();
@@ -6095,7 +6186,15 @@
     if ($('nrModalSub')) $('nrModalSub').textContent = isFr ? 'Acceptez vite et naviguez via Google Maps' : 'اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps';
     const user = CG.getCurrentUser();
     const uid = user ? user.id : '';
-    const newReqs = cachedNurseRequests.filter((r) => (r.status === 'pending' && r.nurse_user_id === uid) || (r.request_mode === 'open' && r.status === 'open'));
+    const myGender = ($('npGender') && $('npGender').value) || 'male';
+    const newReqs = cachedNurseRequests.filter((r) => {
+      if (r.status === 'pending' && r.nurse_user_id === uid) return true;
+      if (r.request_mode === 'open' && r.status === 'open') {
+        const pg = r.preferred_gender || 'any';
+        return pg === 'any' || pg === myGender;
+      }
+      return false;
+    });
     newReqs.sort((a, b) => {
       const da = getReqDistanceMeters(a), db = getReqDistanceMeters(b);
       if (da !== null && db !== null) return da - db;
@@ -6109,6 +6208,24 @@
 
     const items = nrCurrentTab === 'new' ? newReqs : (nrCurrentTab === 'accepted' ? accReqs : histReqs);
     listEl.replaceChildren();
+    if (nrCurrentTab === 'new' && accReqs.length > 0) {
+      const lockBox = document.createElement('div');
+      lockBox.className = 'rounded-2xl border-2 border-amber-400 bg-amber-50 p-4 text-center space-y-2.5';
+      const lockP = document.createElement('p');
+      lockP.className = 'text-xs font-black text-amber-950';
+      lockP.textContent = isFr
+        ? '🔒 Vous avez une visite acceptée en cours. Confirmez d\'abord si elle a été réalisée pour voir les nouvelles demandes.'
+        : '🔒 لديك طلب مقبول قيد التنفيذ حالياً. يجب أولاً تأكيد إنجازه أو عدم إنجازه لتظهر لك الطلبات الجديدة.';
+      const goAccBtn = document.createElement('button');
+      goAccBtn.type = 'button';
+      goAccBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white';
+      goAccBtn.textContent = isFr ? '✅ Voir ma visite en cours' : '✅ الذهاب إلى الطلب المقبول';
+      goAccBtn.addEventListener('click', () => setNrTab('accepted'));
+      lockBox.append(lockP, goAccBtn);
+      listEl.appendChild(lockBox);
+      return;
+    }
+
     if (!items.length) {
       const emp = document.createElement('div');
       emp.className = 'rounded-2xl border border-dashed border-[#D8CEBE] bg-white p-6 text-center text-xs font-bold text-[#5C6F63]';
@@ -6178,12 +6295,21 @@
         }
         const doneBtn = document.createElement('button'); doneBtn.type = 'button';
         doneBtn.className = 'tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]';
-        doneBtn.textContent = isFr ? '✓ Terminer' : '✓ إنهاء';
+        doneBtn.textContent = isFr ? '✓ Réalisée' : '✓ تم التنفيذ';
         doneBtn.addEventListener('click', async () => {
-          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed' }).eq('id', r.id);
+          const disc = !!(r.senior_outcome && r.senior_outcome !== 'completed');
+          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'completed', discrepancy_flag: disc }).eq('id', r.id);
           loadIncomingVisitRequests();
         });
-        btns.appendChild(doneBtn);
+        const notDoneBtn = document.createElement('button'); notDoneBtn.type = 'button';
+        notDoneBtn.className = 'tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800';
+        notDoneBtn.textContent = isFr ? '✕ Non réalisée' : '✕ لم يتم';
+        notDoneBtn.addEventListener('click', async () => {
+          const disc = !!(r.senior_outcome && r.senior_outcome !== 'not_completed');
+          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'not_completed', discrepancy_flag: disc }).eq('id', r.id);
+          loadIncomingVisitRequests();
+        });
+        btns.append(doneBtn, notDoneBtn);
       } else {
         const stTag = document.createElement('span'); stTag.className = 'text-[11px] font-black text-[#5C6F63]';
         stTag.textContent = r.status === 'completed' ? (isFr ? '✅ Terminée' : '✅ مكتملة') : (isFr ? '✕ Refusée' : '✕ مرفوضة');
@@ -6204,7 +6330,10 @@
         const ev = payload && payload.eventType;
         const row = payload && payload.new;
         await loadIncomingVisitRequests();
-        if (ev === 'INSERT' && row && (row.request_mode === 'open' || row.nurse_user_id === user.id)) {
+        const myG = ($('npGender') && $('npGender').value) || 'male';
+        const rowPg = (row && row.preferred_gender) || 'any';
+        const genderMatches = (rowPg === 'any' || rowPg === myG);
+        if (ev === 'INSERT' && row && ((row.request_mode === 'open' && genderMatches) || row.nurse_user_id === user.id)) {
           if (CG.playStrongRingtone) CG.playStrongRingtone();
           if (navigator.vibrate) { try { navigator.vibrate([500, 200, 500, 200, 700]); } catch (_) {} }
           if ('Notification' in window && Notification.permission === 'granted') {
@@ -6242,13 +6371,21 @@
     if (!client || !user) return;
     const { data, error } = await client
       .from('nurse_visit_requests')
-      .select('id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, nurse_user_id, accepted_by_user_id, status, created_at')
+      .select('id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
       .limit(40);
     if (error || !data) { box.classList.add('hidden'); return; }
     cachedNurseRequests = data;
-    const newReqs = data.filter((r) => (r.status === 'pending' && r.nurse_user_id === user.id) || (r.request_mode === 'open' && r.status === 'open'));
+    const myGender = ($('npGender') && $('npGender').value) || 'male';
+    const newReqs = data.filter((r) => {
+      if (r.status === 'pending' && r.nurse_user_id === user.id) return true;
+      if (r.request_mode === 'open' && r.status === 'open') {
+        const pg = r.preferred_gender || 'any';
+        return pg === 'any' || pg === myGender;
+      }
+      return false;
+    });
     if (hdrCnt) {
       hdrCnt.textContent = String(newReqs.length);
       hdrCnt.classList.toggle('hidden', newReqs.length === 0);
@@ -6285,6 +6422,7 @@
   if ($('fnBroadcastBtn')) $('fnBroadcastBtn').addEventListener('click', () => sendVisitRequest({ mode: 'open' }));
   if ($('fnSearchInput')) $('fnSearchInput').addEventListener('input', renderFindNurseList);
   if ($('fnAvailOnlyCheck')) $('fnAvailOnlyCheck').addEventListener('change', renderFindNurseList);
+  if ($('fnGenderPrefSelect')) $('fnGenderPrefSelect').addEventListener('change', renderFindNurseList);
   if ($('headerNurseReqBtn')) $('headerNurseReqBtn').addEventListener('click', async () => {
     if (CG.stopRingtone) CG.stopRingtone();
     refreshNurseLiveGps();
@@ -6305,7 +6443,7 @@
     try {
       const { data: compReqs } = await client
         .from('nurse_visit_requests')
-        .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, created_at')
+        .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, nurse_outcome, senior_outcome, created_at')
         .eq('requester_user_id', user.id)
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
@@ -6342,25 +6480,17 @@
       const credTxt = np && np.credential ? (credLabels[np.credential] || np.credential) : '';
 
       box.replaceChildren();
-      box.className = 'rounded-3xl border-2 border-amber-400 bg-amber-50 p-4 shadow-md space-y-3';
+      box.className = 'rounded-3xl border-2 border-amber-400 bg-[#FFFDF9] p-4 shadow-md space-y-3';
       const hdr = document.createElement('div');
       hdr.className = 'flex items-center justify-between gap-2';
       const title = document.createElement('p');
-      title.className = 'text-sm font-black text-amber-950';
-      title.textContent = isFr ? '⭐ Évaluez la visite de votre infirmier' : '⭐ قيّم خدمة الممرض بعد الزيارة';
-      const skipBtn = document.createElement('button');
-      skipBtn.type = 'button';
-      skipBtn.className = 'rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-[11px] font-black text-amber-900';
-      skipBtn.textContent = isFr ? 'Ignorer' : 'تخطي';
-      skipBtn.addEventListener('click', () => {
-        try { localStorage.setItem('cg_skip_review_' + r.id, '1'); } catch (_) {}
-        box.classList.add('hidden');
-      });
-      hdr.append(title, skipBtn);
+      title.className = 'text-sm font-black text-[#0E5A3E]';
+      title.textContent = isFr ? '⭐ Confirmez et évaluez la visite' : '⭐ تأكيد الزيارة وتقييم الممرض';
+      hdr.appendChild(title);
       box.appendChild(hdr);
 
       const infoRow = document.createElement('div');
-      infoRow.className = 'flex items-center gap-3 rounded-2xl bg-white p-3 border border-amber-200';
+      infoRow.className = 'flex items-center gap-3 rounded-2xl bg-[#FAF6EE] p-3 border border-[#E6DCCB]';
       const av = document.createElement('div');
       av.className = 'h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-amber-300 bg-amber-100 flex items-center justify-center text-lg font-black text-amber-900';
       if (avUrl) {
@@ -6382,10 +6512,73 @@
       infoRow.append(av, det);
       box.appendChild(infoRow);
 
+      // Senior outcome selector (anti-fraud cross-check)
+      let seniorOutcome = r.senior_outcome || 'completed';
+      const outWrap = document.createElement('div');
+      outWrap.className = 'grid grid-cols-2 gap-2';
+      const outYes = document.createElement('button'); outYes.type = 'button';
+      const outNo = document.createElement('button'); outNo.type = 'button';
+      const refreshOutcomeBtns = () => {
+        outYes.className = seniorOutcome === 'completed'
+          ? 'rounded-xl border-2 border-emerald-600 bg-emerald-50 px-2.5 py-2 text-xs font-black text-[#0E5A3E]'
+          : 'rounded-xl border border-[#D8CEBE] bg-white px-2.5 py-2 text-xs font-bold text-[#5C6F63]';
+        outNo.className = seniorOutcome === 'not_completed'
+          ? 'rounded-xl border-2 border-rose-500 bg-rose-50 px-2.5 py-2 text-xs font-black text-rose-900'
+          : 'rounded-xl border border-[#D8CEBE] bg-white px-2.5 py-2 text-xs font-bold text-[#5C6F63]';
+      };
+      outYes.textContent = isFr ? '✓ Soin effectué' : '✓ حضر وأنجز الخدمة';
+      outNo.textContent = isFr ? '✕ Non effectué' : '✕ لم يحضر / لم ينجز';
+      outYes.addEventListener('click', () => { seniorOutcome = 'completed'; refreshOutcomeBtns(); });
+      outNo.addEventListener('click', () => { seniorOutcome = 'not_completed'; refreshOutcomeBtns(); });
+      refreshOutcomeBtns();
+      outWrap.append(outYes, outNo);
+      box.appendChild(outWrap);
+
       let selectedRating = 5;
       const starsRow = document.createElement('div');
       starsRow.className = 'flex items-center justify-center gap-2 py-1';
       const starBtns = [];
+      const tagsWrap = document.createElement('div');
+      tagsWrap.className = 'flex flex-wrap gap-1.5 justify-center';
+      const commentIn = document.createElement('input');
+      commentIn.type = 'text';
+      commentIn.autocomplete = 'off';
+      commentIn.className = 'w-full rounded-2xl border border-[#D8CEBE] bg-white px-3.5 py-2 text-xs font-bold text-[#163024]';
+
+      const posTags = isFr
+        ? ['⏰ Ponctuel', '💉 Main légère', '🤝 Très poli', '🧼 Hygiène']
+        : ['⏰ التزام بالوقت', '💉 يد خفيفة ومهارة', '🤝 معاملة طيبة', '🧼 نظافة وتعقيم'];
+      const negTags = isFr
+        ? ['🚫 Absent', '⏳ Très en retard', '🗣️ Mauvais accueil', '💰 Tarif abusif']
+        : ['🚫 لم يحضر', '⏳ تأخر كبير', '🗣️ سوء معاملة', '💰 مخالفة في السعر'];
+
+      const renderTags = () => {
+        tagsWrap.replaceChildren();
+        const isComp = selectedRating <= 2;
+        title.textContent = isComp
+          ? (isFr ? '⚠️ Signaler une plainte' : '⚠️ تسجيل شكوى على الممرض')
+          : (isFr ? '⭐ Confirmez et évaluez la visite' : '⭐ تأكيد الزيارة وتقييم الممرض');
+        title.className = isComp ? 'text-sm font-black text-rose-900' : 'text-sm font-black text-[#0E5A3E]';
+        commentIn.placeholder = isComp
+          ? (isFr ? 'Décrivez le problème...' : 'اشرح سبب الشكوى...')
+          : (isFr ? 'Commentaire (optionnel)...' : 'أضف تعليقاً قصيراً (اختياري)...');
+        const list = isComp ? negTags : posTags;
+        list.forEach((tg) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = isComp
+            ? 'rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-900'
+            : 'rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-[#0E5A3E]';
+          b.textContent = tg;
+          b.addEventListener('click', () => {
+            if (!commentIn.value.includes(tg)) {
+              commentIn.value = commentIn.value ? (commentIn.value + ' • ' + tg) : tg;
+            }
+          });
+          tagsWrap.appendChild(b);
+        });
+      };
+
       const refreshStars = () => {
         starBtns.forEach((b, idx) => {
           b.textContent = idx < selectedRating ? '★' : '☆';
@@ -6393,6 +6586,7 @@
             ? 'text-3xl leading-none text-amber-500 transition-transform active:scale-110'
             : 'text-3xl leading-none text-slate-300 transition-transform active:scale-110';
         });
+        renderTags();
       };
       for (let i = 1; i <= 5; i++) {
         const sb = document.createElement('button');
@@ -6403,28 +6597,28 @@
         starsRow.appendChild(sb);
       }
       refreshStars();
-      box.appendChild(starsRow);
-
-      const commentIn = document.createElement('input');
-      commentIn.type = 'text';
-      commentIn.autocomplete = 'off';
-      commentIn.placeholder = isFr ? 'Commentaire (optionnel)...' : 'أضف تعليقاً قصيراً (اختياري)...';
-      commentIn.className = 'w-full rounded-2xl border border-amber-200 bg-white px-3.5 py-2 text-xs font-bold text-[#163024]';
-      box.appendChild(commentIn);
+      box.append(starsRow, tagsWrap, commentIn);
 
       const submitBtn = document.createElement('button');
       submitBtn.type = 'button';
       submitBtn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white shadow-sm';
-      submitBtn.textContent = isFr ? '⭐ Envoyer mon avis' : '⭐ إرسال التقييم';
+      submitBtn.textContent = isFr ? '⭐ Envoyer et clôturer' : '⭐ إرسال التقييم وإغلاق الطلب';
       submitBtn.addEventListener('click', async () => {
         submitBtn.disabled = true;
         submitBtn.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري الحفظ...';
+        const disc = !!(r.nurse_outcome && (r.nurse_outcome !== seniorOutcome || (r.nurse_outcome === 'not_completed' && selectedRating <= 2)));
+        await client.from('nurse_visit_requests').update({
+          senior_outcome: seniorOutcome,
+          discrepancy_flag: disc
+        }).eq('id', r.id);
+
         const { error: revErr } = await client.from('nurse_reviews').insert({
           visit_request_id: r.id,
           nurse_user_id: nurseUid,
           reviewer_user_id: user.id,
           reviewer_name: CG.getRealDisplayName ? CG.getRealDisplayName() : 'Patient',
           rating: selectedRating,
+          is_complaint: selectedRating <= 2,
           comment: commentIn.value.trim() || null
         });
         if (revErr) {
@@ -6435,7 +6629,7 @@
         box.replaceChildren();
         const okP = document.createElement('p');
         okP.className = 'text-center text-sm font-black text-[#0E5A3E] py-2';
-        okP.textContent = isFr ? '✅ Merci pour votre évaluation !' : '✅ شكراً لك! تم حفظ تقييمك للممرض بنجاح.';
+        okP.textContent = isFr ? '✅ Merci ! Visite clôturée et évaluée.' : '✅ شكراً لك! تم حفظ تقييمك وإغلاق الطلب.';
         box.appendChild(okP);
         setTimeout(() => { box.classList.add('hidden'); }, 2500);
       });
@@ -6451,7 +6645,9 @@
     if (!box) return;
     const client = CG.getClient(), user = CG.getCurrentUser();
     const role = CG.getUserRole ? CG.getUserRole() : '';
-    if (!client || !user || (role !== 'senior' && role !== 'family')) {
+    const isSrRole = (role === 'senior' || role === 'family');
+    if ($('headerSeniorReqBtn')) $('headerSeniorReqBtn').classList.toggle('hidden', !isSrRole || !user);
+    if (!client || !user || !isSrRole) {
       box.classList.add('hidden');
       return;
     }
@@ -6497,7 +6693,7 @@
     const phone = (np && np.phone) || '';
 
     box.replaceChildren();
-    box.className = 'rounded-3xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-md space-y-3';
+    box.className = 'rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-4 shadow-md space-y-3';
     const hdr = document.createElement('div');
     hdr.className = 'flex items-center justify-between gap-2';
     const title = document.createElement('p');
@@ -6589,6 +6785,112 @@
       })
       .subscribe();
   }
+
+  let srCurrentTab = 'active';
+  function setSrTab(tab) {
+    srCurrentTab = tab;
+    const activeCls = 'rounded-xl bg-[#0E5A3E] px-2 py-2 text-xs font-black text-white';
+    const idleCls = 'rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]';
+    if ($('srTabActBtn')) $('srTabActBtn').className = tab === 'active' ? activeCls : idleCls;
+    if ($('srTabAccBtn')) $('srTabAccBtn').className = tab === 'accepted' ? activeCls : idleCls;
+    if ($('srTabHistBtn')) $('srTabHistBtn').className = tab === 'history' ? activeCls : idleCls;
+    loadSeniorRequestsModal();
+  }
+
+  async function loadSeniorRequestsModal() {
+    const listEl = $('srModalList');
+    const client = CG.getClient(), user = CG.getCurrentUser();
+    const isFr = CG.getState().lang === 'fr';
+    if (!listEl || !client || !user) return;
+    if ($('srModalTitle')) $('srModalTitle').textContent = isFr ? '📋 Mes demandes & avis' : '📋 طلباتي وتقييماتي';
+    if ($('srModalSub')) $('srModalSub').textContent = isFr ? 'Suivi des visites et évaluations' : 'متابعة طلبات الزيارة وتقييم الممرضين';
+
+    const { data: reqs } = await client
+      .from('nurse_visit_requests')
+      .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, request_mode, status, nurse_outcome, senior_outcome, created_at')
+      .eq('requester_user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
+
+    const rows = reqs || [];
+    const items = rows.filter((r) => {
+      if (srCurrentTab === 'active') return r.status === 'open' || r.status === 'pending';
+      if (srCurrentTab === 'accepted') return r.status === 'accepted';
+      return r.status === 'completed' || r.status === 'declined';
+    });
+
+    const reqIds = items.map((x) => x.id);
+    const revMap = new Map();
+    if (srCurrentTab === 'history' && reqIds.length) {
+      try {
+        const { data: revs } = await client.from('nurse_reviews').select('visit_request_id, rating, comment').in('visit_request_id', reqIds);
+        (revs || []).forEach((rv) => revMap.set(rv.visit_request_id, rv));
+      } catch (_) {}
+    }
+
+    listEl.replaceChildren();
+    if (!items.length) {
+      const emp = document.createElement('div');
+      emp.className = 'rounded-2xl border border-dashed border-[#D8CEBE] bg-white p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.textContent = isFr ? 'Aucune demande ici.' : 'لا توجد طلبات في هذا القسم حالياً.';
+      listEl.appendChild(emp);
+      return;
+    }
+
+    items.forEach((r) => {
+      const card = document.createElement('div');
+      card.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 shadow-sm space-y-2';
+      const top = document.createElement('div'); top.className = 'flex items-center justify-between gap-2';
+      const nm = document.createElement('p'); nm.className = 'text-sm font-black text-[#163024]';
+      nm.textContent = r.accepted_by_name || r.nurse_name || (isFr ? 'En attente d\'un infirmier' : 'في انتظار قبول ممرض');
+      const tm = document.createElement('span'); tm.className = 'text-[11px] font-bold text-[#5C6F63]';
+      tm.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
+      top.append(nm, tm);
+      card.appendChild(top);
+      if (r.care_reason) {
+        const rsn = document.createElement('p'); rsn.className = 'text-xs font-bold text-[#0E5A3E]';
+        rsn.textContent = '🩺 ' + r.care_reason;
+        card.appendChild(rsn);
+      }
+      if (srCurrentTab === 'active') {
+        const cancelBtn = document.createElement('button'); cancelBtn.type = 'button';
+        cancelBtn.className = 'tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-800';
+        cancelBtn.textContent = isFr ? '✕ Annuler la demande' : '✕ إلغاء الطلب';
+        cancelBtn.addEventListener('click', async () => {
+          await client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'cancelled' }).eq('id', r.id);
+          loadSeniorRequestsModal();
+        });
+        card.appendChild(cancelBtn);
+      } else if (srCurrentTab === 'history') {
+        const rv = revMap.get(r.id);
+        if (rv) {
+          const stP = document.createElement('p'); stP.className = 'text-xs font-black text-amber-600';
+          stP.textContent = '⭐'.repeat(rv.rating || 5) + (rv.comment ? ` — ${rv.comment}` : '');
+          card.appendChild(stP);
+        } else if (r.status === 'completed') {
+          const rateBtn = document.createElement('button'); rateBtn.type = 'button';
+          rateBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
+          rateBtn.textContent = isFr ? '⭐ Évaluer maintenant' : '⭐ قيّم الآن';
+          rateBtn.addEventListener('click', async () => {
+            $('seniorRequestsModal').classList.add('hidden');
+            try { localStorage.removeItem('cg_skip_review_' + r.id); } catch (_) {}
+            await loadSeniorAcceptedVisit();
+          });
+          card.appendChild(rateBtn);
+        }
+      }
+      listEl.appendChild(card);
+    });
+  }
+
+  if ($('headerSeniorReqBtn')) $('headerSeniorReqBtn').addEventListener('click', () => {
+    if ($('seniorRequestsModal')) $('seniorRequestsModal').classList.remove('hidden');
+    setSrTab('active');
+  });
+  if ($('closeSeniorReqModalBtn')) $('closeSeniorReqModalBtn').addEventListener('click', () => $('seniorRequestsModal').classList.add('hidden'));
+  if ($('srTabActBtn')) $('srTabActBtn').addEventListener('click', () => setSrTab('active'));
+  if ($('srTabAccBtn')) $('srTabAccBtn').addEventListener('click', () => setSrTab('accepted'));
+  if ($('srTabHistBtn')) $('srTabHistBtn').addEventListener('click', () => setSrTab('history'));
 
   const prevExtrasFn = CG.loadSereniteExtras;
   CG.loadSereniteExtras = function () {
