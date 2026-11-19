@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#047857" />
 <link rel="manifest" href="./manifest.json" />
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -1114,7 +1114,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v137-TN',
+    VERSION: 'v138-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -1126,6 +1126,21 @@
 
   window.CG = window.CG || {};
   window.CG.$ = (id) => document.getElementById(id);
+
+  window.CG.notifyAlerts = async function () {
+    try {
+      let token = window.CG_CONFIG.SUPABASE_ANON_KEY;
+      try {
+        const c = window.CG.getClient && window.CG.getClient();
+        if (c) { const r = await c.auth.getSession(); if (r && r.data && r.data.session) token = r.data.session.access_token; }
+      } catch (_) {}
+      await fetch(window.CG_CONFIG.SUPABASE_URL + '/functions/v1/notify-alerts-ts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': window.CG_CONFIG.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + token },
+        body: '{}'
+      });
+    } catch (e) { console.warn('[CareGuard] notifyAlerts failed', e); }
+  };
 
   window.CG.safeTelHref = function (raw) {
     const clean = String(raw || '').trim();
@@ -5403,11 +5418,7 @@
               client.from('care_direct_messages').insert({ senior_id: sid, sender_user_id: user.id, sender_name: CG.getRealDisplayName(), sender_role: 'senior', channel: 'nurse', message_text: msg })
             ]);
             // Trigger immediate Push + Email delivery via notify-alerts-ts (no 15-min wait)
-            fetch('https://jobzviplbwfdoyrdrblt.supabase.co/functions/v1/notify-alerts-ts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: '{}'
-            }).catch(() => {});
+            CG.notifyAlerts();
             if (statusEl) statusEl.textContent = isFr ? '✅ SOS + position envoyés à votre famille et infirmier !' : '✅ تم إرسال الاستغاثة والموقع للعائلة والممرض!';
           } catch (e) {
             if (statusEl) statusEl.textContent = (isFr ? 'Erreur SOS : ' : 'خطأ في SOS: ') + (e.message || '');
@@ -5491,9 +5502,7 @@
                 alert_type: 'gps_disabled',
                 message: `📍 GPS / Location is disabled on ${CG.getRealDisplayName()}'s phone`
               });
-              fetch('https://jobzviplbwfdoyrdrblt.supabase.co/functions/v1/notify-alerts-ts', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
-              }).catch(() => {});
+              CG.notifyAlerts();
             } catch (_) {}
           }
         }
@@ -5764,7 +5773,20 @@
         }
         return;
       }
-      const normPhone = normalizeTnPhone(rawPhone) || rawPhone;
+      // Tunisian numbers are normalised; foreign numbers are cleaned to +digits only (never raw text)
+      let normPhone = normalizeTnPhone(rawPhone);
+      if (!normPhone) {
+        const cleaned = rawPhone.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+        if (!/^\+?\d{8,15}$/.test(cleaned)) {
+          if (stEl) {
+            stEl.classList.remove('hidden');
+            stEl.className = 'text-center text-xs font-extrabold text-rose-800';
+            stEl.textContent = isFr ? '⚠️ Numéro invalide.' : '⚠️ رقم الهاتف غير صالح.';
+          }
+          return;
+        }
+        normPhone = cleaned;
+      }
       if ($('npPhone')) $('npPhone').value = normPhone;
 
       if ($('npTermsAgree') && !$('npTermsAgree').checked) {
@@ -5778,12 +5800,12 @@
 
       if (client) {
         try {
-          const { data: banned } = await client
-            .from('banned_nurses')
-            .select('id')
-            .or(`user_id.eq.${user.id},phone.eq.${normPhone}`)
-            .limit(1);
-          if (banned && banned.length) {
+          const [bByUser, bByPhone] = await Promise.all([
+            client.from('banned_nurses').select('id').eq('user_id', user.id).limit(1),
+            client.from('banned_nurses').select('id').eq('phone', normPhone).limit(1)
+          ]);
+          const banned = [].concat((bByUser.data || []), (bByPhone.data || []));
+          if (banned.length) {
             if (stEl) {
               stEl.classList.remove('hidden');
               stEl.className = 'text-center text-xs font-extrabold text-rose-800';
@@ -5817,7 +5839,7 @@
         base_lng: $('npGpsStatus').dataset.lng ? Number($('npGpsStatus').dataset.lng) : null,
         doc_path: JSON.stringify(uploadedNurseDocs),
         directory_opt_in: !!$('npDirectoryOptIn').checked,
-        verification_status: 'verified',
+        verification_status: 'pending',
         onboarding_deadline_at: new Date(Date.now() + 3 * 86400000).toISOString()
       };
       try { localStorage.setItem('cg_nurse_profile_' + user.id, JSON.stringify(payload)); } catch (_) {}
