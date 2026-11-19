@@ -44,7 +44,7 @@
   .cg-pulse-once { animation: cgPulseGlow 0.9s ease-out; }
 </style>
 </head>
-<body class="min-h-screen pb-28">
+<body class="min-h-screen pb-28 overflow-x-hidden">
 
 <!-- Top Header (Bell + Brand + Heart-Home Logo) -->
 <header id="mainHeader" class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
@@ -358,7 +358,7 @@
         <input id="aiQuestionInput" autocomplete="off" type="text" placeholder="Ex : Quand est mon prochain médicament ?" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-2.5 text-base" />
         <button id="askAiBtn" type="button" class="tap-btn shrink-0 rounded-2xl border-2 border-violet-300 bg-violet-50 px-5 py-2.5 text-base font-extrabold text-violet-900">Demander</button>
       </div>
-      <div id="aiAnswerBox" class="hidden rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-base font-bold text-slate-900"></div>
+      <div id="aiAnswerBox" class="hidden rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 text-base font-bold text-slate-900 break-words overflow-hidden"></div>
       <p id="aiDisclaimerNote" class="text-xs font-bold text-slate-500">Note : l'Assistant IA sert uniquement aux rappels et ne remplace pas un avis médical.</p>
     </div>
 
@@ -397,6 +397,7 @@
         </div>
       </div>
       <div class="flex items-center justify-end gap-2">
+        <button id="careOpenRingtoneBtn" type="button" class="tap-btn rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-extrabold text-amber-950" style="min-height:34px;">🎵 النغمة</button>
         <button id="careEnablePushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-900" style="min-height:34px;">🔔 الإشعارات</button>
         <button id="careRefreshBtn" type="button" class="tap-btn rounded-full border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-extrabold text-[#0E5A3E]" style="min-height:34px;">🔄 تحديث</button>
         <button id="careSignOutBtn" type="button" class="hidden tap-btn rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-extrabold text-rose-800" style="min-height:34px;">🚪 خروج</button>
@@ -948,7 +949,7 @@
       </select>
       <label class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50 p-4 text-center text-base font-extrabold text-amber-950">
         <span id="pickPhoneRingtoneLabel">Choisir une sonnerie sur le téléphone (MP3 / M4A / WAV)</span>
-        <input id="customRingtoneInput" type="file" accept=".mp3,.m4a,.wav,.ogg,.aac,audio/mpeg,audio/mp4,audio/ogg,*/*" class="hidden" />
+        <input id="customRingtoneInput" type="file" accept="audio/*" class="hidden" />
       </label>
       <p id="customRingtoneStatus" class="text-sm font-extrabold text-emerald-800"></p>
       <button id="testRingtoneBtn" type="button" class="tap-btn w-full rounded-2xl bg-amber-600 px-5 py-3.5 text-lg font-black text-white">Tester la sonnerie et vibration</button>
@@ -1126,7 +1127,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v150-TN',
+    VERSION: 'v152-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -2334,18 +2335,18 @@
       const ctx = window.__cgAudioCtx;
       if (ctx.state === 'suspended') ctx.resume().catch(() => {});
       const now = ctx.currentTime;
-      const bursts = mode === 'urgent_alarm' ? 4 : 3;
+      const bursts = mode === 'urgent_alarm' ? 6 : 5;
       for (let i = 0; i < bursts; i++) {
-        const t = now + i * 0.42;
+        const t = now + i * 0.38;
         const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
-        o1.type = mode === 'urgent_alarm' ? 'square' : (mode === 'classic_bell' ? 'sine' : 'triangle');
-        o2.type = 'sine';
-        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 880 : (mode === 'classic_bell' ? 784 : 660), t);
-        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1175 : (mode === 'classic_bell' ? 1046 : 880), t);
-        g.gain.setValueAtTime(0.35, t);
-        g.gain.exponentialRampToValueAtTime(0.01, t + 0.34);
+        o1.type = mode === 'urgent_alarm' ? 'sawtooth' : (mode === 'classic_bell' ? 'triangle' : 'square');
+        o2.type = 'triangle';
+        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 987.77 : (mode === 'classic_bell' ? 880 : 740), t);
+        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1318.5 : (mode === 'classic_bell' ? 1174.6 : 987.77), t);
+        g.gain.setValueAtTime(0.85, t);
+        g.gain.exponentialRampToValueAtTime(0.02, t + 0.32);
         o1.connect(g); o2.connect(g); g.connect(ctx.destination);
-        o1.start(t); o2.start(t); o1.stop(t + 0.35); o2.stop(t + 0.35);
+        o1.start(t); o2.start(t); o1.stop(t + 0.34); o2.stop(t + 0.34);
       }
     } catch (_) {}
   }
@@ -2428,7 +2429,7 @@
       if (!batErr) lastSyncedBatteryPct = pct;
       if (batErr) window.__lastSyncErr = (window.__lastSyncErr ? window.__lastSyncErr + ' | ' : '') + 'Bat: ' + batErr.message;
       if (pct <= 30 && !charging) {
-        await client.from('alerts').insert({ senior_id: currentSeniorId, alert_type: 'low_battery', severity: pct <= 15 ? 'critical' : 'warning', status: 'open', message: `Low phone battery: ${pct}%` });
+        await client.from('alerts').insert({ senior_id: currentSeniorId, alert_type: 'low_battery', severity: pct <= 15 ? 'critical' : 'warning', status: 'open', message: `انخفاض بطارية الهاتف: ${pct}%` });
       }
     } catch (e) { window.__lastSyncErr = 'Bat: ' + ((e && e.message) || e); }
   }
@@ -2762,7 +2763,7 @@
       if ((userRole === 'nurse' || userRole === 'center') && ch !== 'nurse') return;
       if (userRole === 'family' && ch !== 'family') return;
       const isMine = currentUser && dm.sender_user_id === currentUser.id;
-      const chLabel = ch === 'nurse' ? (isFr ? 'Infirmier' : 'Nurse') : (isFr ? 'Famille' : 'العائلة');
+      const chLabel = ch === 'nurse' ? (isFr ? 'Infirmier' : 'الممرض') : (isFr ? 'Famille' : 'العائلة');
       const tStr = dm.created_at ? new Date(dm.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
       items.push({
         cls: 'border-teal-200 bg-teal-50 text-slate-900',
@@ -2944,7 +2945,7 @@
         state.waterAlertedSlots.push(key);
         saveState();
         triggerWaterReminder(false);
-        sendSwNotification(state.lang === 'fr' ? '💧 Rappel eau' : '💧 تذكير شرب الماء', (state.lang === 'fr' ? 'Verre ' : 'Glass ') + (state.waterCount + 1) + '/8 (' + slot + ')', 'water-' + slot);
+        sendSwNotification(state.lang === 'fr' ? '💧 Rappel eau' : '💧 تذكير شرب الماء', (state.lang === 'fr' ? 'Verre ' : 'كوب ') + (state.waterCount + 1) + '/8 (' + slot + ')', 'water-' + slot);
         break;
       }
     }
@@ -2955,9 +2956,9 @@
     const name = getRealDisplayName();
     let msg = state.lang === 'fr'
       ? `Bonjour ${name}, il est temps de boire un verre d'eau. Vous avez bu ${state.waterCount} sur 8 verres aujourd'hui.`
-      : `Hello ${name}, time to drink a glass of water now (${state.waterCount}/8 today).`;
+      : `مرحباً ${name}، حان وقت شرب كوب من الماء الآن (${state.waterCount} من 8 أكواب اليوم).`;
     try {
-      const aiReply = await callGeminiText(state.lang === 'fr' ? `Écris un rappel vocal très court et gentil pour un senior nommé "${name}" afin qu\'il boive de l\'eau (${state.waterCount}/8).` : `Write a short 2-sentence water reminder for "${name}" (${state.waterCount}/8).`);
+      const aiReply = await callGeminiText(state.lang === 'fr' ? `Écris un rappel vocal très court et gentil pour un senior nommé "${name}" afin qu\'il boive de l\'eau (${state.waterCount}/8).` : `اكتب تذكيراً صوتياً قصيراً ولطيفاً باللغة العربية لكبير السن "${name}" لشرب كوب من الماء الآن (${state.waterCount} من 8 أكواب اليوم).`);
       if (aiReply && aiReply.trim()) msg = aiReply.trim();
     } catch (_) {}
     const fb = $('waterAiFeedback'); fb.textContent = msg; fb.classList.remove('hidden');
@@ -2972,20 +2973,23 @@
     const nextInfo = getNextMedicationInfo();
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const nextTextAr = nextInfo ? `Prochain médicament : "${nextInfo.med.nameAr}" à ${nextInfo.med.time} (${nextInfo.tomorrow ? 'demain' : "aujourd'hui"}, dans ${Math.floor(nextInfo.diffMins / 60)}h ${nextInfo.diffMins % 60}min).` : 'Aucun médicament enregistré.';
-    const nextTextEn = nextInfo ? `Your next medication is "${nextInfo.med.nameEn}" at ${nextInfo.med.time} (${nextInfo.tomorrow ? 'tomorrow' : 'today'}, in ${Math.floor(nextInfo.diffMins / 60)}h ${nextInfo.diffMins % 60}m).` : 'No medications listed.';
+    const nextTextEn = nextInfo ? `دواؤك القادم هو "${nextInfo.med.nameEn || nextInfo.med.nameAr}" الساعة ${nextInfo.med.time} (${nextInfo.tomorrow ? 'غداً' : 'اليوم'}، بعد ${Math.floor(nextInfo.diffMins / 60)} ساعة و${nextInfo.diffMins % 60} دقيقة).` : 'لا توجد أدوية مسجلة حالياً.';
     let reply = '', aiErrNote = '';
     try {
       const prompt = state.lang === 'fr'
         ? `Tu es un assistant bienveillant pour les seniors dans CareGuard. Il est ${nowStr}. ${nextTextAr} Eau : ${state.waterCount}/8. Réponds gentiment en 3 lignes max : ${q}`
-        : `You are a gentle senior-care assistant. Time ${nowStr}. ${nextTextEn} Water: ${state.waterCount}/8. Answer kindly in max 3 lines: ${q}`;
+        : `أنت مساعد لطيف لرعاية كبار السن في تطبيق CareGuard. الساعة الآن ${nowStr}. ${nextTextEn} شرب الماء: ${state.waterCount} من 8 أكواب. أجب باللغة العربية بلطف وباختصار في 3 أسطر كحد أقصى: ${q}`;
       reply = (await callGeminiText(prompt)) || '';
     } catch (e) { aiErrNote = e && e.message ? ` (${e.message})` : ''; }
     if (!reply) {
       reply = /médicament|medicament|prochain|quand|pilule|eau|med|next|when|pill/i.test(q)
         ? (state.lang === 'fr' ? nextTextAr : nextTextEn)
-        : (state.lang === 'fr' ? `${nextTextAr} Eau : ${state.waterCount}/8 verres.` : `${nextTextAr} الماء: ${state.waterCount}/8 أكواب.`);
+        : (state.lang === 'fr' ? `${nextTextAr} Eau : ${state.waterCount}/8 verres.` : `${nextTextEn} شرب الماء: ${state.waterCount}/8 أكواب.`);
     }
-    box.textContent = reply + (aiErrNote ? '\n[Gemini: ' + aiErrNote + ']' : '');
+    const quotaNote = (aiErrNote && /quota|limit|429/i.test(aiErrNote))
+      ? (state.lang === 'fr' ? '\n(Limite quotidienne IA atteinte — résumé local affiché)' : '\n(بلغ المساعد الذكي الحد اليومي المجاني — تم عرض ملخصك المحلي)')
+      : '';
+    box.textContent = reply + quotaNote;
     speakText(reply);
   }
 
@@ -3263,6 +3267,7 @@
     $('testWaterAlertBtn').textContent = isFr ? '💧 Écouter le rappel d\'eau' : '💧 تجربة تذكير الماء';
     $('voiceBtn').textContent = isFr ? '🔊 Écouter le rappel vocal' : '🔊 تجربة التذكير الصوتي';
     $('openRingtoneModalBtn').textContent = isFr ? '🔔 Sonnerie' : '🔔 نغمة التنبيه';
+    if ($('careOpenRingtoneBtn')) $('careOpenRingtoneBtn').textContent = isFr ? '🎵 Sonnerie' : '🎵 النغمة';
     if ($('openPlansModalBtn')) {
       const pNames = { free: isFr ? 'Gratuit' : 'مجاني', plus: 'Plus', agency: isFr ? 'Pro / Agence' : 'مؤسسات / ممرضين' };
       $('openPlansModalBtn').textContent = (isFr ? '⭐ Abonnement : ' : '⭐ الاشتراك: ') + (pNames[userPlan] || 'مجاني');
@@ -3790,6 +3795,12 @@
   });
 
   $('closeRingtoneModalBtn').addEventListener('click', () => { stopRingtone(); $('ringtoneModal').classList.add('hidden'); });
+  function openRingtoneModalUI() {
+    $('ringtonePresetSelect').value = state.ringtonePreset || 'loud_phone';
+    $('customRingtoneStatus').textContent = state.customRingtoneName ? ((state.lang === 'fr' ? 'Sonnerie : ' : 'محفوظة: ') + state.customRingtoneName) : '';
+    $('ringtoneModal').classList.remove('hidden');
+  }
+  if ($('careOpenRingtoneBtn')) $('careOpenRingtoneBtn').addEventListener('click', openRingtoneModalUI);
   $('openRingtoneModalBtn').addEventListener('click', () => {
     $('ringtonePresetSelect').value = state.ringtonePreset || 'loud_phone';
     $('customRingtoneStatus').textContent = state.customRingtoneName ? ((state.lang === 'fr' ? 'Sonnerie : ' : 'محفوظة: ') + state.customRingtoneName) : '';
@@ -4169,7 +4180,7 @@
       data.forEach((lk) => {
         const row = document.createElement('div');
         row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-3 border border-amber-200';
-        const roleTxt = lk.role_type === 'nurse' ? (isFr ? 'Infirmier' : 'Nurse') : (lk.role_type === 'center' ? (isFr ? 'Soins à domicile' : 'Home Care') : (isFr ? 'Famille' : 'العائلة'));
+        const roleTxt = lk.role_type === 'nurse' ? (isFr ? 'Infirmier' : 'الممرض') : (lk.role_type === 'center' ? (isFr ? 'Soins à domicile' : 'مركز الرعاية') : (isFr ? 'Famille' : 'العائلة'));
         const txt = document.createElement('p'); txt.className = 'text-sm font-black text-slate-900';
         txt.textContent = `${lk.requester_name} (${roleTxt})`;
         const btns = document.createElement('div'); btns.className = 'flex gap-2';
@@ -5089,7 +5100,7 @@
   function renderPlansModal() {
     const isFr = state.lang === 'fr';
     $('plansModalTitle').textContent = isFr ? 'Abonnements CareGuard' : 'باقات CareGuard';
-    const planLabel = userPlan === 'plus' ? 'CareGuard Plus' : (userPlan === 'agency' ? (isFr ? 'Infirmier / Agence' : 'Nurse / Agency') : (isFr ? 'Gratuit' : 'مجاني'));
+    const planLabel = userPlan === 'plus' ? 'CareGuard Plus' : (userPlan === 'agency' ? (isFr ? 'Infirmier / Agence' : 'الممرض / المركز') : (isFr ? 'Gratuit' : 'مجاني'));
     $('plansCurrentBadge').textContent = (isFr ? 'Plan actuel : ' : 'الباقة الحالية: ') + planLabel;
     const box = $('plansCardsList'); box.replaceChildren();
     $('plansFeedback').classList.add('hidden');
@@ -5617,7 +5628,7 @@
               await client.from('alerts').insert({
                 senior_id: sid,
                 alert_type: 'gps_disabled',
-                message: `📍 GPS / Location is disabled on ${CG.getRealDisplayName()}'s phone`
+                message: `📍 تم إيقاف الموقع (GPS) على هاتف ${CG.getRealDisplayName()}`
               });
               CG.notifyAlerts();
             } catch (_) {}
