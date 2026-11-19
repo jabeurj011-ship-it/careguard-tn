@@ -475,6 +475,7 @@
           <div>
             <h3 id="npCardTitle" class="font-serif-brand text-xl font-extrabold text-[#0E5A3E]">🩺 Nurse Profile & License</h3>
             <p id="npCardSub" class="text-xs font-bold text-[#5C6F63]">Complete within 3 days to stay active & verified</p>
+        <div id="npBlockWarningBox" class="hidden rounded-2xl border-2 border-rose-400 bg-rose-50 px-3.5 py-2.5 text-xs font-black text-rose-900"></div>
           </div>
           <span id="npStatusBadge" class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black text-amber-900">⏳ قيد المراجعة</span>
         </div>
@@ -1112,7 +1113,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v132-TN',
+    VERSION: 'v134-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -4870,13 +4871,13 @@
       ['2. Messages du Salon', 'Les messages publics du Salon CareGuard sont automatiquement expirés après 24 heures.'],
       ['3. Avis médical important', 'CareGuard est un outil d\'organisation et de rappel personnel. Il ne fournit aucun diagnostic médical et ne remplace pas votre médecin ni les services d\'urgence (190 / 198).'],
       ['4. Vos droits', 'Vous pouvez exporter ou supprimer toutes vos données à tout moment via les boutons ci-dessous.'],
-      ['5. Conditions Infirmiers & Abonnement', 'En cas de suspension ou de suppression d\'un compte infirmier pour non-respect des règles ou plaintes répétées, les frais d\'abonnement déjà payés ne sont pas remboursables.']
+      ['5. Conditions Infirmiers, Blocage & Abonnement', 'Un patient peut bloquer un infirmier afin que ses futures demandes ne lui soient plus visibles. Au bout de 3 blocages par des patients différents, le compte de l\'infirmier est automatiquement suspendu pendant 7 jours. En cas de suspension ou de suppression définitive, les frais d\'abonnement payés ne sont pas remboursables.']
     ] : [
       ['1. سياسة الخصوصية وحماية المعطيات', 'يحفظ CareGuard فقط المعلومات التي تدخلها (بطاقة الطوارئ، الأدوية، المواعيد وتأكيدات السلامة). لا تُباع بياناتك أبداً ولا تُشارك إلا مع من توافق عليه صراحة عبر رمز الدعوة.'],
       ['2. رسائل الصالون', 'تُحذف الرسائل العامة في صالون CareGuard تلقائياً بعد مرور 24 ساعة.'],
       ['3. تنبيه طبي مهم', 'تطبيق CareGuard أداة شخصية للتذكير والتنسيق العائلي فقط؛ لا يقدّم تشخيصاً طبياً ولا يعوّض طبيبك أو خدمات الطوارئ (190 / 198).'],
       ['4. حقوقك', 'يمكنك تصدير جميع بياناتك أو حذفها نهائياً في أي وقت عبر الأزرار أسفله.'],
-      ['5. شروط الممرضين والاشتراكات', 'في حال إلغاء أو حظر حساب الممرض بسبب مخالفة القواعد أو تراكم شكاوى المستفيدين، لا يحق له المطالبة باسترجاع أي رسوم اشتراك مدفوعة (غير قابلة للاسترجاع).']
+      ['5. شروط الممرضين، الحظر والاشتراكات', 'يحق للمستفيد حظر ممرض لإخفاء طلباته المستقبلية عنه. إذا تجمعت 3 مرات حظر على نفس الممرض من مستفيدين مختلفين يُعلّق حسابه تلقائياً لمدة أسبوع (7 أيام)، وعند تكرار الشكاوى الجسيمة يُحظر الحساب نهائياً دون حق المطالبة باسترجاع أي رسوم اشتراك مدفوعة (غير قابلة للاسترجاع).']
     ];
     sections.forEach(([t, d]) => {
       const box = document.createElement('div');
@@ -5915,11 +5916,30 @@
         .order('created_at', { ascending: false })
         .limit(1);
       if (unclosedReqs && unclosedReqs.length) {
+        const prev = unclosedReqs[0];
+        if (triggerBtn) triggerBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
+        else if (bcBadge) bcBadge.textContent = isFr ? '⚡ Envoyer' : '⚡ إرسال';
         if (stEl) {
+          stEl.replaceChildren();
           stEl.classList.remove('hidden');
-          stEl.textContent = isFr
-            ? '⚠️ Veuillez d\'abord confirmer et évaluer votre visite précédente avant d\'en demander une nouvelle.'
-            : '⚠️ يجب أولاً تأكيد إغلاق وتقييم زيارتك السابقة من الشاشة الرئيسية قبل إرسال طلب جديد.';
+          const msgSpan = document.createElement('p');
+          msgSpan.textContent = isFr
+            ? '⚠️ Vous avez une visite précédente non clôturée. Confirmez-la ou évaluez-la d\'abord :'
+            : '⚠️ لديك زيارة سابقة غير مغلقة. أغلقها أو قيّمها أولاً لتتمكن من إرسال طلب جديد:';
+          const goBtn = document.createElement('button');
+          goBtn.type = 'button';
+          goBtn.className = 'mt-2 tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
+          goBtn.textContent = isFr ? '📋 Ouvrir la visite précédente' : '📋 فتح الزيارة السابقة الآن';
+          goBtn.addEventListener('click', async () => {
+            if ($('findNurseModal')) $('findNurseModal').classList.add('hidden');
+            try { localStorage.removeItem('cg_skip_review_' + prev.id); } catch (_) {}
+            await loadSeniorAcceptedVisit();
+            if ($('seniorRequestsModal')) {
+              $('seniorRequestsModal').classList.remove('hidden');
+              setSrTab(prev.status === 'accepted' ? 'accepted' : 'history');
+            }
+          });
+          stEl.append(msgSpan, goBtn);
         }
         return;
       }
@@ -6056,12 +6076,26 @@
 
     const client = CG.getClient();
     if (!client) return;
-    const { data, error } = await client
+    const meUser = CG.getCurrentUser();
+    const blockedSet = new Set();
+    if (meUser) {
+      try {
+        const { data: blks } = await client.from('senior_blocked_nurses').select('nurse_user_id').eq('senior_user_id', meUser.id);
+        (blks || []).forEach((b) => { if (b.nurse_user_id) blockedSet.add(b.nurse_user_id); });
+      } catch (_) {}
+    }
+    const { data: rawNurses, error } = await client
       .from('nurse_profiles')
-      .select('user_id, full_name, credential, gender, country, region, city_zip, phone, years_exp, hourly_rate, languages, specialties, is_available_now, is_banned, base_lat, base_lng')
+      .select('user_id, full_name, credential, gender, country, region, city_zip, phone, years_exp, hourly_rate, languages, specialties, is_available_now, is_banned, suspended_until, base_lat, base_lng')
       .eq('country', 'TN')
       .eq('directory_opt_in', true)
       .neq('is_banned', true);
+    const nowMs = Date.now();
+    const data = (rawNurses || []).filter((x) => {
+      if (blockedSet.has(x.user_id)) return false;
+      if (x.suspended_until && new Date(x.suspended_until).getTime() > nowMs) return false;
+      return true;
+    });
     if (!error && data) {
       const uids = data.map((x) => x.user_id).filter(Boolean);
       const avMap = new Map();
@@ -6142,6 +6176,16 @@
 
   async function acceptVisitRequest(r) {
     const client = CG.getClient(), user = CG.getCurrentUser();
+    const uid = user ? user.id : '';
+    const activeOwn = cachedNurseRequests.filter((x) => x.status === 'accepted' && !x.nurse_outcome && (x.accepted_by_user_id === uid || x.nurse_user_id === uid));
+    if (activeOwn.length > 0) {
+      if (CG.stopRingtone) CG.stopRingtone();
+      if ($('nurseRequestsModal')) {
+        $('nurseRequestsModal').classList.remove('hidden');
+        setNrTab('new');
+      }
+      return;
+    }
     const isFr = CG.getState().lang === 'fr';
     const stEl = $('nrModalStatus');
     if (!client || !user) return;
@@ -6187,7 +6231,10 @@
     const user = CG.getCurrentUser();
     const uid = user ? user.id : '';
     const myGender = ($('npGender') && $('npGender').value) || 'male';
-    const newReqs = cachedNurseRequests.filter((r) => {
+    const blkBy = window.__cgNurseBlockedBy || new Set();
+    const isSuspNow = !!(window.__cgNurseSuspendedUntil && new Date(window.__cgNurseSuspendedUntil).getTime() > Date.now());
+    const newReqs = isSuspNow ? [] : cachedNurseRequests.filter((r) => {
+      if (r.requester_user_id && blkBy.has(r.requester_user_id)) return false;
       if (r.status === 'pending' && r.nurse_user_id === uid) return true;
       if (r.request_mode === 'open' && r.status === 'open') {
         const pg = r.preferred_gender || 'any';
@@ -6200,7 +6247,7 @@
       if (da !== null && db !== null) return da - db;
       return 0;
     });
-    const accReqs = cachedNurseRequests.filter((r) => r.status === 'accepted' && (r.accepted_by_user_id === uid || r.nurse_user_id === uid));
+    const accReqs = cachedNurseRequests.filter((r) => r.status === 'accepted' && !r.nurse_outcome && (r.accepted_by_user_id === uid || r.nurse_user_id === uid));
     const histReqs = cachedNurseRequests.filter((r) => (r.status === 'completed' || r.status === 'declined') && (r.accepted_by_user_id === uid || r.nurse_user_id === uid));
 
     if ($('nrNewBadge')) $('nrNewBadge').textContent = String(newReqs.length);
@@ -6208,6 +6255,17 @@
 
     const items = nrCurrentTab === 'new' ? newReqs : (nrCurrentTab === 'accepted' ? accReqs : histReqs);
     listEl.replaceChildren();
+    if (nrCurrentTab === 'new' && isSuspNow) {
+      const sBox = document.createElement('div');
+      sBox.className = 'rounded-2xl border-2 border-rose-400 bg-rose-50 p-4 text-center text-xs font-black text-rose-900';
+      const uStr = new Date(window.__cgNurseSuspendedUntil).toLocaleDateString();
+      sBox.textContent = isFr
+        ? `⛔ Votre compte est suspendu jusqu'au ${uStr} (7 jours) suite à 3 blocages de patients.`
+        : `⛔ حسابك معلّق مؤقتاً لمدة أسبوع (حتى ${uStr}) بسبب حظرك من طرف 3 مستفيدين.`;
+      listEl.appendChild(sBox);
+      return;
+    }
+
     if (nrCurrentTab === 'new' && accReqs.length > 0) {
       const lockBox = document.createElement('div');
       lockBox.className = 'rounded-2xl border-2 border-amber-400 bg-amber-50 p-4 text-center space-y-2.5';
@@ -6332,7 +6390,9 @@
         await loadIncomingVisitRequests();
         const myG = ($('npGender') && $('npGender').value) || 'male';
         const rowPg = (row && row.preferred_gender) || 'any';
-        const genderMatches = (rowPg === 'any' || rowPg === myG);
+        const blkSet = window.__cgNurseBlockedBy || new Set();
+        const isSuspRt = !!(window.__cgNurseSuspendedUntil && new Date(window.__cgNurseSuspendedUntil).getTime() > Date.now());
+        const genderMatches = !isSuspRt && !(row && row.requester_user_id && blkSet.has(row.requester_user_id)) && (rowPg === 'any' || rowPg === myG);
         if (ev === 'INSERT' && row && ((row.request_mode === 'open' && genderMatches) || row.nurse_user_id === user.id)) {
           if (CG.playStrongRingtone) CG.playStrongRingtone();
           if (navigator.vibrate) { try { navigator.vibrate([500, 200, 500, 200, 700]); } catch (_) {} }
@@ -6369,16 +6429,50 @@
     const client = CG.getClient(), user = CG.getCurrentUser();
     const isFr = CG.getState().lang === 'fr';
     if (!client || !user) return;
+    let blockedBySeniors = new Set();
+    let nurseBlockCount = 0;
+    let nurseSuspendedUntil = null;
+    try {
+      const [{ data: blkRows }, { data: myNp }] = await Promise.all([
+        client.from('senior_blocked_nurses').select('senior_user_id').eq('nurse_user_id', user.id),
+        client.from('nurse_profiles').select('suspended_until, is_banned').eq('user_id', user.id).maybeSingle()
+      ]);
+      (blkRows || []).forEach((b) => { if (b.senior_user_id) blockedBySeniors.add(b.senior_user_id); });
+      nurseBlockCount = blockedBySeniors.size;
+      nurseSuspendedUntil = myNp && myNp.suspended_until ? myNp.suspended_until : null;
+      const warnEl = $('npBlockWarningBox');
+      if (warnEl) {
+        if (nurseSuspendedUntil && new Date(nurseSuspendedUntil).getTime() > Date.now()) {
+          const untilStr = new Date(nurseSuspendedUntil).toLocaleDateString();
+          warnEl.classList.remove('hidden');
+          warnEl.textContent = isFr
+            ? `⛔ Compte suspendu pour 7 jours (jusqu'au ${untilStr}) suite à 3 blocages de patients.`
+            : `⛔ تم تعليق حسابك لمدة أسبوع (حتى ${untilStr}) بسبب حظرك من طرف 3 مستفيدين أو أكثر.`;
+        } else if (nurseBlockCount > 0) {
+          warnEl.classList.remove('hidden');
+          warnEl.textContent = isFr
+            ? `⚠️ Attention : ${nurseBlockCount} patient(s) ont bloqué vos services. À 3 blocages, votre compte sera suspendu 7 jours.`
+            : `⚠️ تنبيه: قام ${nurseBlockCount} من المستفيدين بحظر التعامل معك. عند بلوغ 3 مرات حظر يتم تعليق الحساب لمدة أسبوع.`;
+        } else {
+          warnEl.classList.add('hidden');
+        }
+      }
+    } catch (_) {}
+    window.__cgNurseBlockedBy = blockedBySeniors;
+    window.__cgNurseSuspendedUntil = nurseSuspendedUntil;
+
     const { data, error } = await client
       .from('nurse_visit_requests')
-      .select('id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at')
+      .select('id, requester_user_id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
       .limit(40);
     if (error || !data) { box.classList.add('hidden'); return; }
     cachedNurseRequests = data;
     const myGender = ($('npGender') && $('npGender').value) || 'male';
-    const newReqs = data.filter((r) => {
+    const isSuspNow = !!(nurseSuspendedUntil && new Date(nurseSuspendedUntil).getTime() > Date.now());
+    const newReqs = isSuspNow ? [] : data.filter((r) => {
+      if (r.requester_user_id && blockedBySeniors.has(r.requester_user_id)) return false;
       if (r.status === 'pending' && r.nurse_user_id === user.id) return true;
       if (r.request_mode === 'open' && r.status === 'open') {
         const pg = r.preferred_gender || 'any';
@@ -6599,7 +6693,19 @@
       refreshStars();
       box.append(starsRow, tagsWrap, commentIn);
 
-      const submitBtn = document.createElement('button');
+      const blockLbl = document.createElement('label');
+      blockLbl.className = 'flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-xs font-black text-rose-900';
+      const blockChk = document.createElement('input');
+      blockChk.type = 'checkbox';
+      blockChk.className = 'h-4 w-4 shrink-0 accent-rose-600';
+      const blockTxt = document.createElement('span');
+      blockTxt.textContent = isFr
+        ? '🚫 Ne plus afficher mes demandes à cet infirmier (Bloquer)'
+        : '🚫 عدم ظهور طلباتي لهذا الممرض مرة أخرى (حظر التعامل معه)';
+      blockLbl.append(blockChk, blockTxt);
+      box.appendChild(blockLbl);
+
+            const submitBtn = document.createElement('button');
       submitBtn.type = 'button';
       submitBtn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white shadow-sm';
       submitBtn.textContent = isFr ? '⭐ Envoyer et clôturer' : '⭐ إرسال التقييم وإغلاق الطلب';
@@ -6625,6 +6731,15 @@
           submitBtn.disabled = false;
           submitBtn.textContent = '⚠️ ' + revErr.message;
           return;
+        }
+        if (blockChk.checked) {
+          try {
+            await client.from('senior_blocked_nurses').upsert({
+              senior_user_id: user.id,
+              nurse_user_id: nurseUid,
+              reason: commentIn.value.trim() || 'blocked_by_patient'
+            }, { onConflict: 'senior_user_id,nurse_user_id' });
+          } catch (_) {}
         }
         box.replaceChildren();
         const okP = document.createElement('p');
@@ -6852,7 +6967,18 @@
         rsn.textContent = '🩺 ' + r.care_reason;
         card.appendChild(rsn);
       }
-      if (srCurrentTab === 'active') {
+      if (srCurrentTab === 'accepted') {
+        const doneSrBtn = document.createElement('button'); doneSrBtn.type = 'button';
+        doneSrBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
+        doneSrBtn.textContent = isFr ? '✓ Terminée (Évaluer)' : '✓ تم الوصول (تقييم)';
+        doneSrBtn.addEventListener('click', async () => {
+          await client.from('nurse_visit_requests').update({ status: 'completed', senior_outcome: 'completed' }).eq('id', r.id);
+          $('seniorRequestsModal').classList.add('hidden');
+          try { localStorage.removeItem('cg_skip_review_' + r.id); } catch (_) {}
+          await loadSeniorAcceptedVisit();
+        });
+        card.appendChild(doneSrBtn);
+      } else       if (srCurrentTab === 'active') {
         const cancelBtn = document.createElement('button'); cancelBtn.type = 'button';
         cancelBtn.className = 'tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-800';
         cancelBtn.textContent = isFr ? '✕ Annuler la demande' : '✕ إلغاء الطلب';
