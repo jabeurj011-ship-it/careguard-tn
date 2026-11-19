@@ -1119,7 +1119,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v142-TN',
+    VERSION: 'v144-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -6053,14 +6053,15 @@
     try {
       const reqMode = mode || 'direct';
       // Mutual lock: senior cannot create a new request until previous accepted/unconfirmed visit is closed
-      const { data: unclosedReqs } = await client
+      const { data: rawUnclosed } = await client
         .from('nurse_visit_requests')
-        .select('id, status, senior_outcome')
+        .select('id, status, senior_outcome, nurse_user_id, accepted_by_user_id')
         .eq('requester_user_id', user.id)
         .in('status', ['accepted', 'completed'])
         .is('senior_outcome', null)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(5);
+      const unclosedReqs = (rawUnclosed || []).filter((u) => !!(u.accepted_by_user_id || u.nurse_user_id));
       if (unclosedReqs && unclosedReqs.length) {
         const prev = unclosedReqs[0];
         if (triggerBtn) triggerBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
@@ -6079,10 +6080,16 @@
           goBtn.addEventListener('click', async () => {
             if ($('findNurseModal')) $('findNurseModal').classList.add('hidden');
             try { localStorage.removeItem('cg_skip_review_' + prev.id); } catch (_) {}
-            await loadSeniorAcceptedVisit();
-            if ($('seniorRequestsModal')) {
-              $('seniorRequestsModal').classList.remove('hidden');
-              setSrTab(prev.status === 'accepted' ? 'accepted' : 'history');
+            const box = $('seniorAcceptedVisitBox');
+            if (prev.status === 'completed' && box) {
+              await renderPendingNurseReview(client, user, box, isFr, prev.id);
+              try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
+            } else {
+              await loadSeniorAcceptedVisit();
+              if ($('seniorRequestsModal')) {
+                $('seniorRequestsModal').classList.remove('hidden');
+                setSrTab('accepted');
+              }
             }
           });
           stEl.append(msgSpan, goBtn);
@@ -6518,7 +6525,7 @@
         doneBtn.textContent = isFr ? '✓ Réalisée' : '✓ تم التنفيذ';
         doneBtn.addEventListener('click', async () => {
           const disc = !!(r.senior_outcome && r.senior_outcome !== 'completed');
-          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'completed', discrepancy_flag: disc }).eq('id', r.id);
+          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'completed', discrepancy_flag: disc, completed_at: new Date().toISOString() }).eq('id', r.id);
           loadIncomingVisitRequests();
         });
         const notDoneBtn = document.createElement('button'); notDoneBtn.type = 'button';
@@ -6526,7 +6533,7 @@
         notDoneBtn.textContent = isFr ? '✕ Non réalisée' : '✕ لم يتم';
         notDoneBtn.addEventListener('click', async () => {
           const disc = !!(r.senior_outcome && r.senior_outcome !== 'not_completed');
-          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'not_completed', discrepancy_flag: disc }).eq('id', r.id);
+          await CG.getClient().from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'not_completed', discrepancy_flag: disc, completed_at: new Date().toISOString() }).eq('id', r.id);
           loadIncomingVisitRequests();
         });
         btns.append(doneBtn, notDoneBtn);
@@ -6625,7 +6632,7 @@
 
     const { data, error } = await client
       .from('nurse_visit_requests')
-      .select('id, requester_user_id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at')
+      .select('id, requester_user_id, requester_name, requester_phone, senior_lat, senior_lng, request_mode, care_reason, preferred_gender, nurse_user_id, accepted_by_user_id, nurse_outcome, senior_outcome, discrepancy_flag, status, created_at, accepted_at, completed_at')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
       .limit(40);
@@ -6695,18 +6702,18 @@
   if ($('nrTabAccBtn')) $('nrTabAccBtn').addEventListener('click', () => setNrTab('accepted'));
   if ($('nrTabHistBtn')) $('nrTabHistBtn').addEventListener('click', () => setNrTab('history'));
   let requesterRealtimeChannel = null;
-  async function renderPendingNurseReview(client, user, box, isFr) {
+  async function renderPendingNurseReview(client, user, box, isFr, targetReqId) {
     try {
-      const { data: compReqs } = await client
+      let q = client
         .from('nurse_visit_requests')
         .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, nurse_outcome, senior_outcome, created_at')
         .eq('requester_user_id', user.id)
-        .eq('status', 'completed')
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .eq('status', 'completed');
+      if (targetReqId) q = q.eq('id', targetReqId);
+      const { data: compReqs } = await q.order('created_at', { ascending: false }).limit(1);
       if (!compReqs || !compReqs.length) { box.classList.add('hidden'); return; }
       const r = compReqs[0];
-      if (localStorage.getItem('cg_skip_review_' + r.id)) { box.classList.add('hidden'); return; }
+      if (!targetReqId && localStorage.getItem('cg_skip_review_' + r.id)) { box.classList.add('hidden'); return; }
       const nurseUid = r.accepted_by_user_id || r.nurse_user_id;
       if (!nurseUid) { box.classList.add('hidden'); return; }
       const { data: existingRev } = await client
@@ -7003,7 +7010,7 @@
     doneBtn.className = 'rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-[11px] font-black text-[#0E5A3E]';
     doneBtn.textContent = isFr ? '✓ Terminée' : '✓ تم الوصول';
     doneBtn.addEventListener('click', async () => {
-      await client.from('nurse_visit_requests').update({ status: 'completed' }).eq('id', r.id);
+      await client.from('nurse_visit_requests').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', r.id);
       await loadSeniorAcceptedVisit();
     });
     hdr.append(title, doneBtn);
@@ -7106,7 +7113,7 @@
 
     const { data: reqs } = await client
       .from('nurse_visit_requests')
-      .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, request_mode, status, nurse_outcome, senior_outcome, created_at')
+      .select('id, nurse_user_id, accepted_by_user_id, accepted_by_name, nurse_name, care_reason, request_mode, status, nurse_outcome, senior_outcome, created_at, accepted_at, completed_at')
       .eq('requester_user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(30);
@@ -7146,6 +7153,17 @@
       tm.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
       top.append(nm, tm);
       card.appendChild(top);
+      const fmtHHMM = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      const timeParts = [];
+      if (r.created_at) timeParts.push((isFr ? '🕒 Demandé : ' : '🕒 الطلب: ') + fmtHHMM(r.created_at));
+      if (r.accepted_at) timeParts.push((isFr ? '✅ Accepté : ' : '✅ الاستلام: ') + fmtHHMM(r.accepted_at));
+      if (r.completed_at) timeParts.push((isFr ? '🏁 Terminé : ' : '🏁 التنفيذ: ') + fmtHHMM(r.completed_at));
+      if (timeParts.length) {
+        const tLine = document.createElement('p');
+        tLine.className = 'text-[11px] font-bold text-[#5C6F63]';
+        tLine.textContent = timeParts.join(' • ');
+        card.appendChild(tLine);
+      }
       if (r.care_reason) {
         const rsn = document.createElement('p'); rsn.className = 'text-xs font-bold text-[#0E5A3E]';
         rsn.textContent = '🩺 ' + r.care_reason;
@@ -7156,7 +7174,7 @@
         doneSrBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
         doneSrBtn.textContent = isFr ? '✓ Terminée (Évaluer)' : '✓ تم الوصول (تقييم)';
         doneSrBtn.addEventListener('click', async () => {
-          await client.from('nurse_visit_requests').update({ status: 'completed', senior_outcome: 'completed' }).eq('id', r.id);
+          await client.from('nurse_visit_requests').update({ status: 'completed', senior_outcome: 'completed', completed_at: new Date().toISOString() }).eq('id', r.id);
           $('seniorRequestsModal').classList.add('hidden');
           try { localStorage.removeItem('cg_skip_review_' + r.id); } catch (_) {}
           await loadSeniorAcceptedVisit();
@@ -7184,7 +7202,11 @@
           rateBtn.addEventListener('click', async () => {
             $('seniorRequestsModal').classList.add('hidden');
             try { localStorage.removeItem('cg_skip_review_' + r.id); } catch (_) {}
-            await loadSeniorAcceptedVisit();
+            const box = $('seniorAcceptedVisitBox');
+            if (box) {
+              await renderPendingNurseReview(client, user, box, isFr, r.id);
+              try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
+            }
           });
           card.appendChild(rateBtn);
         }
