@@ -232,7 +232,10 @@
     <div id="familyReassuranceCard" class="hidden serenite-card rounded-3xl p-4 space-y-2 border-l-4 border-l-[#0E5A3E]">
       <div class="flex items-center justify-between gap-2">
         <p id="familyReassuranceSender" class="text-xs font-black text-[#0E5A3E]">💬 Message de votre famille</p>
-        <span id="familyReassuranceTime" class="text-[11px] font-bold text-[#7A8C7E]"></span>
+        <div class="flex items-center gap-2">
+          <span id="familyReassuranceTime" class="text-[11px] font-bold text-[#7A8C7E]"></span>
+          <button id="closeFamilyReassuranceBtn" type="button" class="rounded-lg border border-[#D8CEBE] bg-[#FAF6EE] px-2 py-0.5 text-[11px] font-black text-[#5C6F63]" aria-label="إغلاق">✕</button>
+        </div>
       </div>
       <p id="familyReassuranceText" class="text-base font-bold text-[#163024]"></p>
       <audio id="familyReassuranceAudio" controls class="hidden w-full h-10"></audio>
@@ -282,17 +285,16 @@
         <span id="emergencyBtnLabel" class="hidden"></span>
       </button>
 
-      <!-- Tile 3: Drink Water (Glossy Blue Drop + Ripples) -->
-      <button id="tileWaterBtn" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#C9E0F5] bg-gradient-to-b from-[#F2F8FE] to-[#E1EFFB] px-3 py-4 text-center shadow-sm min-h-[154px]">
+      <!-- Tile 3: Request Nearest Nurse (Prominent on Senior Home) -->
+      <button id="openFindNurseSeniorBtn" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#BFDDC9] bg-gradient-to-b from-[#F2FBF5] to-[#DEF3E6] px-3 py-4 text-center shadow-sm min-h-[154px]">
         <svg class="h-16 w-16 mb-1.5 drop-shadow-sm" viewBox="0 0 64 64" aria-hidden="true">
-          <ellipse cx="32" cy="49" rx="22" ry="6" fill="none" stroke="#93C5FD" stroke-width="1.8"/>
-          <ellipse cx="32" cy="49" rx="14" ry="3.8" fill="none" stroke="#60A5FA" stroke-width="1.8"/>
-          <path d="M32 10C32 10 18 27 18 37a14 14 0 0028 0c0-10-14-27-14-27z" fill="#38BDF8" stroke="#0284C7" stroke-width="1.5"/>
-          <path d="M25 35c0-5 4-11 7-15-1 5 0 11 2 16a7 7 0 01-9-1z" fill="#BAE6FD" opacity="0.7"/>
+          <rect x="10" y="18" width="44" height="34" rx="10" fill="#0E5A3E"/>
+          <path d="M24 18v-4a4 4 0 014-4h8a4 4 0 014 4v4" fill="none" stroke="#0E5A3E" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="32" cy="35" r="11" fill="#FFFFFF"/>
+          <path d="M32 29v12M26 35h12" stroke="#0E5A3E" stroke-width="3.6" stroke-linecap="round"/>
         </svg>
-        <h3 id="waterHeading" class="text-lg font-black text-sky-950 leading-tight">Boire de l'eau</h3>
-        <p id="waterCountBadge" class="mt-0.5 text-xs font-extrabold text-sky-800">0 / 8</p>
-        <span id="tileWaterHint" class="text-[11px] font-bold text-sky-700">+ كوب ماء</span>
+        <h3 id="tileFindNurseTitle" class="text-lg font-black text-[#0E5A3E] leading-tight">طلب ممرض</h3>
+        <p id="tileFindNurseSub" class="mt-0.5 text-xs font-extrabold text-[#3C5044]">أقرب ممرض متاح</p>
       </button>
 
       <!-- Tile 4: Messages (Teal Overlapping Speech Bubbles + Unread Color Support) -->
@@ -371,7 +373,10 @@
         <button id="voiceBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-emerald-900">🔊 Écouter le rappel vocal</button>
         <button id="openRingtoneModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 Sonnerie</button>
         <button id="seniorEnablePushBtn" type="button" class="tap-btn rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900">📲 تفعيل إشعارات الخلفية</button>
-        <button id="openFindNurseSeniorBtn" type="button" class="tap-btn rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🩺 البحث عن ممرض قريب</button>
+        <button id="tileWaterBtn" type="button" class="tap-btn flex items-center justify-between gap-2 rounded-2xl border-2 border-sky-300 bg-sky-50 px-4 py-3 text-base font-extrabold text-sky-900">
+          <span>💧 <span id="waterHeading">شرب الماء</span></span>
+          <span class="text-xs font-black text-sky-800"><span id="waterCountBadge">0 / 8</span> • <span id="tileWaterHint">+ كوب</span></span>
+        </button>
         <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-base font-extrabold text-slate-900">🔄 Changer de rôle</button>
         <button id="openPlansModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">⭐ Abonnement : Gratuit</button>
         <button id="openLegalModalBtn" type="button" class="tap-btn rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-base font-extrabold text-slate-800">⚖️ Confidentialité & Conditions</button>
@@ -1114,7 +1119,7 @@
 (function () {
   'use strict';
   window.CG_CONFIG = {
-    VERSION: 'v139-TN',
+    VERSION: 'v142-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     STORAGE_KEY: 'careguard_senior_state_v2',
@@ -3344,7 +3349,8 @@
     if ($('npDocCinBackLbl')) $('npDocCinBackLbl').textContent = isFr ? '4. CIN (Verso / Face arrière) *' : '4. بطاقة التعريف الوطنية (الوجه الخلفي) *';
     if ($('npSetGpsBtn')) $('npSetGpsBtn').textContent = isFr ? '📍 Position GPS travail' : '📍 تحديد موقع العمل GPS';
     if ($('openFindNurseCareLbl')) $('openFindNurseCareLbl').textContent = isFr ? '🩺 Trouver un infirmier vérifié proche' : '🩺 البحث عن أقرب ممرض موثّق';
-    if ($('openFindNurseSeniorBtn')) $('openFindNurseSeniorBtn').textContent = isFr ? '🩺 Trouver un infirmier' : '🩺 البحث عن ممرض قريب';
+    if ($('tileFindNurseTitle')) $('tileFindNurseTitle').textContent = isFr ? 'Infirmier' : 'طلب ممرض';
+    if ($('tileFindNurseSub')) $('tileFindNurseSub').textContent = isFr ? 'Demander une visite' : 'أقرب ممرض متاح';
     if ($('seniorEnablePushBtn') && !$('seniorEnablePushBtn').dataset.subscribed) $('seniorEnablePushBtn').textContent = isFr ? '📲 Activer les alertes en arrière-plan' : '📲 تفعيل إشعارات الخلفية';
     if ($('fnSearchInput')) $('fnSearchInput').placeholder = isFr ? '🔍 Ville, code postal, langue ou spécialité...' : '🔍 ابحث بالمدينة، الولاية، اللغة أو التخصص...';
     if ($('nurseVisitReqTitle')) $('nurseVisitReqTitle').textContent = isFr ? '🩺 Demandes de visite reçues' : '🩺 طلبات الزيارة الواردة';
@@ -4751,6 +4757,7 @@
     if (userRole === 'senior') {
       state.lastSeenCareMsgAt = nowSeen; saveState();
       setMessagesTileHighlight(false, '');
+      if ($('familyReassuranceCard')) $('familyReassuranceCard').classList.add('hidden');
     }
     if (client && currentUser && dcTargetSeniorId) {
       try {
@@ -5332,10 +5339,10 @@
           setAvatarEl($('heroAvatar'), sp.avatar_url, sp.display_name);
         }
 
-        // Load latest reassurance message from Family / Nurse
+        // Load latest reassurance message from Family / Nurse (hide if read, dismissed, or older than 12h)
         const { data: msgs } = await client
           .from('care_direct_messages')
-          .select('sender_name, sender_role, message_text, audio_data, created_at')
+          .select('id, sender_name, sender_role, message_text, audio_data, created_at, read_at')
           .eq('senior_id', sid)
           .neq('sender_user_id', user.id)
           .order('created_at', { ascending: false })
@@ -5343,20 +5350,47 @@
         const card = $('familyReassuranceCard');
         if (card && msgs && msgs[0]) {
           const m = msgs[0];
-          const icon = m.sender_role === 'nurse' ? '🩺' : '💚';
-          $('familyReassuranceSender').textContent = `${icon} ${isFr ? 'Message de' : 'رسالة من'} ${m.sender_name || (isFr ? 'votre proche' : 'عائلتك')}`;
-          $('familyReassuranceTime').textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-          $('familyReassuranceText').textContent = m.message_text || (isFr ? '🎤 Message vocal pour vous' : '🎤 رسالة صوتية لك');
-          const aud = $('familyReassuranceAudio');
-          if (m.audio_data && aud) { aud.src = m.audio_data; aud.classList.remove('hidden'); }
-          else if (aud) { aud.classList.add('hidden'); }
-          card.classList.remove('hidden');
+          const mTs = m.created_at ? new Date(m.created_at).getTime() : 0;
+          const isRecent = mTs > 0 && (Date.now() - mTs) < 12 * 3600 * 1000;
+          const seenTs = Math.max(
+            Number((CG.getState && CG.getState().lastSeenCareMsgAt) || 0),
+            Number(localStorage.getItem('cg_senior_seen_dm_' + sid) || 0)
+          );
+          const dismissedId = localStorage.getItem('cg_dismissed_reassure_id') || '';
+          const isUnread = (!m.read_at) && (mTs > seenTs) && (String(m.id || '') !== dismissedId);
+          if (isRecent && isUnread) {
+            card.dataset.msgId = String(m.id || '');
+            const icon = m.sender_role === 'nurse' ? '🩺' : '💚';
+            $('familyReassuranceSender').textContent = `${icon} ${isFr ? 'Message de' : 'رسالة من'} ${m.sender_name || (isFr ? 'votre proche' : 'عائلتك')}`;
+            $('familyReassuranceTime').textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            $('familyReassuranceText').textContent = m.message_text || (isFr ? '🎤 Message vocal pour vous' : '🎤 رسالة صوتية لك');
+            const aud = $('familyReassuranceAudio');
+            if (m.audio_data && aud) { aud.src = m.audio_data; aud.classList.remove('hidden'); }
+            else if (aud) { aud.classList.add('hidden'); }
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        } else if (card) {
+          card.classList.add('hidden');
         }
       }
     } catch (_) {}
   }
 
-  if ($('seniorAvatarInput')) {
+  if ($('closeFamilyReassuranceBtn')) {
+    $('closeFamilyReassuranceBtn').addEventListener('click', () => {
+      const card = $('familyReassuranceCard');
+      if (card) {
+        if (card.dataset.msgId) {
+          try { localStorage.setItem('cg_dismissed_reassure_id', card.dataset.msgId); } catch (_) {}
+        }
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+    if ($('seniorAvatarInput')) {
     $('seniorAvatarInput').addEventListener('change', (e) => {
       const f = e.target.files && e.target.files[0];
       if (f) handleAvatarUpload(f, true);
@@ -6056,34 +6090,50 @@
         return;
       }
 
-      // Guard against duplicate active requests from repeated taps
-      let existingQ = client
+      // Strict 1-active-request-per-senior rule (auto-expire stale open/pending > 60 min)
+      const { data: activeRows } = await client
         .from('nurse_visit_requests')
-        .select('id')
-        .eq('requester_user_id', user.id);
-      if (reqMode === 'open') {
-        existingQ = existingQ.eq('request_mode', 'open').eq('status', 'open');
-      } else {
-        existingQ = existingQ.eq('nurse_user_id', nurseUserId).eq('status', 'pending');
+        .select('id, status, request_mode, nurse_name, care_reason, created_at')
+        .eq('requester_user_id', user.id)
+        .in('status', ['open', 'pending', 'accepted'])
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const liveActive = [];
+      for (const ar of (activeRows || [])) {
+        const ageMs = ar.created_at ? (Date.now() - new Date(ar.created_at).getTime()) : 0;
+        if ((ar.status === 'open' || ar.status === 'pending') && ageMs > 60 * 60 * 1000) {
+          try { await client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'expired' }).eq('id', ar.id); } catch (_) {}
+        } else {
+          liveActive.push(ar);
+        }
       }
-      const { data: existingRows } = await existingQ.limit(1);
-      if (existingRows && existingRows.length) {
-        const existingId = existingRows[0].id;
-        await client.from('nurse_visit_requests').update({ care_reason: getSelectedCareReason() }).eq('id', existingId);
-        if (triggerBtn) {
-          triggerBtn.textContent = isFr ? '✓ Demande envoyée' : '✓ تم إرسال الطلب';
-          triggerBtn.className = 'tap-btn flex-1 rounded-xl border-2 border-emerald-500 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]';
-        } else if (bcBadge) {
-          bcBadge.textContent = isFr ? '✓ Envoyée' : '✓ تم الإرسال';
-          bcBadge.className = 'shrink-0 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-black text-white';
-        }
+
+      if (liveActive.length) {
+        const cur = liveActive[0];
+        if (triggerBtn) triggerBtn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
+        else if (bcBadge) bcBadge.textContent = isFr ? '⚡ Envoyer' : '⚡ إرسال';
         if (stEl) {
+          stEl.replaceChildren();
           stEl.classList.remove('hidden');
-          stEl.textContent = isFr
-            ? '✅ Votre demande est déjà envoyée et en attente d\'acceptation.'
-            : '✅ تم إرسال طلبك بالفعل وهو قيد الانتظار حالياً.';
+          const p = document.createElement('p');
+          p.textContent = isFr
+            ? '⚠️ Vous avez déjà une demande active. Annulez-la d\'abord pour en envoyer une nouvelle :'
+            : '⚠️ لديك طلب نشط بالفعل (لا يمكن إرسال أكثر من طلب واحد في نفس الوقت). يمكنك إلغاؤه لإرسال طلب جديد:';
+          stEl.appendChild(p);
+          if (cur.status === 'open' || cur.status === 'pending') {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'mt-2 tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-900';
+            cancelBtn.textContent = isFr ? '✕ Annuler la demande actuelle' : '✕ إلغاء الطلب الحالي الآن';
+            cancelBtn.addEventListener('click', async () => {
+              cancelBtn.disabled = true;
+              await client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'cancelled' }).eq('id', cur.id);
+              stEl.textContent = isFr ? '✓ Demande précédente annulée. Vous pouvez envoyer la nouvelle.' : '✓ تم إلغاء الطلب السابق. يمكنك الآن إرسال طلبك الجديد.';
+            });
+            stEl.appendChild(cancelBtn);
+          }
         }
-        if (reqMode === 'open') watchOpenRequestAcceptance(existingId);
         return;
       }
 
