@@ -751,7 +751,8 @@
   // Direct Messages
   async function loadDirectMessages() {
     if (!seniorId) return;
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).eq('channel', dmChannel).order('created_at', { ascending: true }).limit(40);
+    const qCh = dmChannel === 'nurse' ? ['nurse', 'family'] : ['family', 'nurse'];
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).in('channel', qCh).order('created_at', { ascending: true }).limit(50);
     const box = $('dmList'); box.replaceChildren();
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;

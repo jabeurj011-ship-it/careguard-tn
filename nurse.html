@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.1-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.2-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -69,6 +69,7 @@
       <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
     </div>
     <div id="patientsList" class="space-y-3"></div>
+    <div id="blockedPatientsBox" class="hidden cg-card p-4 space-y-2"></div>
   </section>
 
   <!-- TAB 3: NURSE PROFILE -->
@@ -207,7 +208,7 @@
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
       <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
-      <input id="chatInput" type="text" placeholder="اكتب رسالة للمريض..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ والعائلة..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
   </div>
@@ -224,6 +225,70 @@
   let activeSubTab = 'new';
   let cachedReqs = [];
   let blockedBySet = new Set();
+  let myBlockedList = [];
+  let myBlockedSeniorIds = new Set();
+  let myBlockedReqUids = new Set();
+
+  function blkStorageKey() { return 'cg_v2_nurse_blocked_' + (user ? user.id : 'anon'); }
+  function remLinksKey() { return 'cg_v2_nurse_removed_links_' + (user ? user.id : 'anon'); }
+  function getRemovedLinkIds() {
+    try { return new Set(JSON.parse(localStorage.getItem(remLinksKey()) || '[]')); } catch (_) { return new Set(); }
+  }
+  function addRemovedLinkId(id) {
+    const s = getRemovedLinkIds(); s.add(id);
+    try { localStorage.setItem(remLinksKey(), JSON.stringify([...s])); } catch (_) {}
+  }
+  function syncBlockedSets() {
+    myBlockedSeniorIds = new Set(myBlockedList.map((x) => x.senior_id).filter(Boolean));
+    myBlockedReqUids = new Set(myBlockedList.map((x) => x.senior_user_id).filter(Boolean));
+  }
+  async function loadMyBlockedPatients() {
+    let localArr = [];
+    try { localArr = JSON.parse(localStorage.getItem(blkStorageKey()) || '[]'); } catch (_) {}
+    let dbArr = [];
+    try {
+      const { data, error } = await S.client.from('nurse_blocked_patients').select('senior_id, senior_user_id, senior_name').eq('nurse_user_id', user.id);
+      if (!error && Array.isArray(data)) dbArr = data;
+    } catch (_) {}
+    const byKey = new Map();
+    [...localArr, ...dbArr].forEach((item) => {
+      const k = item.senior_id || item.senior_user_id;
+      if (k) byKey.set(k, item);
+    });
+    myBlockedList = [...byKey.values()];
+    syncBlockedSets();
+  }
+  async function blockPatientAndFamily(seniorId, seniorUserId, seniorName, linkId) {
+    const entry = { senior_id: seniorId || null, senior_user_id: seniorUserId || null, senior_name: seniorName || 'مريض' };
+    myBlockedList = myBlockedList.filter((x) => (seniorId ? x.senior_id !== seniorId : x.senior_user_id !== seniorUserId));
+    myBlockedList.push(entry);
+    syncBlockedSets();
+    try { localStorage.setItem(blkStorageKey(), JSON.stringify(myBlockedList)); } catch (_) {}
+    try {
+      await S.client.from('nurse_blocked_patients').upsert({
+        nurse_user_id: user.id,
+        senior_id: entry.senior_id,
+        senior_user_id: entry.senior_user_id,
+        senior_name: entry.senior_name
+      }, { onConflict: 'nurse_user_id,senior_id' });
+    } catch (_) {}
+    if (linkId) await removePatientLink(linkId);
+  }
+  async function unblockPatientAndFamily(seniorId, seniorUserId) {
+    myBlockedList = myBlockedList.filter((x) => (seniorId ? x.senior_id !== seniorId : x.senior_user_id !== seniorUserId));
+    syncBlockedSets();
+    try { localStorage.setItem(blkStorageKey(), JSON.stringify(myBlockedList)); } catch (_) {}
+    try {
+      let q = S.client.from('nurse_blocked_patients').delete().eq('nurse_user_id', user.id);
+      if (seniorId) q = q.eq('senior_id', seniorId);
+      else if (seniorUserId) q = q.eq('senior_user_id', seniorUserId);
+      await q;
+    } catch (_) {}
+  }
+  async function removePatientLink(linkId) {
+    addRemovedLinkId(linkId);
+    try { await S.client.from('senior_care_links').delete().eq('id', linkId).eq('requester_user_id', user.id); } catch (_) {}
+  }
   let suspendedUntil = null;
   let liveLat = null, liveLng = null;
   let chatSeniorId = null;
@@ -289,7 +354,8 @@
     try {
       const [{ data: blks }, { data: np }] = await Promise.all([
         S.client.from('senior_blocked_nurses').select('senior_user_id').eq('nurse_user_id', user.id),
-        S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle()
+        S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle(),
+        loadMyBlockedPatients()
       ]);
       blockedBySet = new Set((blks || []).map((b) => b.senior_user_id).filter(Boolean));
       if (np) myProfile = np;
@@ -328,7 +394,8 @@
 
     const accReqs = cachedReqs.filter((r) => r.status === 'accepted' && !r.nurse_outcome && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
     const newReqs = isSusp ? [] : cachedReqs.filter((r) => {
-      if (r.requester_user_id && blockedBySet.has(r.requester_user_id)) return false;
+      if (r.requester_user_id && (blockedBySet.has(r.requester_user_id) || myBlockedReqUids.has(r.requester_user_id))) return false;
+      if (r.senior_id && myBlockedSeniorIds.has(r.senior_id)) return false;
       if (r.status === 'pending' && r.nurse_user_id === user.id) return true;
       if (r.request_mode === 'open' && r.status === 'open') {
         const pg = r.preferred_gender || 'any';
@@ -432,6 +499,19 @@
           });
           btns.appendChild(dec);
         }
+        const blkBtn = document.createElement('button');
+        blkBtn.type = 'button';
+        blkBtn.className = 'tap-btn rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs font-black text-slate-700';
+        blkBtn.textContent = isFr ? '🚫 Bloquer' : '🚫 حظر';
+        blkBtn.addEventListener('click', async () => {
+          const ok = confirm(isFr
+            ? 'Bloquer ce patient et sa famille pour ne plus recevoir leurs demandes ?'
+            : 'حظر هذا المريض وعائلته حتى لا تظهر لك طلباتهم مستقبلاً؟');
+          if (!ok) return;
+          await blockPatientAndFamily(r.senior_id, r.requester_user_id, r.requester_name, null);
+          renderRequests();
+        });
+        btns.appendChild(blkBtn);
       } else if (activeSubTab === 'accepted') {
         if (r.senior_lat && r.senior_lng) {
           const mapA = document.createElement('a');
@@ -504,31 +584,97 @@
     const isFr = S.getLang() === 'fr';
     const { data: links } = await S.client
       .from('senior_care_links')
-      .select('id, senior_id, status, senior_profiles(id, display_name, senior_phone, blood_type, allergies, conditions, home_address, water_count, water_date)')
+      .select('id, senior_id, status, senior_profiles(id, user_id, display_name, senior_phone, blood_type, allergies, conditions, home_address, water_count, water_date)')
       .eq('requester_user_id', user.id);
+    await loadMyBlockedPatients();
+    const remIds = getRemovedLinkIds();
+    const visibleLinks = (links || []).filter((lk) => !remIds.has(lk.id) && !(lk.senior_id && myBlockedSeniorIds.has(lk.senior_id)));
     box.replaceChildren();
-    if (!links || !links.length) {
+    renderBlockedPatientsBox();
+    if (!visibleLinks.length) {
       const p = document.createElement('div');
       p.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
       p.textContent = isFr ? 'Aucun patient lié — entrez un code CG-... ci-dessus.' : 'لا يوجد مرضى مرتبطون بعد — أدخل رمز المسنّ (CG-...) أعلاه.';
       box.appendChild(p);
       return;
     }
-    for (const lk of links) {
+    const todayStart = S.getLocalDayStartIso();
+    const enriched = await Promise.all(visibleLinks.map(async (lk) => {
+      if (lk.status !== 'approved') return { lk, approved: false };
+      const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
+      const [{ data: meds }, { data: logs }] = await Promise.all([
+        S.client.from('medications').select('id, name, dosage, scheduled_time').eq('senior_id', sp.id),
+        S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart)
+      ]);
+      const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
+      const takenTimeMap = new Map();
+      (logs || []).forEach((l) => {
+        if (l.status === 'taken' && l.logged_at) {
+          takenTimeMap.set(l.medication_id, new Date(l.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+      });
+      return { lk, approved: true, sp, meds: meds || [], takenSet, takenTimeMap };
+    }));
+
+    for (const item of enriched) {
       const card = document.createElement('div');
       card.className = 'cg-card p-4 space-y-2.5';
-      if (lk.status !== 'approved') {
+      if (!item.approved) {
         card.textContent = isFr ? '⏳ Demande de liaison en attente...' : '⏳ طلب الربط بانتظار موافقة المسنّ...';
         box.appendChild(card);
         continue;
       }
-      const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
+      const { sp, meds, takenSet, takenTimeMap } = item;
       const title = document.createElement('p');
       title.className = 'text-base font-black text-[#163024]';
       title.textContent = sp.display_name || 'المسنّ';
       const sub = document.createElement('p');
       sub.className = 'text-xs font-bold text-[#5C6F63]';
-      sub.textContent = [sp.blood_type ? `🩸 ${sp.blood_type}` : '', sp.allergies ? `⚠️ ${sp.allergies}` : '', sp.home_address || ''].filter(Boolean).join(' • ');
+      sub.textContent = [
+        sp.blood_type ? `🩸 ${sp.blood_type}` : '',
+        sp.allergies ? `⚠️ ${sp.allergies}` : '',
+        sp.conditions ? `🩺 ${sp.conditions}` : '',
+        sp.home_address || ''
+      ].filter(Boolean).join(' • ');
+      card.append(title, sub);
+
+      // Patient Medications List
+      const mWrap = document.createElement('div');
+      mWrap.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] p-3 space-y-1.5';
+      const mHdr = document.createElement('p');
+      mHdr.className = 'text-xs font-black text-[#0E5A3E]';
+      const takenCnt = meds.filter((m) => takenSet.has(m.id)).length;
+      mHdr.textContent = isFr
+        ? `💊 Médicaments du patient (${takenCnt}/${meds.length})`
+        : `💊 أدوية المسنّ (${takenCnt}/${meds.length})`;
+      mWrap.appendChild(mHdr);
+      if (!meds.length) {
+        const emptyM = document.createElement('p');
+        emptyM.className = 'text-[11px] font-bold text-[#5C6F63]';
+        emptyM.textContent = isFr ? 'Aucun médicament enregistré.' : 'لا توجد أدوية مسجلة حالياً.';
+        mWrap.appendChild(emptyM);
+      } else {
+        meds.forEach((m) => {
+          const isT = takenSet.has(m.id);
+          const mRow = document.createElement('div');
+          mRow.className = 'flex items-center justify-between gap-2 text-xs font-bold';
+          const l = document.createElement('span');
+          l.className = 'truncate text-[#163024]';
+          const dosePart = m.dosage ? ` (${m.dosage})` : '';
+          const timePart = m.scheduled_time && !(m.dosage || '').includes(m.scheduled_time) ? ` • ${m.scheduled_time}` : '';
+          l.textContent = `${m.name || ''}${dosePart}${timePart}`;
+          const r = document.createElement('span');
+          r.className = isT
+            ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0E5A3E]'
+            : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900';
+          const tAt = isT && takenTimeMap.get(m.id) ? (' ' + takenTimeMap.get(m.id)) : '';
+          r.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tAt) : (isFr ? '⏳ En attente' : '⏳ لم يُؤخذ');
+          mRow.append(l, r);
+          mWrap.appendChild(mRow);
+        });
+      }
+      card.appendChild(mWrap);
+
       const row = document.createElement('div');
       row.className = 'flex gap-2 pt-1';
       if (sp.senior_phone && S.safeTelHref(sp.senior_phone)) {
@@ -544,21 +690,83 @@
       chatBtn.textContent = isFr ? '💬 Chat privé' : '💬 محادثة خاصة';
       chatBtn.addEventListener('click', () => openChat(sp.id, sp.display_name));
       row.appendChild(chatBtn);
-      card.append(title, sub, row);
+      card.appendChild(row);
+
+      const mgmtRow = document.createElement('div');
+      mgmtRow.className = 'flex gap-2';
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'tap-btn flex-1 rounded-xl border border-[#D8CEBE] bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-700';
+      delBtn.textContent = isFr ? '🗑️ Retirer le patient' : '🗑️ مسح المريض';
+      delBtn.addEventListener('click', async () => {
+        const ok = confirm(isFr ? 'Retirer ce patient de votre liste ?' : 'هل تريد مسح هذا المريض من قائمتك؟');
+        if (!ok) return;
+        await removePatientLink(item.lk.id);
+        loadPatients();
+      });
+      const blkBtn = document.createElement('button');
+      blkBtn.type = 'button';
+      blkBtn.className = 'tap-btn flex-1 rounded-xl border border-rose-300 bg-rose-50 px-2.5 py-1.5 text-[11px] font-black text-rose-900';
+      blkBtn.textContent = isFr ? '🚫 Bloquer (Patient + Famille)' : '🚫 منع المريض والعائلة';
+      blkBtn.addEventListener('click', async () => {
+        const ok = confirm(isFr
+          ? 'Bloquer ce patient et sa famille ? Leurs demandes ne vous apparaîtront plus.'
+          : 'هل تريد منع هذا المريض وعائلته؟ لن تظهر لك طلباتهم في قسم الطلبات بعد الآن.');
+        if (!ok) return;
+        await blockPatientAndFamily(sp.id, sp.user_id, sp.display_name, item.lk.id);
+        loadPatients();
+      });
+      mgmtRow.append(delBtn, blkBtn);
+      card.appendChild(mgmtRow);
+
       box.appendChild(card);
     }
   }
 
+  function renderBlockedPatientsBox() {
+    const box = $('blockedPatientsBox');
+    const isFr = S.getLang() === 'fr';
+    if (!myBlockedList.length) {
+      box.classList.add('hidden');
+      box.replaceChildren();
+      return;
+    }
+    box.classList.remove('hidden');
+    box.replaceChildren();
+    const hdr = document.createElement('p');
+    hdr.className = 'text-xs font-black text-rose-900';
+    hdr.textContent = isFr ? `🚫 Patients/Familles bloqués (${myBlockedList.length})` : `🚫 المرضى والعائلات الممنوعون من الظهور (${myBlockedList.length})`;
+    box.appendChild(hdr);
+    myBlockedList.forEach((b) => {
+      const r = document.createElement('div');
+      r.className = 'flex items-center justify-between gap-2 rounded-xl border border-rose-200 bg-rose-50/70 px-3 py-2 text-xs font-bold';
+      const nm = document.createElement('span');
+      nm.className = 'truncate text-[#163024]';
+      nm.textContent = b.senior_name || (isFr ? 'Patient' : 'مريض');
+      const unb = document.createElement('button');
+      unb.type = 'button';
+      unb.className = 'shrink-0 rounded-lg border border-[#0E5A3E] bg-white px-2.5 py-1 text-[11px] font-black text-[#0E5A3E]';
+      unb.textContent = isFr ? 'Débloquer' : 'إلغاء المنع';
+      unb.addEventListener('click', async () => {
+        await unblockPatientAndFamily(b.senior_id, b.senior_user_id);
+        renderBlockedPatientsBox();
+        loadRequests();
+      });
+      r.append(nm, unb);
+      box.appendChild(r);
+    });
+  }
+
   async function openChat(sid, name) {
     chatSeniorId = sid;
-    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Discussion : ' : '💬 محادثة مع: ') + (name || '');
+    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Soins (Patient + Famille) : ' : '💬 محادثة الرعاية (المسنّ + العائلة): ') + (name || '');
     $('chatModal').classList.remove('hidden');
     await loadChat();
   }
 
   async function loadChat() {
     if (!chatSeniorId) return;
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'nurse').order('created_at', { ascending: true }).limit(40);
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['nurse', 'family']).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
@@ -724,7 +932,7 @@
   $('subTabHist').addEventListener('click', () => setSubTab('history'));
   $('refreshReqBtn').addEventListener('click', loadRequests);
   $('closeChatBtn').addEventListener('click', () => $('chatModal').classList.add('hidden'));
-  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); });
+  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); if (!$('secPatients').classList.contains('hidden')) loadPatients(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
 
@@ -779,10 +987,14 @@
           const myG = (myProfile && myProfile.gender) || 'male';
           const pg = r.preferred_gender || 'any';
           const okG = pg === 'any' || pg === myG;
-          if ((r.request_mode === 'open' && okG && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id) {
+          const isMyBlk = (r.senior_id && myBlockedSeniorIds.has(r.senior_id)) || (r.requester_user_id && myBlockedReqUids.has(r.requester_user_id));
+          if (!isMyBlk && ((r.request_mode === 'open' && okG && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
             S.playStrongRingtone();
           }
         }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, () => {
+        if (!$('chatModal').classList.contains('hidden')) loadChat();
       })
       .subscribe();
   })();

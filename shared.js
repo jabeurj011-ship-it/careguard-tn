@@ -280,7 +280,11 @@
       : 'rounded-2xl bg-white border border-slate-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]';
     const hdr = document.createElement('div');
     hdr.className = 'flex items-center justify-between gap-2 text-[11px] font-black text-[#0E5A3E]';
-    const nm = document.createElement('span'); nm.textContent = m.sender_name || '';
+    const isFr = getLang() === 'fr';
+    const roleTag = m.sender_role === 'nurse' ? (isFr ? '🩺 Infirmier' : '🩺 الممرض')
+      : (m.sender_role === 'family' ? (isFr ? '👨‍👩‍👧 Famille' : '👨‍👩‍👧 العائلة')
+      : (m.sender_role === 'senior' ? (isFr ? '👴 Senior' : '👴 المسنّ') : ''));
+    const nm = document.createElement('span'); nm.textContent = (m.sender_name || '') + (roleTag ? ` (${roleTag})` : '');
     const tm = document.createElement('span'); tm.className = 'text-[#5C6F63]';
     tm.textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     hdr.append(nm, tm);

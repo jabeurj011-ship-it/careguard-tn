@@ -22,7 +22,7 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.1-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.2-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -149,7 +149,7 @@
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
       <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
-      <input id="chatInput" type="text" placeholder="اكتب رسالة طمأنة لقريبك..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ أو الممرض..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
   </div>
@@ -214,7 +214,7 @@
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
         S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
-        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).eq('channel', 'family').order('created_at', { ascending: false }).limit(1)
+        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).order('created_at', { ascending: false }).limit(1)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
       const takenTimeMap = new Map();
@@ -375,15 +375,15 @@
 
   async function openChat(sid, name) {
     chatSeniorId = sid;
-    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Famille : ' : '💬 محادثة مع: ') + (name || '');
+    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Soins (Proche + Infirmier) : ' : '💬 محادثة الرعاية (المسنّ + الممرض): ') + (name || '');
     $('chatModal').classList.remove('hidden');
-    await S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', sid).eq('channel', 'family').neq('sender_user_id', user.id).is('read_at', null);
+    await S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', sid).in('channel', ['family', 'nurse']).neq('sender_user_id', user.id).is('read_at', null);
     await loadChat();
   }
 
   async function loadChat() {
     if (!chatSeniorId) return;
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'family').order('created_at', { ascending: true }).limit(40);
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['family', 'nurse']).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
@@ -576,6 +576,7 @@
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => {
         if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone();
         loadFamilyData();
+        if (!$('chatModal').classList.contains('hidden')) loadChat();
       })
       .subscribe();
   })();
