@@ -887,16 +887,26 @@
   });
 
   $('linkSubmitBtn').addEventListener('click', async () => {
+    const isFr = S.getLang() === 'fr';
     const code = ($('linkCodeInput').value || '').trim().toUpperCase();
     const msg = $('linkMsg');
     if (!code) return;
-    const { data: sp } = await S.client.from('senior_profiles').select('id').eq('registration_number', code).maybeSingle();
-    if (!sp) { msg.className = 'text-xs font-extrabold text-rose-800'; msg.textContent = '⚠️ رمز غير موجود'; msg.classList.remove('hidden'); return; }
-    const { error } = await S.client.from('senior_care_links').insert({ senior_id: sp.id, requester_user_id: user.id, role_type: 'nurse', status: 'pending' });
+    const myName = (myProfile && myProfile.full_name) || (user && user.user_metadata && user.user_metadata.full_name) || (isFr ? 'Infirmier' : 'ممرض');
+    const { error } = await S.client.rpc('request_link_by_code', {
+      p_code: code,
+      p_role: 'nurse',
+      p_name: myName
+    });
     msg.className = error ? 'text-xs font-extrabold text-rose-800' : 'text-xs font-extrabold text-emerald-800';
-    msg.textContent = error ? ('⚠️ ' + error.message) : '✓ تم إرسال طلب الربط — بانتظار موافقة المسنّ.';
+    msg.textContent = error
+      ? ('⚠️ ' + (error.message || (isFr ? 'Code introuvable' : 'رمز غير موجود')))
+      : (isFr ? '✓ Demande envoyée — en attente de validation du senior.' : '✓ تم إرسال طلب الربط — بانتظار موافقة المسنّ.');
     msg.classList.remove('hidden');
-    if (!error) { $('linkCodeInput').value = ''; loadPatients(); }
+    if (!error) {
+      try { localStorage.removeItem(remLinksKey()); } catch (_) {}
+      $('linkCodeInput').value = '';
+      loadPatients();
+    }
   });
 
   S.attachVoiceRecorder($('chatMicBtn'), async (audioData) => {
