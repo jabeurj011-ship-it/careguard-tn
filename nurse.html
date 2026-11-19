@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CareGuard TN — فضاء الممرض</title>
+  <meta name="theme-color" content="#0E5A3E" />
+  <link rel="manifest" href="./manifest.json" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="min-h-screen pb-24">
+
+<!-- Top Header -->
+<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+  <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
+      <div class="min-w-0">
+        <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.0-TN</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="ringtoneBtn" type="button" class="tap-btn rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-black text-amber-950" title="النغمة">🎵</button>
+      <button id="pushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-900" title="الإشعارات">🔔</button>
+      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E]">FR</button>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
+
+  <!-- Block / Suspension Warning Banner -->
+  <div id="blockWarnBox" class="hidden rounded-2xl border-2 border-rose-400 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900"></div>
+
+  <!-- TAB 1: VISIT REQUESTS (UBER + DIRECT + GOOGLE MAPS) -->
+  <section id="secRequests" class="space-y-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 id="reqHeading" class="text-lg font-black text-[#0E5A3E]">🩺 طلبات الزيارة</h2>
+        <p id="reqSub" class="text-xs font-bold text-[#5C6F63]">اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps</p>
+      </div>
+      <button id="refreshReqBtn" type="button" class="tap-btn rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1">
+      <button id="subTabNew" type="button" class="rounded-xl bg-[#0E5A3E] px-2 py-2 text-xs font-black text-white">🔔 الجديدة (<span id="cntNew">0</span>)</button>
+      <button id="subTabAcc" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">✅ المقبولة (<span id="cntAcc">0</span>)</button>
+      <button id="subTabHist" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">📋 السجل</button>
+    </div>
+
+    <div id="reqStatusMsg" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+    <div id="reqList" class="space-y-2.5"></div>
+  </section>
+
+  <!-- TAB 2: LINKED PATIENTS -->
+  <section id="secPatients" class="hidden space-y-3.5">
+    <div class="cg-card p-4 space-y-2.5">
+      <p id="linkTitle" class="text-sm font-black text-[#0E5A3E]">🔗 ربط مسنّ عبر الرمز (CG-...)</p>
+      <div class="flex gap-2">
+        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black uppercase" />
+        <button id="linkSubmitBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">ربط</button>
+      </div>
+      <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
+    </div>
+    <div id="patientsList" class="space-y-3"></div>
+  </section>
+
+  <!-- TAB 3: NURSE PROFILE -->
+  <section id="secProfile" class="hidden space-y-3.5">
+    <div class="cg-card p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 id="profHeading" class="text-lg font-black text-[#0E5A3E]">🩺 ملف الممرض المهني</h2>
+          <p id="profSub" class="text-xs font-bold text-[#5C6F63]">بياناتك تظهر في دليل «أقرب ممرض»</p>
+        </div>
+        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-[#0E5A3E]">🟢 موثّق</span>
+      </div>
+
+      <!-- Photo Upload inside Profile -->
+      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-3.5 py-2.5">
+        <span id="profPhotoLbl" class="text-xs font-extrabold text-[#163024]">📷 صورة الممرض الشخصية</span>
+        <label for="avatarFileInput" id="profPhotoBtnLbl" class="tap-btn cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
+        <input id="avatarFileInput" type="file" accept="image/*" class="hidden" />
+      </div>
+
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <input id="npFullName" type="text" placeholder="الاسم الكامل *" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <select id="npCredential" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
+          <option value="INF_MAJOR">ممرض رئيسي (Infirmier Major)</option>
+          <option value="INF_PRINCIPAL">ممرض أول (Infirmier Principal)</option>
+          <option value="IDE" selected>ممرض مجاز (IDE)</option>
+          <option value="AIDE">عون تمريض (Aide-soignant)</option>
+        </select>
+        <select id="npGender" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
+          <option value="male">👨‍⚕️ ممرض (Homme)</option>
+          <option value="female">👩‍⚕️ ممرضة (Femme)</option>
+        </select>
+        <select id="npRegion" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
+          <option value="">-- الولاية / Gouvernorat --</option>
+          <option value="Tunis">Tunis / تونس</option><option value="Ariana">Ariana / أريانة</option>
+          <option value="Ben Arous">Ben Arous / بن عروس</option><option value="Manouba">Manouba / منوبة</option>
+          <option value="Nabeul">Nabeul / نابل</option><option value="Zaghouan">Zaghouan / زغوان</option>
+          <option value="Bizerte">Bizerte / بنزرت</option><option value="Béja">Béja / باجة</option>
+          <option value="Jendouba">Jendouba / جندوبة</option><option value="Kef">Le Kef / الكاف</option>
+          <option value="Siliana">Siliana / سليانة</option><option value="Sousse">Sousse / سوسة</option>
+          <option value="Monastir">Monastir / المنستير</option><option value="Mahdia">Mahdia / المهدية</option>
+          <option value="Sfax">Sfax / صفاقس</option><option value="Kairouan">Kairouan / القيروان</option>
+          <option value="Kasserine">Kasserine / القصرين</option><option value="Sidi Bouzid">Sidi Bouzid / سيدي بوزيد</option>
+          <option value="Gabès">Gabès / قابس</option><option value="Médenine">Médenine / مدنين</option>
+          <option value="Tataouine">Tataouine / تطاوين</option><option value="Gafsa">Gafsa / قفصة</option>
+          <option value="Tozeur">Tozeur / توزر</option><option value="Kebili">Kébili / قبلي</option>
+        </select>
+        <input id="npCityZip" type="text" placeholder="المدينة (مثال: قابس 6000)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="npPhone" type="tel" dir="ltr" placeholder="رقم الهاتف إجباري * (+216 ...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="npYearsExp" type="number" min="0" max="60" placeholder="سنوات الخبرة" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="npHourlyRate" type="number" min="5" max="500" placeholder="التعريفة بالساعة (د.ت)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="npLanguages" type="text" placeholder="اللغات (العربية، Français...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold sm:col-span-2" />
+        <input id="npSpecialties" type="text" placeholder="التخصصات (حقن، ضمادات، سكري...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold sm:col-span-2" />
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-3">
+        <button id="setGpsBtn" type="button" class="tap-btn rounded-xl border border-[#0E5A3E] bg-white px-3 py-2 text-xs font-black text-[#0E5A3E]">📍 تحديد موقع العمل GPS</button>
+        <span id="gpsStatus" class="text-xs font-bold text-[#5C6F63]"></span>
+        <label class="flex items-center gap-2 text-xs font-black text-[#0E5A3E]">
+          <input id="npAvailNow" type="checkbox" checked class="h-4 w-4 accent-[#0E5A3E]" />
+          <span id="availLbl">🟢 متاح الآن</span>
+        </label>
+      </div>
+
+      <label class="flex items-center gap-2 text-xs font-bold text-[#163024]">
+        <input id="npDirOptIn" type="checkbox" checked class="h-4 w-4 accent-[#0E5A3E]" />
+        <span id="dirLbl">إظهاري في دليل «أقرب ممرض»</span>
+      </label>
+
+      <label class="flex items-start gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-2.5 text-[11px] font-bold text-[#163024]">
+        <input id="npTermsAgree" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#0E5A3E]" />
+        <span id="termsLbl">أوافق على الشروط وسياسة التعليق الأسبوعي بعد 3 مرات حظر وعدم استرجاع الاشتراك عند المخالفة *</span>
+      </label>
+
+      <button id="saveProfileBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-sm">حفظ ملف الممرض</button>
+      <p id="profSaveMsg" class="hidden text-center text-xs font-extrabold"></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+      <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Navigation (Nurse Only) -->
+<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
+  <div class="mx-auto grid max-w-xl grid-cols-3 py-2 text-center text-xs font-black">
+    <button id="navRequests" type="button" class="flex flex-col items-center gap-0.5 text-[#0E5A3E]">
+      <span class="text-lg">🩺</span>
+      <span id="navReqLbl">الطلبات</span>
+    </button>
+    <button id="navPatients" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
+      <span class="text-lg">👥</span>
+      <span id="navPatLbl">المرضى</span>
+    </button>
+    <button id="navProfile" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
+      <span class="text-lg">⚙️</span>
+      <span id="navProfLbl">ملفي</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Ringtone Modal -->
+<div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+  <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-black text-[#0E5A3E]">🔔 إعدادات نغمة التنبيه</h3>
+      <button id="closeRingModalBtn" type="button" class="rounded-xl px-3 py-1 text-lg font-black text-slate-600">✕</button>
+    </div>
+    <select id="ringPresetSel" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
+      <option value="loud_phone">رنين قوي ومتكرر</option>
+      <option value="urgent_alarm">إنذار عاجل عالي الصوت</option>
+      <option value="classic_bell">جرس كلاسيكي واضح</option>
+      <option value="custom_file">نغمة مخصصة من الهاتف</option>
+    </select>
+    <label for="customRingFile" class="tap-btn block w-full cursor-pointer rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50 px-4 py-3 text-center text-xs font-black text-amber-950">
+      🎵 اختر نغمة صوتية من الهاتف (MP3 / WAV / M4A)
+    </label>
+    <input id="customRingFile" type="file" accept="audio/*" class="hidden" />
+    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0E5A3E]"></p>
+    <div class="grid grid-cols-2 gap-2">
+      <button id="testRingBtn" type="button" class="tap-btn rounded-xl bg-amber-600 px-3 py-2.5 text-xs font-black text-white">🔊 تجربة النغمة</button>
+      <button id="stopRingBtn" type="button" class="tap-btn rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-black text-slate-800">⏹️ إيقاف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Direct Nurse Chat Modal -->
+<div id="chatModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-3">
+  <div class="flex max-h-[88vh] w-full max-w-md flex-col rounded-3xl bg-[#FFFDF9] p-4 shadow-2xl border border-[#E6DCCB]">
+    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-2.5">
+      <h3 id="chatTitle" class="text-base font-black text-[#0E5A3E]">💬 محادثة مع المريض</h3>
+      <button id="closeChatBtn" type="button" class="rounded-xl px-2.5 py-1 text-lg font-black text-slate-600">✕</button>
+    </div>
+    <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
+    <div class="flex gap-2">
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمريض..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
+    </div>
+  </div>
+</div>
+
+<script src="./shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  const S = window.CG_SHARED;
+  const $ = S.$;
+  let user = null;
+  let myProfile = null;
+  let activeSubTab = 'new';
+  let cachedReqs = [];
+  let blockedBySet = new Set();
+  let suspendedUntil = null;
+  let liveLat = null, liveLng = null;
+  let chatSeniorId = null;
+
+  function switchMainTab(tab) {
+    $('secRequests').classList.toggle('hidden', tab !== 'requests');
+    $('secPatients').classList.toggle('hidden', tab !== 'patients');
+    $('secProfile').classList.toggle('hidden', tab !== 'profile');
+    $('navRequests').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'requests' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navPatients').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'patients' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navProfile').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'profile' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    if (tab === 'requests') loadRequests();
+    if (tab === 'patients') loadPatients();
+    if (tab === 'profile') loadNurseProfile();
+  }
+
+  function applyTexts() {
+    const isFr = S.getLang() === 'fr';
+    $('langBtn').textContent = isFr ? 'عربي' : 'FR';
+    $('hdrTitle').textContent = isFr ? 'Espace Infirmier' : 'فضاء الممرض';
+    $('reqHeading').textContent = isFr ? '🩺 Demandes de visite' : '🩺 طلبات الزيارة';
+    $('reqSub').textContent = isFr ? 'Acceptez vite et suivez Google Maps' : 'اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps';
+    $('navReqLbl').textContent = isFr ? 'Demandes' : 'الطلبات';
+    $('navPatLbl').textContent = isFr ? 'Patients' : 'المرضى';
+    $('navProfLbl').textContent = isFr ? 'Mon profil' : 'ملفي';
+    $('saveProfileBtn').textContent = isFr ? 'Enregistrer le profil' : 'حفظ ملف الممرض';
+    $('switchRoleBtn').textContent = isFr ? '🔄 Changer de rôle' : '🔄 تغيير الدور';
+    $('signOutBtn').textContent = isFr ? '🚪 Déconnexion' : '🚪 تسجيل الخروج';
+  }
+
+  function getCoords() {
+    if (liveLat && liveLng) return { lat: liveLat, lng: liveLng };
+    if (myProfile && myProfile.base_lat && myProfile.base_lng) return { lat: Number(myProfile.base_lat), lng: Number(myProfile.base_lng) };
+    return null;
+  }
+
+  function distMeters(r) {
+    const c = getCoords();
+    if (!c || !r.senior_lat || !r.senior_lng) return null;
+    return Math.round(S.haversineMeters(c.lat, c.lng, Number(r.senior_lat), Number(r.senior_lng)));
+  }
+
+  function fmtDist(r, isFr) {
+    const m = distMeters(r);
+    if (m === null) return r.senior_lat ? (isFr ? ' • 📍 GPS prêt' : ' • 📍 الموقع جاهز') : '';
+    if (m < 1000) return isFr ? ` • 📍 à ${m} m` : ` • 📍 يبعد ${m} م`;
+    return isFr ? ` • 📍 à ${(Math.round(m / 100) / 10).toFixed(1)} km` : ` • 📍 يبعد ${(Math.round(m / 100) / 10).toFixed(1)} كم`;
+  }
+
+  function setSubTab(t) {
+    activeSubTab = t;
+    const on = 'rounded-xl bg-[#0E5A3E] px-2 py-2 text-xs font-black text-white';
+    const off = 'rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]';
+    $('subTabNew').className = t === 'new' ? on : off;
+    $('subTabAcc').className = t === 'accepted' ? on : off;
+    $('subTabHist').className = t === 'history' ? on : off;
+    renderRequests();
+  }
+
+  async function loadRequests() {
+    if (!S.client || !user) return;
+    const isFr = S.getLang() === 'fr';
+    try {
+      const [{ data: blks }, { data: np }] = await Promise.all([
+        S.client.from('senior_blocked_nurses').select('senior_user_id').eq('nurse_user_id', user.id),
+        S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle()
+      ]);
+      blockedBySet = new Set((blks || []).map((b) => b.senior_user_id).filter(Boolean));
+      if (np) myProfile = np;
+      suspendedUntil = np && np.suspended_until ? np.suspended_until : null;
+      const warn = $('blockWarnBox');
+      if (suspendedUntil && new Date(suspendedUntil).getTime() > Date.now()) {
+        warn.classList.remove('hidden');
+        warn.textContent = isFr
+          ? `⛔ Compte suspendu 7 jours jusqu'au ${new Date(suspendedUntil).toLocaleDateString()}.`
+          : `⛔ حسابك معلّق لمدة أسبوع حتى ${new Date(suspendedUntil).toLocaleDateString()} بسبب 3 مرات حظر.`;
+      } else if (blockedBySet.size > 0) {
+        warn.classList.remove('hidden');
+        warn.textContent = isFr
+          ? `⚠️ ${blockedBySet.size} patient(s) ont bloqué vos services (3 blocages = 7 jours de suspension).`
+          : `⚠️ قام ${blockedBySet.size} من المستفيدين بحظر التعامل معك (3 مرات حظر = تعليق أسبوع).`;
+      } else {
+        warn.classList.add('hidden');
+      }
+    } catch (_) {}
+
+    const { data } = await S.client
+      .from('nurse_visit_requests')
+      .select('*')
+      .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(40);
+    cachedReqs = data || [];
+    renderRequests();
+  }
+
+  function renderRequests() {
+    const isFr = S.getLang() === 'fr';
+    const listEl = $('reqList');
+    const myGender = (myProfile && myProfile.gender) || 'male';
+    const isSusp = !!(suspendedUntil && new Date(suspendedUntil).getTime() > Date.now());
+
+    const accReqs = cachedReqs.filter((r) => r.status === 'accepted' && !r.nurse_outcome && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
+    const newReqs = isSusp ? [] : cachedReqs.filter((r) => {
+      if (r.requester_user_id && blockedBySet.has(r.requester_user_id)) return false;
+      if (r.status === 'pending' && r.nurse_user_id === user.id) return true;
+      if (r.request_mode === 'open' && r.status === 'open') {
+        const pg = r.preferred_gender || 'any';
+        return pg === 'any' || pg === myGender;
+      }
+      return false;
+    });
+    newReqs.sort((a, b) => {
+      const da = distMeters(a), db = distMeters(b);
+      if (da !== null && db !== null) return da - db;
+      return 0;
+    });
+    const histReqs = cachedReqs.filter((r) => (r.status === 'completed' || r.status === 'declined') && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
+
+    $('cntNew').textContent = String(newReqs.length);
+    $('cntAcc').textContent = String(accReqs.length);
+    listEl.replaceChildren();
+
+    if (activeSubTab === 'new' && isSusp) {
+      const b = document.createElement('div');
+      b.className = 'cg-card p-5 text-center text-xs font-black text-rose-900';
+      b.textContent = isFr ? '⛔ Compte temporairement suspendu.' : '⛔ حسابك معلّق مؤقتاً ولا يمكنك استقبال طلبات جديدة.';
+      listEl.appendChild(b);
+      return;
+    }
+
+    if (activeSubTab === 'new' && accReqs.length > 0) {
+      const lock = document.createElement('div');
+      lock.className = 'rounded-3xl border-2 border-amber-400 bg-amber-50 p-4 text-center space-y-2.5';
+      const p = document.createElement('p');
+      p.className = 'text-xs font-black text-amber-950';
+      p.textContent = isFr
+        ? '🔒 Clôturez d\'abord votre visite en cours pour voir les nouvelles demandes.'
+        : '🔒 لديك طلب مقبول قيد التنفيذ. يجب أولاً تأكيد إنجازه أو عدم إنجازه لتظهر لك الطلبات الجديدة.';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white';
+      btn.textContent = isFr ? '✅ Voir ma visite en cours' : '✅ الذهاب إلى الطلب المقبول';
+      btn.addEventListener('click', () => setSubTab('accepted'));
+      lock.append(p, btn);
+      listEl.appendChild(lock);
+      return;
+    }
+
+    const items = activeSubTab === 'new' ? newReqs : (activeSubTab === 'accepted' ? accReqs : histReqs);
+    if (!items.length) {
+      const emp = document.createElement('div');
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.textContent = isFr ? 'Aucune demande ici.' : 'لا توجد طلبات في هذا القسم حالياً.';
+      listEl.appendChild(emp);
+      return;
+    }
+
+    items.forEach((r) => {
+      const card = document.createElement('div');
+      card.className = 'cg-card p-4 space-y-2.5';
+      const top = document.createElement('div');
+      top.className = 'flex items-center justify-between gap-2';
+      const nm = document.createElement('p');
+      nm.className = 'text-sm font-black text-[#163024]';
+      nm.textContent = r.requester_name || (isFr ? 'Patient' : 'مريض');
+      const tag = document.createElement('span');
+      const isOpen = r.request_mode === 'open';
+      tag.className = isOpen
+        ? 'rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-black text-amber-900'
+        : 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-emerald-900';
+      tag.textContent = isOpen ? (isFr ? '⚡ Ouverte' : '⚡ طلب مفتوح') : (isFr ? '👤 Directe' : '👤 طلب مباشر');
+      top.append(nm, tag);
+      card.appendChild(top);
+
+      if (r.care_reason) {
+        const rsn = document.createElement('p');
+        rsn.className = 'rounded-xl bg-[#EAF4EE] px-3 py-1.5 text-xs font-black text-[#0E5A3E]';
+        rsn.textContent = '🩺 ' + r.care_reason;
+        card.appendChild(rsn);
+      }
+
+      const when = r.created_at ? new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      const meta = document.createElement('p');
+      meta.className = 'text-[11px] font-bold text-[#5C6F63]';
+      meta.textContent = (when ? `🕒 ${when}` : '') + fmtDist(r, isFr);
+      card.appendChild(meta);
+
+      const btns = document.createElement('div');
+      btns.className = 'flex flex-wrap gap-2 pt-1';
+      if (activeSubTab === 'new') {
+        const acc = document.createElement('button');
+        acc.type = 'button';
+        acc.className = 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+        acc.textContent = isFr ? '✓ Accepter' : '✓ قبول الطلب';
+        acc.addEventListener('click', () => acceptReq(r));
+        btns.appendChild(acc);
+        if (!isOpen) {
+          const dec = document.createElement('button');
+          dec.type = 'button';
+          dec.className = 'tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800';
+          dec.textContent = isFr ? '✕ Refuser' : '✕ رفض';
+          dec.addEventListener('click', async () => {
+            await S.client.from('nurse_visit_requests').update({ status: 'declined' }).eq('id', r.id);
+            loadRequests();
+          });
+          btns.appendChild(dec);
+        }
+      } else if (activeSubTab === 'accepted') {
+        if (r.senior_lat && r.senior_lng) {
+          const mapA = document.createElement('a');
+          mapA.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(r.senior_lat + ',' + r.senior_lng)}`;
+          mapA.target = '_blank'; mapA.rel = 'noopener noreferrer';
+          mapA.className = 'tap-btn flex-1 text-center rounded-xl bg-sky-700 px-3 py-2 text-xs font-black text-white';
+          mapA.textContent = isFr ? '🗺️ Google Maps' : '🗺️ التوجيه عبر Google Maps';
+          btns.appendChild(mapA);
+        }
+        if (r.requester_phone && S.safeTelHref(r.requester_phone)) {
+          const callA = document.createElement('a');
+          callA.href = S.safeTelHref(r.requester_phone);
+          callA.className = 'tap-btn rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#163024]';
+          callA.textContent = isFr ? '📞 Appeler' : '📞 اتصال';
+          btns.appendChild(callA);
+        }
+        const doneBtn = document.createElement('button');
+        doneBtn.type = 'button';
+        doneBtn.className = 'tap-btn flex-1 rounded-xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-xs font-black text-[#0E5A3E]';
+        doneBtn.textContent = isFr ? '✓ Réalisée' : '✓ تم التنفيذ';
+        doneBtn.addEventListener('click', async () => {
+          const disc = !!(r.senior_outcome && r.senior_outcome !== 'completed');
+          await S.client.from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'completed', discrepancy_flag: disc, completed_at: new Date().toISOString() }).eq('id', r.id);
+          loadRequests();
+        });
+        const noBtn = document.createElement('button');
+        noBtn.type = 'button';
+        noBtn.className = 'tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800';
+        noBtn.textContent = isFr ? '✕ Non réalisée' : '✕ لم يتم';
+        noBtn.addEventListener('click', async () => {
+          const disc = !!(r.senior_outcome && r.senior_outcome !== 'not_completed');
+          await S.client.from('nurse_visit_requests').update({ status: 'completed', nurse_outcome: 'not_completed', discrepancy_flag: disc, completed_at: new Date().toISOString() }).eq('id', r.id);
+          loadRequests();
+        });
+        btns.append(doneBtn, noBtn);
+      } else {
+        const st = document.createElement('span');
+        st.className = 'text-[11px] font-black text-[#5C6F63]';
+        st.textContent = r.status === 'completed' ? (isFr ? '✅ Terminée' : '✅ مكتملة') : (isFr ? '✕ Refusée' : '✕ مرفوضة');
+        btns.appendChild(st);
+      }
+      card.appendChild(btns);
+      listEl.appendChild(card);
+    });
+  }
+
+  async function acceptReq(r) {
+    S.stopRingtone();
+    const isFr = S.getLang() === 'fr';
+    const myName = (myProfile && myProfile.full_name) || (user.user_metadata && user.user_metadata.full_name) || 'ممرض';
+    let ok = false;
+    if (r.request_mode === 'open') {
+      const { data: rpcOk, error: rpcErr } = await S.client.rpc('accept_open_visit_request', { req_id: r.id, nurse_uid: user.id, nurse_nm: myName });
+      if (!rpcErr && rpcOk) ok = true;
+    } else {
+      const { data: upd } = await S.client.from('nurse_visit_requests').update({ status: 'accepted', accepted_by_user_id: user.id, accepted_by_name: myName, accepted_at: new Date().toISOString() }).eq('id', r.id).eq('status', 'pending').select('id');
+      ok = !!(upd && upd.length);
+    }
+    const msgEl = $('reqStatusMsg');
+    msgEl.classList.remove('hidden');
+    msgEl.textContent = ok
+      ? (isFr ? '✅ Visite acceptée ! Ouvrez Google Maps ci-dessous.' : '✅ تم قبول الطلب! استخدم زر Google Maps للتوجيه للمنزل.')
+      : (isFr ? '⚠️ Déjà acceptée par un autre infirmier.' : '⚠️ سبقك ممرض آخر لقبول هذا الطلب.');
+    await loadRequests();
+    if (ok) setSubTab('accepted');
+  }
+
+  async function loadPatients() {
+    const box = $('patientsList');
+    const isFr = S.getLang() === 'fr';
+    const { data: links } = await S.client
+      .from('senior_care_links')
+      .select('id, senior_id, status, senior_profiles(id, display_name, senior_phone, blood_type, allergies, conditions, home_address, water_count, water_date)')
+      .eq('requester_user_id', user.id);
+    box.replaceChildren();
+    if (!links || !links.length) {
+      const p = document.createElement('div');
+      p.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      p.textContent = isFr ? 'Aucun patient lié — entrez un code CG-... ci-dessus.' : 'لا يوجد مرضى مرتبطون بعد — أدخل رمز المسنّ (CG-...) أعلاه.';
+      box.appendChild(p);
+      return;
+    }
+    for (const lk of links) {
+      const card = document.createElement('div');
+      card.className = 'cg-card p-4 space-y-2.5';
+      if (lk.status !== 'approved') {
+        card.textContent = isFr ? '⏳ Demande de liaison en attente...' : '⏳ طلب الربط بانتظار موافقة المسنّ...';
+        box.appendChild(card);
+        continue;
+      }
+      const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
+      const title = document.createElement('p');
+      title.className = 'text-base font-black text-[#163024]';
+      title.textContent = sp.display_name || 'المسنّ';
+      const sub = document.createElement('p');
+      sub.className = 'text-xs font-bold text-[#5C6F63]';
+      sub.textContent = [sp.blood_type ? `🩸 ${sp.blood_type}` : '', sp.allergies ? `⚠️ ${sp.allergies}` : '', sp.home_address || ''].filter(Boolean).join(' • ');
+      const row = document.createElement('div');
+      row.className = 'flex gap-2 pt-1';
+      if (sp.senior_phone && S.safeTelHref(sp.senior_phone)) {
+        const a = document.createElement('a');
+        a.href = S.safeTelHref(sp.senior_phone);
+        a.className = 'tap-btn flex-1 text-center rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-black text-[#163024]';
+        a.textContent = isFr ? '📞 Appeler' : '📞 اتصال';
+        row.appendChild(a);
+      }
+      const chatBtn = document.createElement('button');
+      chatBtn.type = 'button';
+      chatBtn.className = 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+      chatBtn.textContent = isFr ? '💬 Chat privé' : '💬 محادثة خاصة';
+      chatBtn.addEventListener('click', () => openChat(sp.id, sp.display_name));
+      row.appendChild(chatBtn);
+      card.append(title, sub, row);
+      box.appendChild(card);
+    }
+  }
+
+  async function openChat(sid, name) {
+    chatSeniorId = sid;
+    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Discussion : ' : '💬 محادثة مع: ') + (name || '');
+    $('chatModal').classList.remove('hidden');
+    await loadChat();
+  }
+
+  async function loadChat() {
+    if (!chatSeniorId) return;
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'nurse').order('created_at', { ascending: true }).limit(40);
+    const box = $('chatMessages');
+    box.replaceChildren();
+    (data || []).forEach((m) => {
+      const mine = m.sender_user_id === user.id;
+      const div = document.createElement('div');
+      div.className = mine ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-bold' : 'rounded-2xl bg-white border border-slate-200 p-2.5 text-xs font-bold';
+      div.textContent = `${m.sender_name || ''}: ${m.message_text || '🎤 رسالة صوتية'}`;
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function loadNurseProfile() {
+    const { data: np } = await S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle();
+    const { data: prof } = await S.client.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle();
+    if (prof && prof.avatar_url) {
+      $('nurseHdrAvatar').replaceChildren();
+      const img = document.createElement('img');
+      img.src = prof.avatar_url; img.className = 'h-full w-full object-cover';
+      $('nurseHdrAvatar').appendChild(img);
+    }
+    if (!np) return;
+    myProfile = np;
+    $('npFullName').value = np.full_name || '';
+    if (np.credential) $('npCredential').value = np.credential;
+    if (np.gender) $('npGender').value = np.gender;
+    if (np.region) $('npRegion').value = np.region;
+    $('npCityZip').value = np.city_zip || '';
+    $('npPhone').value = np.phone || '';
+    if (np.years_exp != null) $('npYearsExp').value = np.years_exp;
+    if (np.hourly_rate != null) $('npHourlyRate').value = np.hourly_rate;
+    $('npLanguages').value = np.languages || '';
+    $('npSpecialties').value = np.specialties || '';
+    $('npAvailNow').checked = !!np.is_available_now;
+    $('npDirOptIn').checked = np.directory_opt_in !== false;
+    if (np.base_lat && np.base_lng) {
+      $('gpsStatus').textContent = `✓ ${Number(np.base_lat).toFixed(3)}, ${Number(np.base_lng).toFixed(3)}`;
+      $('gpsStatus').dataset.lat = String(np.base_lat);
+      $('gpsStatus').dataset.lng = String(np.base_lng);
+    }
+  }
+
+  $('saveProfileBtn').addEventListener('click', async () => {
+    const isFr = S.getLang() === 'fr';
+    const msgEl = $('profSaveMsg');
+    const rawPhone = ($('npPhone').value || '').trim();
+    let normPhone = S.normalizeTnPhone(rawPhone);
+    if (!normPhone) {
+      const cleaned = rawPhone.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+      if (!/^\+?\d{6,15}$/.test(cleaned)) {
+        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.textContent = isFr ? '⚠️ Téléphone obligatoire (6 à 15 chiffres).' : '⚠️ رقم الهاتف إجباري (6 إلى 15 رقماً).';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+      normPhone = cleaned;
+    }
+    if (!$('npTermsAgree').checked) {
+      msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+      msgEl.textContent = isFr ? '⚠️ Acceptez les conditions d\'abord.' : '⚠️ يجب الموافقة على الشروط أولاً.';
+      msgEl.classList.remove('hidden');
+      return;
+    }
+    try {
+      const rpcRes = await S.client.rpc('is_phone_banned', { p: normPhone });
+      if (!rpcRes.error && rpcRes.data === true) {
+        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.textContent = isFr ? '🚫 Numéro suspendu.' : '🚫 هذا الرقم محظور بسبب تكرار الشكاوى.';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+    } catch (_) {}
+
+    const payload = {
+      user_id: user.id,
+      full_name: ($('npFullName').value || '').trim() || 'ممرض',
+      credential: $('npCredential').value,
+      credential_type: $('npCredential').value,
+      gender: $('npGender').value,
+      country: 'TN',
+      region: $('npRegion').value || '',
+      city: ($('npCityZip').value || '').trim() || $('npRegion').value || 'Tunisie',
+      city_zip: ($('npCityZip').value || '').trim(),
+      license_number: 'TN-BETA',
+      phone: normPhone,
+      years_exp: $('npYearsExp').value ? Number($('npYearsExp').value) : null,
+      hourly_rate: $('npHourlyRate').value ? Number($('npHourlyRate').value) : null,
+      languages: ($('npLanguages').value || '').trim() || null,
+      specialties: ($('npSpecialties').value || '').trim() || null,
+      is_available_now: !!$('npAvailNow').checked,
+      directory_opt_in: !!$('npDirOptIn').checked,
+      base_lat: $('gpsStatus').dataset.lat ? Number($('gpsStatus').dataset.lat) : null,
+      base_lng: $('gpsStatus').dataset.lng ? Number($('gpsStatus').dataset.lng) : null,
+      verification_status: 'verified'
+    };
+    const { error } = await S.client.from('nurse_profiles').upsert(payload, { onConflict: 'user_id' });
+    msgEl.classList.remove('hidden');
+    msgEl.className = error ? 'text-center text-xs font-extrabold text-rose-800' : 'text-center text-xs font-extrabold text-emerald-800';
+    msgEl.textContent = error ? ('⚠️ ' + error.message) : (isFr ? '✓ Profil enregistré !' : '✓ تم حفظ ملف الممرض بنجاح!');
+    if (!error) myProfile = payload;
+  });
+
+  $('avatarFileInput').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f || !user) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = String(reader.result || '');
+      await S.client.from('profiles').upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: 'id' });
+      loadNurseProfile();
+    };
+    reader.readAsDataURL(f);
+    e.target.value = '';
+  });
+
+  $('setGpsBtn').addEventListener('click', () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((pos) => {
+      liveLat = pos.coords.latitude; liveLng = pos.coords.longitude;
+      $('gpsStatus').dataset.lat = String(liveLat);
+      $('gpsStatus').dataset.lng = String(liveLng);
+      $('gpsStatus').textContent = `✓ ${liveLat.toFixed(3)}, ${liveLng.toFixed(3)}`;
+    });
+  });
+
+  $('linkSubmitBtn').addEventListener('click', async () => {
+    const code = ($('linkCodeInput').value || '').trim().toUpperCase();
+    const msg = $('linkMsg');
+    if (!code) return;
+    const { data: sp } = await S.client.from('senior_profiles').select('id').eq('registration_number', code).maybeSingle();
+    if (!sp) { msg.className = 'text-xs font-extrabold text-rose-800'; msg.textContent = '⚠️ رمز غير موجود'; msg.classList.remove('hidden'); return; }
+    const { error } = await S.client.from('senior_care_links').insert({ senior_id: sp.id, requester_user_id: user.id, role_type: 'nurse', status: 'pending' });
+    msg.className = error ? 'text-xs font-extrabold text-rose-800' : 'text-xs font-extrabold text-emerald-800';
+    msg.textContent = error ? ('⚠️ ' + error.message) : '✓ تم إرسال طلب الربط — بانتظار موافقة المسنّ.';
+    msg.classList.remove('hidden');
+    if (!error) { $('linkCodeInput').value = ''; loadPatients(); }
+  });
+
+  $('chatSendBtn').addEventListener('click', async () => {
+    const txt = ($('chatInput').value || '').trim();
+    if (!txt || !chatSeniorId) return;
+    $('chatInput').value = '';
+    await S.client.from('care_direct_messages').insert({
+      senior_id: chatSeniorId,
+      sender_user_id: user.id,
+      sender_name: (myProfile && myProfile.full_name) || 'ممرض',
+      sender_role: 'nurse',
+      channel: 'nurse',
+      message_text: txt
+    });
+    loadChat();
+  });
+
+  // Wiring
+  $('navRequests').addEventListener('click', () => switchMainTab('requests'));
+  $('navPatients').addEventListener('click', () => switchMainTab('patients'));
+  $('navProfile').addEventListener('click', () => switchMainTab('profile'));
+  $('subTabNew').addEventListener('click', () => setSubTab('new'));
+  $('subTabAcc').addEventListener('click', () => setSubTab('accepted'));
+  $('subTabHist').addEventListener('click', () => setSubTab('history'));
+  $('refreshReqBtn').addEventListener('click', loadRequests);
+  $('closeChatBtn').addEventListener('click', () => $('chatModal').classList.add('hidden'));
+  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); });
+  $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
+  $('signOutBtn').addEventListener('click', S.signOut);
+
+  $('pushBtn').addEventListener('click', async () => {
+    const r = await S.toggleWebPush(user);
+    if (r.ok) {
+      $('pushBtn').className = r.active
+        ? 'tap-btn rounded-full bg-emerald-700 px-2.5 py-1.5 text-xs font-black text-white'
+        : 'tap-btn rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-900';
+      $('pushBtn').textContent = r.active ? '🔔 ✓' : '🔔';
+    }
+  });
+
+  $('ringtoneBtn').addEventListener('click', () => {
+    $('ringPresetSel').value = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone';
+    $('ringtoneModal').classList.remove('hidden');
+  });
+  $('closeRingModalBtn').addEventListener('click', () => { S.stopRingtone(); $('ringtoneModal').classList.add('hidden'); });
+  $('ringPresetSel').addEventListener('change', (e) => localStorage.setItem(S.CONFIG.RINGTONE_KEY, e.target.value));
+  $('testRingBtn').addEventListener('click', S.playStrongRingtone);
+  $('stopRingBtn').addEventListener('click', S.stopRingtone);
+  $('customRingFile').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        localStorage.setItem('cg_v2_custom_ringtone_url', String(r.result || ''));
+        localStorage.setItem(S.CONFIG.RINGTONE_KEY, 'custom_file');
+        $('ringPresetSel').value = 'custom_file';
+        $('customRingStatus').textContent = '✓ ' + f.name;
+      } catch (_) { $('customRingStatus').textContent = '⚠️ الملف كبير جداً (اختر ملفاً أقل من 2MB)'; }
+    };
+    r.readAsDataURL(f);
+  });
+
+  // Boot
+  (async function init() {
+    applyTexts();
+    user = await S.requireAuth(['nurse', 'center']);
+    if (!user) return;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((p) => { liveLat = p.coords.latitude; liveLng = p.coords.longitude; renderRequests(); }, () => {}, { timeout: 5000 });
+    }
+    await loadNurseProfile();
+    await loadRequests();
+    S.client.channel('cg-v2-nurse-' + user.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'nurse_visit_requests' }, async (payload) => {
+        await loadRequests();
+        if (payload.eventType === 'INSERT' && payload.new) {
+          const r = payload.new;
+          const myG = (myProfile && myProfile.gender) || 'male';
+          const pg = r.preferred_gender || 'any';
+          const okG = pg === 'any' || pg === myG;
+          if ((r.request_mode === 'open' && okG && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id) {
+            S.playStrongRingtone();
+          }
+        }
+      })
+      .subscribe();
+  })();
+})();
+</script>
+</body>
+</html>

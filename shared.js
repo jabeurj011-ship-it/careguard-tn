@@ -1,0 +1,264 @@
+/* CareGuard TN v2 — Shared Core (Supabase, Auth, Lang, Audio, Push, Helpers) */
+(function () {
+  'use strict';
+
+  const CONFIG = {
+    VERSION: 'v2.0-TN',
+    SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
+    SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
+    LANG_KEY: 'cg_v2_lang',
+    ROLE_KEY: 'cg_v2_role',
+    RINGTONE_KEY: 'cg_v2_ringtone_preset'
+  };
+
+  let sbClient = null;
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  }
+
+  const $ = (id) => document.getElementById(id);
+
+  function getLang() {
+    return localStorage.getItem(CONFIG.LANG_KEY) === 'fr' ? 'fr' : 'ar';
+  }
+  function setLang(lang) {
+    const clean = lang === 'fr' ? 'fr' : 'ar';
+    localStorage.setItem(CONFIG.LANG_KEY, clean);
+    document.documentElement.lang = clean;
+    document.documentElement.dir = clean === 'fr' ? 'ltr' : 'rtl';
+    return clean;
+  }
+  function applyDocDir() {
+    const l = getLang();
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === 'fr' ? 'ltr' : 'rtl';
+    return l;
+  }
+
+  function getRole() {
+    return localStorage.getItem(CONFIG.ROLE_KEY) || '';
+  }
+  function setRole(role) {
+    if (role) localStorage.setItem(CONFIG.ROLE_KEY, role);
+    else localStorage.removeItem(CONFIG.ROLE_KEY);
+  }
+  function rolePageUrl(role) {
+    if (role === 'senior') return './senior.html';
+    if (role === 'family') return './family.html';
+    if (role === 'nurse' || role === 'center') return './nurse.html';
+    return './index.html';
+  }
+
+  async function getSessionUser() {
+    if (!sbClient) return null;
+    try {
+      const { data } = await sbClient.auth.getSession();
+      return (data && data.session && data.session.user) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function requireAuth(expectedRoles) {
+    const user = await getSessionUser();
+    if (!user) {
+      window.location.href = './index.html';
+      return null;
+    }
+    const role = getRole();
+    if (Array.isArray(expectedRoles) && expectedRoles.length && !expectedRoles.includes(role)) {
+      window.location.href = rolePageUrl(role);
+      return null;
+    }
+    return user;
+  }
+
+  async function signOut() {
+    setRole('');
+    if (sbClient) {
+      try { await sbClient.auth.signOut(); } catch (_) {}
+    }
+    window.location.href = './index.html';
+  }
+
+  function safeTelHref(raw) {
+    const clean = String(raw || '').replace(/[^\d+]/g, '');
+    return clean.length >= 6 ? 'tel:' + clean : '';
+  }
+
+  function normalizeTnPhone(raw) {
+    const digits = String(raw || '').replace(/\D/g, '');
+    if (digits.startsWith('216') && digits.length === 11) {
+      const local = digits.slice(3);
+      return `+216 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
+    }
+    if (digits.length === 8 && /^[234579]\d{7}$/.test(digits)) {
+      return `+216 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+    }
+    return null;
+  }
+
+  function haversineMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const toRad = (d) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function getLocalDateStr(d) {
+    const dt = d || new Date();
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+
+  function getLocalDayStartIso() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }
+
+  // Loud Synth Ringtone + Custom Audio (IndexedDB-free lightweight dataURL in localStorage <= 2MB)
+  let activeAudio = null;
+  function stopRingtone() {
+    if (activeAudio) {
+      try { activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
+      activeAudio = null;
+    }
+  }
+  function playStrongRingtone() {
+    stopRingtone();
+    if (navigator.vibrate) { try { navigator.vibrate([500, 200, 500, 200, 700]); } catch (_) {} }
+    const preset = localStorage.getItem(CONFIG.RINGTONE_KEY) || 'loud_phone';
+    const customUrl = localStorage.getItem('cg_v2_custom_ringtone_url') || '';
+    if (preset === 'custom_file' && customUrl) {
+      try {
+        activeAudio = new Audio(customUrl);
+        activeAudio.volume = 1.0;
+        activeAudio.play().catch(() => playSynth(preset));
+        setTimeout(stopRingtone, 8000);
+        return;
+      } catch (_) {}
+    }
+    playSynth(preset);
+  }
+  function playSynth(mode) {
+    try {
+      if (!window.__cgAudioCtx) window.__cgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = window.__cgAudioCtx;
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      const now = ctx.currentTime;
+      const bursts = mode === 'urgent_alarm' ? 6 : 5;
+      for (let i = 0; i < bursts; i++) {
+        const t = now + i * 0.38;
+        const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
+        o1.type = mode === 'urgent_alarm' ? 'sawtooth' : (mode === 'classic_bell' ? 'triangle' : 'square');
+        o2.type = 'triangle';
+        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 987.77 : (mode === 'classic_bell' ? 880 : 740), t);
+        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1318.5 : (mode === 'classic_bell' ? 1174.6 : 987.77), t);
+        g.gain.setValueAtTime(0.85, t);
+        g.gain.exponentialRampToValueAtTime(0.02, t + 0.32);
+        o1.connect(g); o2.connect(g); g.connect(ctx.destination);
+        o1.start(t); o2.start(t); o1.stop(t + 0.34); o2.stop(t + 0.34);
+      }
+    } catch (_) {}
+  }
+
+  // Arabic / French TTS
+  function speakText(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const isFr = getLang() === 'fr';
+      const want = isFr ? 'fr' : 'ar';
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const matched = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(want));
+      if (matched) { u.voice = matched; u.lang = matched.lang; }
+      else u.lang = isFr ? 'fr-FR' : 'ar-SA';
+      u.rate = 0.92; u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    } catch (_) {}
+  }
+
+  // Web Push Subscribe / Unsubscribe Toggle
+  function urlB64ToU8(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const out = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) out[i] = rawData.charCodeAt(i);
+    return out;
+  }
+
+  async function toggleWebPush(user) {
+    const isFr = getLang() === 'fr';
+    if (!sbClient || !user) return { ok: false, active: false };
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الخلفية غير مدعومة في هذا المتصفح.');
+      return { ok: false, active: false };
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing && localStorage.getItem('cg_push_muted') !== '1') {
+      const ep = existing.endpoint;
+      await existing.unsubscribe().catch(() => {});
+      try { await sbClient.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', ep); } catch (_) {}
+      localStorage.setItem('cg_push_muted', '1');
+      return { ok: true, active: false };
+    }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      alert(isFr ? 'Activez les notifications dans Chrome.' : 'يرجى تفعيل الإشعارات من إعدادات Chrome.');
+      return { ok: false, active: false };
+    }
+    const res = await fetch(CONFIG.SUPABASE_URL + '/functions/v1/notify-alerts-ts?vapid=1');
+    const json = await res.json();
+    if (!json || !json.publicKey) throw new Error('VAPID key missing');
+    const sub = existing || await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToU8(json.publicKey)
+    });
+    const raw = sub.toJSON();
+    const { error } = await sbClient.from('push_subscriptions').upsert({
+      user_id: user.id,
+      endpoint: raw.endpoint,
+      p256dh: raw.keys && raw.keys.p256dh ? raw.keys.p256dh : '',
+      auth: raw.keys && raw.keys.auth ? raw.keys.auth : ''
+    }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    localStorage.removeItem('cg_push_muted');
+    return { ok: true, active: true };
+  }
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+
+  applyDocDir();
+
+  window.CG_SHARED = {
+    CONFIG,
+    $,
+    client: sbClient,
+    getLang,
+    setLang,
+    applyDocDir,
+    getRole,
+    setRole,
+    rolePageUrl,
+    getSessionUser,
+    requireAuth,
+    signOut,
+    safeTelHref,
+    normalizeTnPhone,
+    haversineMeters,
+    getLocalDateStr,
+    getLocalDayStartIso,
+    playStrongRingtone,
+    stopRingtone,
+    speakText,
+    toggleWebPush
+  };
+})();

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CareGuard TN — فضاء العائلة</title>
+  <meta name="theme-color" content="#0E5A3E" />
+  <link rel="manifest" href="./manifest.json" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="min-h-screen pb-24">
+
+<!-- Top Header -->
+<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+  <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
+      <div class="min-w-0">
+        <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.0-TN</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="ringtoneBtn" type="button" class="tap-btn rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-black text-amber-950">🎵</button>
+      <button id="pushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-900">🔔</button>
+      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E]">FR</button>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
+
+  <!-- TAB 1: MY LINKED SENIORS -->
+  <section id="secHome" class="space-y-3.5">
+    <div class="cg-card p-4 space-y-2.5">
+      <div class="flex items-center justify-between">
+        <p id="linkTitle" class="text-sm font-black text-[#0E5A3E]">🔗 ربط المسنّ عبر الرمز (CG-...)</p>
+        <button id="refreshBtn" type="button" class="rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-1 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
+      </div>
+      <div class="flex gap-2">
+        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black uppercase" />
+        <button id="linkSubmitBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">ربط</button>
+      </div>
+      <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
+    </div>
+
+    <div id="seniorsList" class="space-y-3.5"></div>
+  </section>
+
+  <!-- TAB 2: ALERTS -->
+  <section id="secAlerts" class="hidden space-y-3">
+    <h2 id="alertsHeading" class="text-lg font-black text-rose-900">🚨 التنبيهات النشطة</h2>
+    <div id="alertsList" class="space-y-2.5"></div>
+  </section>
+
+  <!-- TAB 3: FIND / REQUEST NURSE + ACCOUNT -->
+  <section id="secNurse" class="hidden space-y-3.5">
+    <div class="cg-card p-4 space-y-3">
+      <div>
+        <h2 id="fnHeading" class="text-lg font-black text-[#0E5A3E]">🩺 طلب ممرض لقريبك</h2>
+        <p id="fnSub" class="text-xs font-bold text-[#5C6F63]">ممرضون موثّقون في تونس مرتبون حسب القرب</p>
+      </div>
+      <select id="careReasonSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-bold text-[#163024]">
+        <option value="💉 حقنة / إبرة">💉 حقنة / إبرة (Injection)</option>
+        <option value="🩹 تغيير ضمادات">🩹 تغيير ضمادات (Pansement)</option>
+        <option value="💧 تركيب سيروم / مصل">💧 تركيب سيروم / مصل (Sérum)</option>
+        <option value="🩺 قياس ضغط / سكري">🩺 قياس ضغط / سكري (Tension / Glycémie)</option>
+        <option value="🏥 رعاية شاملة / مساعدة">🏥 رعاية شاملة / مساعدة</option>
+      </select>
+      <select id="genderPrefSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-bold text-[#163024]">
+        <option value="any">🤝 لا يهم (ممرض أو ممرضة)</option>
+        <option value="female">👩‍⚕️ ممرضة فقط</option>
+        <option value="male">👨‍⚕️ ممرض فقط</option>
+      </select>
+      <button id="broadcastBtn" type="button" class="tap-btn flex h-auto w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-3.5 py-3 text-start shadow-sm">
+        <div class="min-w-0 flex-1 space-y-0.5">
+          <p id="bcTitle" class="text-sm font-black leading-snug text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
+          <p id="bcSub" class="text-[11px] font-bold leading-snug text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر</p>
+        </div>
+        <span id="bcBadge" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
+      </button>
+      <div id="fnStatus" class="hidden rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+      <div id="nursesList" class="space-y-2.5"></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+      <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
+    </div>
+  </section>
+</main>
+
+<!-- Bottom Navigation (Family Only) -->
+<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
+  <div class="mx-auto grid max-w-xl grid-cols-3 py-2 text-center text-xs font-black">
+    <button id="navHome" type="button" class="flex flex-col items-center gap-0.5 text-[#0E5A3E]">
+      <span class="text-lg">🏠</span>
+      <span id="navHomeLbl">المتابعة</span>
+    </button>
+    <button id="navAlerts" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
+      <span class="text-lg">🚨</span>
+      <span id="navAlertsLbl">التنبيهات (<span id="alertsCnt">0</span>)</span>
+    </button>
+    <button id="navNurse" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
+      <span class="text-lg">🩺</span>
+      <span id="navNurseLbl">طلب ممرض</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Ringtone Modal -->
+<div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+  <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-black text-[#0E5A3E]">🔔 إعدادات نغمة التنبيه</h3>
+      <button id="closeRingModalBtn" type="button" class="rounded-xl px-3 py-1 text-lg font-black text-slate-600">✕</button>
+    </div>
+    <select id="ringPresetSel" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
+      <option value="loud_phone">رنين قوي ومتكرر</option>
+      <option value="urgent_alarm">إنذار عاجل عالي الصوت</option>
+      <option value="classic_bell">جرس كلاسيكي واضح</option>
+      <option value="custom_file">نغمة مخصصة من الهاتف</option>
+    </select>
+    <label for="customRingFile" class="tap-btn block w-full cursor-pointer rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50 px-4 py-3 text-center text-xs font-black text-amber-950">
+      🎵 اختر نغمة صوتية من الهاتف (MP3 / WAV / M4A)
+    </label>
+    <input id="customRingFile" type="file" accept="audio/*" class="hidden" />
+    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0E5A3E]"></p>
+    <div class="grid grid-cols-2 gap-2">
+      <button id="testRingBtn" type="button" class="tap-btn rounded-xl bg-amber-600 px-3 py-2.5 text-xs font-black text-white">🔊 تجربة النغمة</button>
+      <button id="stopRingBtn" type="button" class="tap-btn rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-black text-slate-800">⏹️ إيقاف</button>
+    </div>
+  </div>
+</div>
+
+<!-- Family Direct Chat Modal -->
+<div id="chatModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-3">
+  <div class="flex max-h-[88vh] w-full max-w-md flex-col rounded-3xl bg-[#FFFDF9] p-4 shadow-2xl border border-[#E6DCCB]">
+    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-2.5">
+      <h3 id="chatTitle" class="text-base font-black text-[#0E5A3E]">💬 محادثة العائلة</h3>
+      <button id="closeChatBtn" type="button" class="rounded-xl px-2.5 py-1 text-lg font-black text-slate-600">✕</button>
+    </div>
+    <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
+    <div class="flex gap-2">
+      <input id="chatInput" type="text" placeholder="اكتب رسالة طمأنة لقريبك..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
+    </div>
+  </div>
+</div>
+
+<script src="./shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  const S = window.CG_SHARED;
+  const $ = S.$;
+  let user = null;
+  let linkedCards = [];
+  let chatSeniorId = null;
+  let cachedNurses = [];
+
+  function switchTab(tab) {
+    $('secHome').classList.toggle('hidden', tab !== 'home');
+    $('secAlerts').classList.toggle('hidden', tab !== 'alerts');
+    $('secNurse').classList.toggle('hidden', tab !== 'nurse');
+    $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'home' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navAlerts').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'alerts' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navNurse').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'nurse' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    if (tab === 'nurse') loadNurses();
+  }
+
+  function applyTexts() {
+    const isFr = S.getLang() === 'fr';
+    $('langBtn').textContent = isFr ? 'عربي' : 'FR';
+    $('hdrTitle').textContent = isFr ? 'Espace Famille' : 'فضاء العائلة';
+    $('navHomeLbl').textContent = isFr ? 'Suivi' : 'المتابعة';
+    $('navNurseLbl').textContent = isFr ? 'Infirmier' : 'طلب ممرض';
+    $('bcTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
+    $('bcSub').textContent = isFr ? 'Envoyé à tous — le 1er qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر';
+    $('switchRoleBtn').textContent = isFr ? '🔄 Changer de rôle' : '🔄 تغيير الدور';
+    $('signOutBtn').textContent = isFr ? '🚪 Déconnexion' : '🚪 تسجيل الخروج';
+    const opts = $('genderPrefSel').options;
+    if (opts && opts.length >= 3) {
+      opts[0].textContent = isFr ? '🤝 Peu importe (Homme ou Femme)' : '🤝 لا يهم (ممرض أو ممرضة)';
+      opts[1].textContent = isFr ? '👩‍⚕️ Infirmière uniquement' : '👩‍⚕️ ممرضة فقط';
+      opts[2].textContent = isFr ? '👨‍⚕️ Infirmier uniquement' : '👨‍⚕️ ممرض فقط';
+    }
+  }
+
+  async function loadFamilyData() {
+    if (!S.client || !user) return;
+    const isFr = S.getLang() === 'fr';
+    const { data: links } = await S.client
+      .from('senior_care_links')
+      .select('id, senior_id, status, senior_profiles(id, display_name, senior_phone, blood_type, allergies, conditions, home_address, home_lat, home_lng, avatar_url, water_count, water_date)')
+      .eq('requester_user_id', user.id);
+
+    const todayStr = S.getLocalDateStr();
+    const todayStart = S.getLocalDayStartIso();
+    linkedCards = await Promise.all((links || []).map(async (lk) => {
+      if (lk.status !== 'approved') return { kind: 'pending', lk };
+      const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
+      const [{ data: chk }, { data: bat }, { data: meds }, { data: logs }, { data: alerts }, { data: dms }] = await Promise.all([
+        S.client.from('safety_checkins').select('checked_in_at').eq('senior_id', sp.id).order('checked_in_at', { ascending: false }).limit(1),
+        S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1),
+        S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
+        S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
+        S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
+        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).eq('channel', 'family').order('created_at', { ascending: false }).limit(1)
+      ]);
+      const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
+      const takenTimeMap = new Map();
+      (logs || []).forEach((l) => {
+        if (l.status === 'taken' && l.logged_at) {
+          takenTimeMap.set(l.medication_id, new Date(l.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+      });
+      return {
+        kind: 'approved',
+        sp,
+        lastChk: chk && chk[0] ? new Date(chk[0].checked_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (isFr ? 'Aucun' : 'لا يوجد'),
+        batPct: bat && bat[0] ? bat[0].battery_percent + '%' : '--%',
+        meds: meds || [],
+        takenSet,
+        takenTimeMap,
+        water: sp.water_date === todayStr ? (sp.water_count || 0) : 0,
+        alerts: alerts || [],
+        lastDm: dms && dms[0] ? dms[0] : null
+      };
+    }));
+    renderFamilyCards();
+  }
+
+  function renderFamilyCards() {
+    const isFr = S.getLang() === 'fr';
+    const box = $('seniorsList');
+    const alBox = $('alertsList');
+    box.replaceChildren();
+    alBox.replaceChildren();
+
+    let totalAlerts = 0;
+    if (!linkedCards.length) {
+      const emp = document.createElement('div');
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.textContent = isFr ? 'Aucun proche lié — entrez le code CG-... ci-dessus.' : 'لا يوجد قريب مرتبط بعد — أدخل رمز المسنّ (CG-...) أعلاه.';
+      box.appendChild(emp);
+    }
+
+    linkedCards.forEach((item) => {
+      if (item.kind !== 'approved') {
+        const pend = document.createElement('div');
+        pend.className = 'rounded-2xl border border-amber-300 bg-amber-50 p-4 text-xs font-black text-amber-950';
+        pend.textContent = isFr ? '⏳ Demande de liaison en attente d\'approbation.' : '⏳ طلب الربط بانتظار موافقة المسنّ.';
+        box.appendChild(pend);
+        return;
+      }
+      const { sp, lastChk, batPct, meds, takenSet, takenTimeMap, water, alerts, lastDm } = item;
+      totalAlerts += alerts.length;
+
+      // Alerts tab items
+      alerts.forEach((al) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-black text-rose-950';
+        const txt = document.createElement('span');
+        txt.textContent = `🚨 ${sp.display_name || ''}: ${al.message || al.alert_type}`;
+        const okBtn = document.createElement('button');
+        okBtn.type = 'button';
+        okBtn.className = 'shrink-0 rounded-xl bg-rose-700 px-3 py-1.5 text-[11px] font-black text-white';
+        okBtn.textContent = isFr ? 'Vu ✓' : 'تمت الرؤية ✓';
+        okBtn.addEventListener('click', async () => {
+          await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
+          loadFamilyData();
+        });
+        row.append(txt, okBtn);
+        alBox.appendChild(row);
+      });
+
+      const card = document.createElement('div');
+      card.className = 'cg-card p-4 space-y-3';
+      const top = document.createElement('div');
+      top.className = 'flex items-center gap-3';
+      const av = document.createElement('div');
+      av.className = 'h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] flex items-center justify-center text-xl font-black text-white';
+      if (sp.avatar_url) {
+        const img = document.createElement('img');
+        img.src = sp.avatar_url; img.className = 'h-full w-full object-cover';
+        av.appendChild(img);
+      } else {
+        av.textContent = (sp.display_name || 'S').charAt(0).toUpperCase();
+      }
+      const info = document.createElement('div');
+      info.className = 'min-w-0 flex-1';
+      const nm = document.createElement('p');
+      nm.className = 'text-lg font-black text-[#163024] truncate';
+      nm.textContent = sp.display_name || 'المسنّ';
+      const sub = document.createElement('p');
+      sub.className = 'text-xs font-bold text-[#5C6F63]';
+      sub.textContent = `🕒 ${lastChk} • 🔋 ${batPct} • 💊 ${meds.filter((m) => takenSet.has(m.id)).length}/${meds.length} • 💧 ${water}/8`;
+      info.append(nm, sub);
+      top.append(av, info);
+      card.appendChild(top);
+
+      // Meds list with actual taken timestamp
+      if (meds.length) {
+        const mWrap = document.createElement('div');
+        mWrap.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] p-3 space-y-1.5';
+        meds.forEach((m) => {
+          const isT = takenSet.has(m.id);
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between gap-2 text-xs font-bold';
+          const l = document.createElement('span');
+          l.className = 'truncate text-[#163024]';
+          l.textContent = `${m.name} (${m.dosage || ''})`;
+          const r = document.createElement('span');
+          r.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0E5A3E]' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900';
+          const tAt = isT && takenTimeMap.get(m.id) ? (' ' + takenTimeMap.get(m.id)) : '';
+          r.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tAt) : (isFr ? '⏳ En attente' : '⏳ لم يُؤخذ');
+          row.append(l, r);
+          mWrap.appendChild(row);
+        });
+        card.appendChild(mWrap);
+      }
+
+      const seenTs = Number(localStorage.getItem('cg_v2_fam_seen_' + sp.id) || 0);
+      const dmTs = lastDm && lastDm.created_at ? new Date(lastDm.created_at).getTime() : 0;
+      const hasUnread = !!(lastDm && !lastDm.read_at && dmTs > seenTs && lastDm.sender_user_id !== user.id);
+
+      const acts = document.createElement('div');
+      acts.className = 'flex gap-2';
+      if (sp.senior_phone && S.safeTelHref(sp.senior_phone)) {
+        const callA = document.createElement('a');
+        callA.href = S.safeTelHref(sp.senior_phone);
+        callA.className = 'tap-btn flex-1 text-center rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-black text-[#163024]';
+        callA.textContent = isFr ? '📞 Appeler' : '📞 اتصال';
+        acts.appendChild(callA);
+      }
+      const chatBtn = document.createElement('button');
+      chatBtn.type = 'button';
+      chatBtn.className = hasUnread
+        ? 'tap-btn flex-1 rounded-xl bg-rose-600 px-3 py-2 text-xs font-black text-white animate-pulse'
+        : 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+      chatBtn.textContent = hasUnread ? (isFr ? '🔴 Nouveau message' : '🔴 رسالة جديدة') : (isFr ? '💬 Message' : '💬 رسالة طمأنة');
+      chatBtn.addEventListener('click', () => {
+        localStorage.setItem('cg_v2_fam_seen_' + sp.id, String(Date.now()));
+        openChat(sp.id, sp.display_name);
+        renderFamilyCards();
+      });
+      acts.appendChild(chatBtn);
+      card.appendChild(acts);
+      box.appendChild(card);
+    });
+
+    $('alertsCnt').textContent = String(totalAlerts);
+    if (!totalAlerts) {
+      const ok = document.createElement('div');
+      ok.className = 'cg-card p-6 text-center text-xs font-bold text-[#0E5A3E]';
+      ok.textContent = isFr ? '🟢 Aucune alerte active.' : '🟢 لا توجد تنبيهات نشطة حالياً — كل شيء بخير.';
+      alBox.appendChild(ok);
+    }
+  }
+
+  async function openChat(sid, name) {
+    chatSeniorId = sid;
+    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Famille : ' : '💬 محادثة مع: ') + (name || '');
+    $('chatModal').classList.remove('hidden');
+    await S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', sid).eq('channel', 'family').neq('sender_user_id', user.id).is('read_at', null);
+    await loadChat();
+  }
+
+  async function loadChat() {
+    if (!chatSeniorId) return;
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'family').order('created_at', { ascending: true }).limit(40);
+    const box = $('chatMessages');
+    box.replaceChildren();
+    (data || []).forEach((m) => {
+      const mine = m.sender_user_id === user.id;
+      const d = document.createElement('div');
+      d.className = mine ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-bold' : 'rounded-2xl bg-white border border-slate-200 p-2.5 text-xs font-bold';
+      d.textContent = `${m.sender_name || ''}: ${m.message_text || '🎤 رسالة صوتية'}`;
+      box.appendChild(d);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  async function loadNurses() {
+    const { data } = await S.client.from('nurse_profiles').select('*').eq('country', 'TN').eq('directory_opt_in', true).neq('is_banned', true);
+    const nowMs = Date.now();
+    cachedNurses = (data || []).filter((n) => !(n.suspended_until && new Date(n.suspended_until).getTime() > nowMs));
+    renderNurses();
+  }
+
+  function renderNurses() {
+    const isFr = S.getLang() === 'fr';
+    const gPref = $('genderPrefSel').value;
+    const list = cachedNurses.filter((n) => gPref === 'any' || (n.gender || 'male') === gPref);
+    const box = $('nursesList');
+    box.replaceChildren();
+    if (!list.length) {
+      const emp = document.createElement('p');
+      emp.className = 'text-center text-xs font-bold text-[#5C6F63] py-4';
+      emp.textContent = isFr ? 'Aucun infirmier trouvé.' : 'لا يوجد ممرضون مطابقون حالياً.';
+      box.appendChild(emp);
+      return;
+    }
+    list.forEach((n) => {
+      const c = document.createElement('div');
+      c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-2';
+      const nm = document.createElement('p');
+      nm.className = 'text-sm font-black text-[#163024]';
+      nm.textContent = `${n.full_name || 'ممرض'} • ${n.region || 'TN'}` + (n.hourly_rate ? ` • ${n.hourly_rate} د.ت/س` : '');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+      btn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
+      btn.addEventListener('click', () => sendNurseReq('direct', n.user_id, n.full_name));
+      c.append(nm, btn);
+      box.appendChild(c);
+    });
+  }
+
+  async function sendNurseReq(mode, nurseUid, nurseName) {
+    const st = $('fnStatus');
+    const firstSenior = linkedCards.find((x) => x.kind === 'approved');
+    const sp = firstSenior ? firstSenior.sp : null;
+    const { data: active } = await S.client.from('nurse_visit_requests').select('id').eq('requester_user_id', user.id).in('status', ['open', 'pending', 'accepted']).limit(1);
+    if (active && active.length) {
+      st.classList.remove('hidden');
+      st.textContent = '⚠️ لديك طلب نشط بالفعل. انتظر قبوله أو ألغه أولاً.';
+      return;
+    }
+    const { error } = await S.client.from('nurse_visit_requests').insert({
+      senior_id: sp ? sp.id : null,
+      requester_user_id: user.id,
+      requester_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
+      requester_phone: sp ? (sp.senior_phone || null) : null,
+      senior_lat: sp ? (sp.home_lat || null) : null,
+      senior_lng: sp ? (sp.home_lng || null) : null,
+      care_reason: $('careReasonSel').value,
+      preferred_gender: $('genderPrefSel').value,
+      request_mode: mode,
+      nurse_user_id: mode === 'open' ? null : nurseUid,
+      nurse_name: mode === 'open' ? null : (nurseName || 'ممرض'),
+      status: mode === 'open' ? 'open' : 'pending'
+    });
+    st.classList.remove('hidden');
+    st.textContent = error ? ('⚠️ ' + error.message) : '✅ تم إرسال طلب الزيارة بنجاح!';
+  }
+
+  // Wiring
+  $('navHome').addEventListener('click', () => switchTab('home'));
+  $('navAlerts').addEventListener('click', () => switchTab('alerts'));
+  $('navNurse').addEventListener('click', () => switchTab('nurse'));
+  $('refreshBtn').addEventListener('click', loadFamilyData);
+  $('genderPrefSel').addEventListener('change', renderNurses);
+  $('broadcastBtn').addEventListener('click', () => sendNurseReq('open', null, null));
+  $('closeChatBtn').addEventListener('click', () => $('chatModal').classList.add('hidden'));
+  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderFamilyCards(); });
+  $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
+  $('signOutBtn').addEventListener('click', S.signOut);
+
+  $('linkSubmitBtn').addEventListener('click', async () => {
+    const code = ($('linkCodeInput').value || '').trim().toUpperCase();
+    const msg = $('linkMsg');
+    if (!code) return;
+    const { data: sp } = await S.client.from('senior_profiles').select('id').eq('registration_number', code).maybeSingle();
+    if (!sp) { msg.className = 'text-xs font-extrabold text-rose-800'; msg.textContent = '⚠️ رمز غير موجود'; msg.classList.remove('hidden'); return; }
+    const { error } = await S.client.from('senior_care_links').insert({ senior_id: sp.id, requester_user_id: user.id, role_type: 'family', status: 'pending' });
+    msg.className = error ? 'text-xs font-extrabold text-rose-800' : 'text-xs font-extrabold text-emerald-800';
+    msg.textContent = error ? ('⚠️ ' + error.message) : '✓ تم إرسال طلب الربط — بانتظار موافقة المسنّ.';
+    msg.classList.remove('hidden');
+    if (!error) { $('linkCodeInput').value = ''; loadFamilyData(); }
+  });
+
+  $('chatSendBtn').addEventListener('click', async () => {
+    const txt = ($('chatInput').value || '').trim();
+    if (!txt || !chatSeniorId) return;
+    $('chatInput').value = '';
+    await S.client.from('care_direct_messages').insert({
+      senior_id: chatSeniorId,
+      sender_user_id: user.id,
+      sender_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
+      sender_role: 'family',
+      channel: 'family',
+      message_text: txt
+    });
+    loadChat();
+  });
+
+  $('pushBtn').addEventListener('click', async () => {
+    const r = await S.toggleWebPush(user);
+    if (r.ok) {
+      $('pushBtn').className = r.active
+        ? 'tap-btn rounded-full bg-emerald-700 px-2.5 py-1.5 text-xs font-black text-white'
+        : 'tap-btn rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-900';
+      $('pushBtn').textContent = r.active ? '🔔 ✓' : '🔔';
+    }
+  });
+
+  $('ringtoneBtn').addEventListener('click', () => {
+    $('ringPresetSel').value = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone';
+    $('ringtoneModal').classList.remove('hidden');
+  });
+  $('closeRingModalBtn').addEventListener('click', () => { S.stopRingtone(); $('ringtoneModal').classList.add('hidden'); });
+  $('ringPresetSel').addEventListener('change', (e) => localStorage.setItem(S.CONFIG.RINGTONE_KEY, e.target.value));
+  $('testRingBtn').addEventListener('click', S.playStrongRingtone);
+  $('stopRingBtn').addEventListener('click', S.stopRingtone);
+  $('customRingFile').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        localStorage.setItem('cg_v2_custom_ringtone_url', String(r.result || ''));
+        localStorage.setItem(S.CONFIG.RINGTONE_KEY, 'custom_file');
+        $('ringPresetSel').value = 'custom_file';
+        $('customRingStatus').textContent = '✓ ' + f.name;
+      } catch (_) { $('customRingStatus').textContent = '⚠️ الملف كبير جداً (أقل من 2MB)'; }
+    };
+    r.readAsDataURL(f);
+  });
+
+  (async function init() {
+    applyTexts();
+    user = await S.requireAuth(['family']);
+    if (!user) return;
+    await loadFamilyData();
+    S.client.channel('cg-v2-fam-' + user.id)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' }, () => { S.playStrongRingtone(); loadFamilyData(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => {
+        if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone();
+        loadFamilyData();
+      })
+      .subscribe();
+  })();
+})();
+</script>
+</body>
+</html>
