@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.0-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.1-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -206,6 +206,7 @@
     </div>
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
+      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
       <input id="chatInput" type="text" placeholder="اكتب رسالة للمريض..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
@@ -560,13 +561,7 @@
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'nurse').order('created_at', { ascending: true }).limit(40);
     const box = $('chatMessages');
     box.replaceChildren();
-    (data || []).forEach((m) => {
-      const mine = m.sender_user_id === user.id;
-      const div = document.createElement('div');
-      div.className = mine ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-bold' : 'rounded-2xl bg-white border border-slate-200 p-2.5 text-xs font-bold';
-      div.textContent = `${m.sender_name || ''}: ${m.message_text || '🎤 رسالة صوتية'}`;
-      box.appendChild(div);
-    });
+    (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }
 
@@ -696,6 +691,15 @@
     if (!error) { $('linkCodeInput').value = ''; loadPatients(); }
   });
 
+  S.attachVoiceRecorder($('chatMicBtn'), async (audioData) => {
+    if (!chatSeniorId || !audioData) return;
+    await S.client.from('care_direct_messages').insert({
+      senior_id: chatSeniorId, sender_user_id: user.id,
+      sender_name: (myProfile && myProfile.full_name) || 'ممرض',
+      sender_role: 'nurse', channel: 'nurse', audio_data: audioData
+    });
+    loadChat();
+  });
   $('chatSendBtn').addEventListener('click', async () => {
     const txt = ($('chatInput').value || '').trim();
     if (!txt || !chatSeniorId) return;

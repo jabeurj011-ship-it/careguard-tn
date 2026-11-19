@@ -22,7 +22,7 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.0-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.1-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -34,6 +34,7 @@
 </header>
 
 <main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
+  <div id="liveCheckInToast" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-[#0E5A3E] shadow-sm"></div>
 
   <!-- TAB 1: MY LINKED SENIORS -->
   <section id="secHome" class="space-y-3.5">
@@ -104,7 +105,7 @@
     </button>
     <button id="navAlerts" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
       <span class="text-lg">🚨</span>
-      <span id="navAlertsLbl">التنبيهات (<span id="alertsCnt">0</span>)</span>
+      <span><span id="navAlertsLbl">التنبيهات</span> (<span id="alertsCnt">0</span>)</span>
     </button>
     <button id="navNurse" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
       <span class="text-lg">🩺</span>
@@ -147,6 +148,7 @@
     </div>
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
+      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
       <input id="chatInput" type="text" placeholder="اكتب رسالة طمأنة لقريبك..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
@@ -179,6 +181,7 @@
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
     $('hdrTitle').textContent = isFr ? 'Espace Famille' : 'فضاء العائلة';
     $('navHomeLbl').textContent = isFr ? 'Suivi' : 'المتابعة';
+    $('navAlertsLbl').textContent = isFr ? 'Alertes' : 'التنبيهات';
     $('navNurseLbl').textContent = isFr ? 'Infirmier' : 'طلب ممرض';
     $('bcTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
     $('bcSub').textContent = isFr ? 'Envoyé à tous — le 1er qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر';
@@ -207,7 +210,7 @@
       const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
       const [{ data: chk }, { data: bat }, { data: meds }, { data: logs }, { data: alerts }, { data: dms }] = await Promise.all([
         S.client.from('safety_checkins').select('checked_in_at').eq('senior_id', sp.id).order('checked_in_at', { ascending: false }).limit(1),
-        S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1),
+        (async () => { let r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1); if (r.error || !r.data || !r.data.length) r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('recorded_at', { ascending: false }).limit(1); if (r.error) r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).limit(200); return r; })(),
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
         S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
@@ -224,7 +227,7 @@
         kind: 'approved',
         sp,
         lastChk: chk && chk[0] ? new Date(chk[0].checked_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (isFr ? 'Aucun' : 'لا يوجد'),
-        batPct: bat && bat[0] ? bat[0].battery_percent + '%' : '--%',
+        batPct: bat && bat.length ? bat[bat.length === 1 ? 0 : bat.length - 1].battery_percent + '%' : '--%',
         meds: meds || [],
         takenSet,
         takenTimeMap,
@@ -300,10 +303,16 @@
       nm.textContent = sp.display_name || 'المسنّ';
       const sub = document.createElement('p');
       sub.className = 'text-xs font-bold text-[#5C6F63]';
-      sub.textContent = `🕒 ${lastChk} • 🔋 ${batPct} • 💊 ${meds.filter((m) => takenSet.has(m.id)).length}/${meds.length} • 💧 ${water}/8`;
+      sub.textContent = `🔋 ${batPct} • 💊 ${meds.filter((m) => takenSet.has(m.id)).length}/${meds.length} • 💧 ${water}/8`;
       info.append(nm, sub);
       top.append(av, info);
       card.appendChild(top);
+      const okBadge = document.createElement('div');
+      okBadge.className = 'flex items-center justify-between gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs font-black text-[#0E5A3E]';
+      okBadge.textContent = isFr
+        ? `💚 ${sp.display_name || 'Votre proche'} va bien — confirmé à ${lastChk}`
+        : `💚 ${sp.display_name || 'قريبك'} بخير — آخر تأكيد الساعة ${lastChk}`;
+      card.appendChild(okBadge);
 
       // Meds list with actual taken timestamp
       if (meds.length) {
@@ -377,13 +386,7 @@
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'family').order('created_at', { ascending: true }).limit(40);
     const box = $('chatMessages');
     box.replaceChildren();
-    (data || []).forEach((m) => {
-      const mine = m.sender_user_id === user.id;
-      const d = document.createElement('div');
-      d.className = mine ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-bold' : 'rounded-2xl bg-white border border-slate-200 p-2.5 text-xs font-bold';
-      d.textContent = `${m.sender_name || ''}: ${m.message_text || '🎤 رسالة صوتية'}`;
-      box.appendChild(d);
-    });
+    (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }
 
@@ -427,10 +430,27 @@
     const st = $('fnStatus');
     const firstSenior = linkedCards.find((x) => x.kind === 'approved');
     const sp = firstSenior ? firstSenior.sp : null;
-    const { data: active } = await S.client.from('nurse_visit_requests').select('id').eq('requester_user_id', user.id).in('status', ['open', 'pending', 'accepted']).limit(1);
-    if (active && active.length) {
+    const chkQ = sp
+      ? S.client.from('nurse_visit_requests').select('id, status, requester_name').or(`senior_id.eq.${sp.id},requester_user_id.eq.${user.id}`).in('status', ['open', 'pending', 'accepted']).limit(1)
+      : S.client.from('nurse_visit_requests').select('id, status, requester_name').eq('requester_user_id', user.id).in('status', ['open', 'pending', 'accepted']).limit(1);
+    const { data: active } = await chkQ;
+    if (active && active[0]) {
+      st.replaceChildren();
       st.classList.remove('hidden');
-      st.textContent = '⚠️ لديك طلب نشط بالفعل. انتظر قبوله أو ألغه أولاً.';
+      const p = document.createElement('p');
+      p.textContent = `⚠️ يوجد طلب نشط حالياً لهذا المريض (من: ${active[0].requester_name || 'المسنّ/العائلة'}).`;
+      st.appendChild(p);
+      if (active[0].status !== 'accepted') {
+        const cBtn = document.createElement('button');
+        cBtn.type = 'button';
+        cBtn.className = 'mt-2 tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-900';
+        cBtn.textContent = '✕ إلغاء الطلب الحالي الآن';
+        cBtn.addEventListener('click', async () => {
+          await S.client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'cancelled' }).eq('id', active[0].id);
+          st.textContent = '✓ تم إلغاء الطلب السابق. يمكنك الآن إرسال طلب جديد.';
+        });
+        st.appendChild(cBtn);
+      }
       return;
     }
     const { error } = await S.client.from('nurse_visit_requests').insert({
@@ -476,6 +496,18 @@
     if (!error) { $('linkCodeInput').value = ''; loadFamilyData(); }
   });
 
+  S.attachVoiceRecorder($('chatMicBtn'), async (audioData) => {
+    if (!chatSeniorId || !audioData) return;
+    await S.client.from('care_direct_messages').insert({
+      senior_id: chatSeniorId,
+      sender_user_id: user.id,
+      sender_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
+      sender_role: 'family',
+      channel: 'family',
+      audio_data: audioData
+    });
+    loadChat();
+  });
   $('chatSendBtn').addEventListener('click', async () => {
     const txt = ($('chatInput').value || '').trim();
     if (!txt || !chatSeniorId) return;
@@ -531,6 +563,16 @@
     await loadFamilyData();
     S.client.channel('cg-v2-fam-' + user.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' }, () => { S.playStrongRingtone(); loadFamilyData(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'safety_checkins' }, () => {
+        const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const toast = $('liveCheckInToast');
+        if (toast) {
+          toast.textContent = S.getLang() === 'fr' ? `💚 Votre proche vient de confirmer qu'il va bien (${t})` : `💚 أكّد قريبك الآن أنه بخير (الساعة ${t})`;
+          toast.classList.remove('hidden');
+          setTimeout(() => toast.classList.add('hidden'), 8000);
+        }
+        loadFamilyData();
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => {
         if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone();
         loadFamilyData();

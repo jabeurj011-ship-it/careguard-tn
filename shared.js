@@ -3,7 +3,7 @@
   'use strict';
 
   const CONFIG = {
-    VERSION: 'v2.0-TN',
+    VERSION: 'v2.1-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     LANG_KEY: 'cg_v2_lang',
@@ -231,6 +231,74 @@
     return { ok: true, active: true };
   }
 
+
+  // Shared Voice Message Recorder (MediaRecorder -> dataURL) & Message Bubble Renderer
+  function attachVoiceRecorder(btn, onRecorded) {
+    if (!btn) return;
+    let rec = null, chunks = [], stream = null, active = false;
+    btn.addEventListener('click', async () => {
+      const isFr = getLang() === 'fr';
+      if (active && rec) {
+        active = false;
+        try { rec.stop(); } catch (_) {}
+        btn.className = 'tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]';
+        btn.textContent = '🎤';
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(isFr ? 'Microphone non supporté.' : 'الميكروفون غير مدعوم في هذا المتصفح.');
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+        rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        chunks = [];
+        rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+        rec.onstop = () => {
+          try { stream.getTracks().forEach((t) => t.stop()); } catch (_) {}
+          const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = () => { if (onRecorded) onRecorded(String(reader.result || '')); };
+          reader.readAsDataURL(blob);
+        };
+        rec.start();
+        active = true;
+        btn.className = 'tap-btn rounded-xl bg-rose-600 px-3 py-2 text-sm font-black text-white animate-pulse';
+        btn.textContent = '⏹️';
+      } catch (_) {
+        alert(isFr ? 'Autorisez le microphone.' : 'يرجى السماح بالوصول إلى الميكروفون.');
+      }
+    });
+  }
+
+  function renderChatMessageEl(m, myUid) {
+    const mine = m.sender_user_id === myUid;
+    const d = document.createElement('div');
+    d.className = mine
+      ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]'
+      : 'rounded-2xl bg-white border border-slate-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between gap-2 text-[11px] font-black text-[#0E5A3E]';
+    const nm = document.createElement('span'); nm.textContent = m.sender_name || '';
+    const tm = document.createElement('span'); tm.className = 'text-[#5C6F63]';
+    tm.textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    hdr.append(nm, tm);
+    d.appendChild(hdr);
+    if (m.message_text) {
+      const p = document.createElement('p'); p.className = 'text-xs font-bold break-words';
+      p.textContent = m.message_text;
+      d.appendChild(p);
+    }
+    if (m.audio_data) {
+      const aud = document.createElement('audio');
+      aud.controls = true; aud.src = m.audio_data;
+      aud.className = 'w-full h-9';
+      d.appendChild(aud);
+    }
+    return d;
+  }
+
   // Register Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -259,6 +327,8 @@
     playStrongRingtone,
     stopRingtone,
     speakText,
-    toggleWebPush
+    toggleWebPush,
+    attachVoiceRecorder,
+    renderChatMessageEl
   };
 })();

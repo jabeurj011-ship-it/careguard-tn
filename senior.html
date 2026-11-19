@@ -26,7 +26,7 @@
       </div>
       <div>
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">CareGuard</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.0-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.1-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -131,6 +131,7 @@
     </div>
     <div id="dmList" class="cg-card p-3 space-y-2 min-h-[260px] max-h-[55vh] overflow-y-auto"></div>
     <div class="flex gap-2">
+      <button id="dmMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-base font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
       <input id="dmInput" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
       <button id="dmSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-5 py-2.5 text-sm font-black text-white">إرسال</button>
     </div>
@@ -686,7 +687,7 @@
     const st = $('fnStatusBox');
     st.classList.remove('hidden');
     st.textContent = '⏳ جاري الإرسال...';
-    const { data: active } = await S.client.from('nurse_visit_requests').select('id, status').eq('requester_user_id', user.id).in('status', ['open', 'pending', 'accepted']).limit(1);
+    const { data: active } = await S.client.from('nurse_visit_requests').select('id, status').or(seniorId ? `senior_id.eq.${seniorId},requester_user_id.eq.${user.id}` : `requester_user_id.eq.${user.id}`).in('status', ['open', 'pending', 'accepted']).limit(1);
     if (active && active[0]) {
       st.replaceChildren();
       st.appendChild(document.createTextNode('⚠️ لديك طلب نشط بالفعل. '));
@@ -752,13 +753,7 @@
     if (!seniorId) return;
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).eq('channel', dmChannel).order('created_at', { ascending: true }).limit(40);
     const box = $('dmList'); box.replaceChildren();
-    (data || []).forEach((m) => {
-      const mine = m.sender_user_id === user.id;
-      const d = document.createElement('div');
-      d.className = mine ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-bold' : 'rounded-2xl bg-white border border-slate-200 p-2.5 text-xs font-bold';
-      d.textContent = `${m.sender_name || ''}: ${m.message_text || '🎤 رسالة صوتية'}`;
-      box.appendChild(d);
-    });
+    (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }
 
@@ -833,6 +828,15 @@
     loadMeds();
   });
 
+  S.attachVoiceRecorder($('dmMicBtn'), async (audioData) => {
+    if (!seniorId || !audioData) return;
+    await S.client.from('care_direct_messages').insert({
+      senior_id: seniorId, sender_user_id: user.id,
+      sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ',
+      sender_role: 'senior', channel: dmChannel, audio_data: audioData
+    });
+    loadDirectMessages();
+  });
   $('dmSendBtn').addEventListener('click', async () => {
     const txt = ($('dmInput').value || '').trim();
     if (!txt || !seniorId) return;
