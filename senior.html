@@ -369,6 +369,39 @@
     if (!seniorProfile) return;
     seniorId = seniorProfile.id;
     renderSeniorHeader();
+    loadLastCheckIn();
+  }
+
+  function formatCheckInText(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const isFr = S.getLang() === 'fr';
+    const t = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const sameDay = d.toDateString() === new Date().toDateString();
+    const dt = sameDay ? '' : (d.toLocaleDateString([], { day: '2-digit', month: '2-digit' }) + ' • ');
+    return isFr ? `✓ Dernière confirmation : ${dt}${t}` : `✓ آخر تأكيد: ${dt}${t}`;
+  }
+
+  async function loadLastCheckIn() {
+    if (!seniorId) return;
+    const lsKey = 'cg_v2_last_checkin_' + seniorId;
+    try {
+      const cached = localStorage.getItem(lsKey);
+      if (cached) $('lastCheckInTxt').textContent = formatCheckInText(cached);
+    } catch (_) {}
+    try {
+      const { data } = await S.client
+        .from('safety_checkins')
+        .select('checked_in_at')
+        .eq('senior_id', seniorId)
+        .order('checked_in_at', { ascending: false })
+        .limit(1);
+      if (data && data[0] && data[0].checked_in_at) {
+        try { localStorage.setItem(lsKey, data[0].checked_in_at); } catch (_) {}
+        $('lastCheckInTxt').textContent = formatCheckInText(data[0].checked_in_at);
+      }
+    } catch (_) {}
   }
 
   function renderSeniorHeader() {
@@ -433,7 +466,8 @@
       const left = document.createElement('div');
       left.className = 'min-w-0 flex-1';
       const nm = document.createElement('p');
-      nm.className = 'text-sm font-black text-[#163024] truncate';
+      nm.className = 'text-sm font-black text-[#163024] break-words leading-snug';
+      nm.dir = 'auto';
       nm.textContent = `${m.name} (${m.dosage || '08:00'})`;
       const st = document.createElement('p');
       st.className = isT ? 'text-xs font-black text-[#0E5A3E]' : 'text-xs font-bold text-amber-800';
@@ -751,9 +785,14 @@
   // Direct Messages
   async function loadDirectMessages() {
     if (!seniorId) return;
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const qCh = dmChannel === 'nurse' ? ['nurse', 'family'] : ['family', 'nurse'];
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).in('channel', qCh).order('created_at', { ascending: true }).limit(50);
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).in('channel', qCh).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('dmList'); box.replaceChildren();
+    const note = document.createElement('p');
+    note.className = 'text-center text-[10px] font-bold text-[#5C6F63] pb-1';
+    note.textContent = S.getLang() === 'fr' ? '🕒 Messages effacés automatiquement après 24h' : '🕒 تُمسح الرسائل تلقائياً بعد 24 ساعة';
+    box.appendChild(note);
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }
@@ -806,10 +845,12 @@
 
   $('checkInBtn').addEventListener('click', async () => {
     if (!seniorId) return;
+    const nowIso = new Date().toISOString();
+    try { localStorage.setItem('cg_v2_last_checkin_' + seniorId, nowIso); } catch (_) {}
+    $('lastCheckInTxt').textContent = formatCheckInText(nowIso);
     await S.client.from('safety_checkins').insert({ senior_id: seniorId });
-    $('checkInFeedback').textContent = '✓ تم إرسال طمأنة «أنا بخير» إلى عائلتك!';
+    $('checkInFeedback').textContent = S.getLang() === 'fr' ? '✓ Confirmation « Je vais bien » envoyée !' : '✓ تم إرسال طمأنة «أنا بخير» إلى عائلتك!';
     $('checkInFeedback').classList.remove('hidden');
-    $('lastCheckInTxt').textContent = 'آخر تأكيد: ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   });
 
   $('copyCodeBtn').addEventListener('click', () => {

@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.2-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.3-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -657,9 +657,10 @@
         meds.forEach((m) => {
           const isT = takenSet.has(m.id);
           const mRow = document.createElement('div');
-          mRow.className = 'flex items-center justify-between gap-2 text-xs font-bold';
+          mRow.className = 'flex flex-wrap items-center justify-between gap-1.5 border-b border-[#EDE4D4] pb-1.5 last:border-0 last:pb-0 text-xs font-bold';
           const l = document.createElement('span');
-          l.className = 'truncate text-[#163024]';
+          l.className = 'min-w-0 flex-1 break-words leading-snug text-[#163024]';
+          l.dir = 'auto';
           l.textContent = `${m.name || ''}${m.dosage ? ' (' + m.dosage + ')' : ''}`;
           const r = document.createElement('span');
           r.className = isT
@@ -764,9 +765,14 @@
 
   async function loadChat() {
     if (!chatSeniorId) return;
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['nurse', 'family']).order('created_at', { ascending: true }).limit(50);
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['nurse', 'family']).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
+    const note = document.createElement('p');
+    note.className = 'text-center text-[10px] font-bold text-[#5C6F63] pb-1';
+    note.textContent = S.getLang() === 'fr' ? '🕒 Messages effacés automatiquement après 24h' : '🕒 تُمسح الرسائل تلقائياً بعد 24 ساعة';
+    box.appendChild(note);
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }

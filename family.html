@@ -22,7 +22,7 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.2-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.3-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -214,7 +214,7 @@
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
         S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
-        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).order('created_at', { ascending: false }).limit(1)
+        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(1)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
       const takenTimeMap = new Map();
@@ -321,10 +321,11 @@
         meds.forEach((m) => {
           const isT = takenSet.has(m.id);
           const row = document.createElement('div');
-          row.className = 'flex items-center justify-between gap-2 text-xs font-bold';
+          row.className = 'flex flex-wrap items-center justify-between gap-1.5 border-b border-[#EDE4D4] pb-1.5 last:border-0 last:pb-0 text-xs font-bold';
           const l = document.createElement('span');
-          l.className = 'truncate text-[#163024]';
-          l.textContent = `${m.name} (${m.dosage || ''})`;
+          l.className = 'min-w-0 flex-1 break-words leading-snug text-[#163024]';
+          l.dir = 'auto';
+          l.textContent = `${m.name}${m.dosage ? ' (' + m.dosage + ')' : ''}`;
           const r = document.createElement('span');
           r.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0E5A3E]' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900';
           const tAt = isT && takenTimeMap.get(m.id) ? (' ' + takenTimeMap.get(m.id)) : '';
@@ -383,9 +384,14 @@
 
   async function loadChat() {
     if (!chatSeniorId) return;
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['family', 'nurse']).order('created_at', { ascending: true }).limit(50);
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['family', 'nurse']).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
+    const note = document.createElement('p');
+    note.className = 'text-center text-[10px] font-bold text-[#5C6F63] pb-1';
+    note.textContent = S.getLang() === 'fr' ? '🕒 Messages effacés automatiquement après 24h' : '🕒 تُمسح الرسائل تلقائياً بعد 24 ساعة';
+    box.appendChild(note);
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
     box.scrollTop = box.scrollHeight;
   }
