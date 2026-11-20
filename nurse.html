@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareGuard TN — فضاء الممرض</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.4-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.6-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -84,10 +84,16 @@
       </div>
 
       <!-- Photo Upload inside Profile -->
-      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-3.5 py-2.5">
-        <span id="profPhotoLbl" class="text-xs font-extrabold text-[#163024]">📷 صورة الممرض الشخصية</span>
-        <label for="avatarFileInput" id="profPhotoBtnLbl" class="tap-btn cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
-        <input id="avatarFileInput" type="file" accept="image/*" class="hidden" />
+      <div class="rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-3.5 py-2.5 space-y-1.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div id="profAvatarPreview" class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base font-black text-white">🩺</div>
+            <span id="profPhotoLbl" class="text-xs font-extrabold text-[#163024]">📷 صورة الممرض الشخصية</span>
+          </div>
+          <label for="avatarFileInput" id="profPhotoBtnLbl" class="tap-btn shrink-0 cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
+          <input id="avatarFileInput" type="file" accept="image/*" class="hidden" />
+        </div>
+        <p id="profPhotoStatus" class="hidden text-center text-[11px] font-extrabold"></p>
       </div>
 
       <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -117,10 +123,9 @@
           <option value="Tataouine">Tataouine / تطاوين</option><option value="Gafsa">Gafsa / قفصة</option>
           <option value="Tozeur">Tozeur / توزر</option><option value="Kebili">Kébili / قبلي</option>
         </select>
-        <input id="npCityZip" type="text" placeholder="المدينة (مثال: قابس 6000)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="npCityZip" type="text" placeholder="المعتمدية / الحي (اختياري — مثال: الحامة، حي الأمل)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
         <input id="npPhone" type="tel" dir="ltr" placeholder="رقم الهاتف إجباري * (+216 ...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
         <input id="npYearsExp" type="number" min="0" max="60" placeholder="سنوات الخبرة" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
-        <input id="npHourlyRate" type="number" min="5" max="500" placeholder="التعريفة بالساعة (د.ت)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
         <input id="npLanguages" type="text" placeholder="اللغات (العربية، Français...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold sm:col-span-2" />
         <input id="npSpecialties" type="text" placeholder="التخصصات (حقن، ضمادات، سكري...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold sm:col-span-2" />
       </div>
@@ -133,11 +138,6 @@
           <span id="availLbl">🟢 متاح الآن</span>
         </label>
       </div>
-
-      <label class="flex items-center gap-2 text-xs font-bold text-[#163024]">
-        <input id="npDirOptIn" type="checkbox" checked class="h-4 w-4 accent-[#0E5A3E]" />
-        <span id="dirLbl">إظهاري في دليل «أقرب ممرض»</span>
-      </label>
 
       <label class="flex items-start gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-2.5 text-[11px] font-bold text-[#163024]">
         <input id="npTermsAgree" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#0E5A3E]" />
@@ -416,7 +416,9 @@
         if (!(pg === 'any' || pg === myGender)) return false;
         const myG = getMyGovernorate();
         const rG = getReqGovernorate(r);
-        if (myG && rG && myG !== rG) return false;
+        const dm = distMeters(r);
+        const within25km = (dm !== null && dm <= 25000);
+        if (myG && rG && myG !== rG && !within25km) return false;
         return true;
       }
       return false;
@@ -658,16 +660,23 @@
       ].filter(Boolean).join(' • ');
       card.append(title, sub);
 
-      // Patient Medications List
-      const mWrap = document.createElement('div');
-      mWrap.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] p-3 space-y-1.5';
-      const mHdr = document.createElement('p');
-      mHdr.className = 'text-xs font-black text-[#0E5A3E]';
+      // Collapsible Patient Medications Accordion
+      const mDet = document.createElement('details');
+      mDet.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] px-3 py-2.5';
+      const mSum = document.createElement('summary');
+      mSum.className = 'cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-[#0E5A3E]';
       const takenCnt = meds.filter((m) => takenSet.has(m.id)).length;
-      mHdr.textContent = isFr
-        ? `💊 Médicaments du patient (${takenCnt}/${meds.length})`
+      const mSumL = document.createElement('span');
+      mSumL.textContent = isFr
+        ? `💊 Médicaments (${takenCnt}/${meds.length})`
         : `💊 أدوية المسنّ (${takenCnt}/${meds.length})`;
-      mWrap.appendChild(mHdr);
+      const mSumR = document.createElement('span');
+      mSumR.className = 'text-[11px] text-[#5C6F63]';
+      mSumR.textContent = meds.length ? (isFr ? 'Voir la liste ▾' : 'اضغط للعرض ▾') : (isFr ? 'Aucun' : 'لا يوجد');
+      mSum.append(mSumL, mSumR);
+      mDet.appendChild(mSum);
+      const mWrap = document.createElement('div');
+      mWrap.className = 'mt-2.5 pt-2 border-t border-[#E6DCCB] space-y-1.5';
       if (!meds.length) {
         const emptyM = document.createElement('p');
         emptyM.className = 'text-[11px] font-bold text-[#5C6F63]';
@@ -692,7 +701,8 @@
           mWrap.appendChild(mRow);
         });
       }
-      card.appendChild(mWrap);
+      mDet.appendChild(mWrap);
+      card.appendChild(mDet);
 
       const row = document.createElement('div');
       row.className = 'flex gap-2 pt-1';
@@ -801,10 +811,13 @@
     const { data: np } = await S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle();
     const { data: prof } = await S.client.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle();
     if (prof && prof.avatar_url) {
-      $('nurseHdrAvatar').replaceChildren();
-      const img = document.createElement('img');
-      img.src = prof.avatar_url; img.className = 'h-full w-full object-cover';
-      $('nurseHdrAvatar').appendChild(img);
+      ['nurseHdrAvatar', 'profAvatarPreview'].forEach((id) => {
+        const el = $(id); if (!el) return;
+        el.replaceChildren();
+        const img = document.createElement('img');
+        img.src = prof.avatar_url; img.className = 'h-full w-full object-cover';
+        el.appendChild(img);
+      });
     }
     if (!np) return;
     myProfile = np;
@@ -815,11 +828,10 @@
     $('npCityZip').value = np.city_zip || '';
     $('npPhone').value = np.phone || '';
     if (np.years_exp != null) $('npYearsExp').value = np.years_exp;
-    if (np.hourly_rate != null) $('npHourlyRate').value = np.hourly_rate;
     $('npLanguages').value = np.languages || '';
     $('npSpecialties').value = np.specialties || '';
     $('npAvailNow').checked = !!np.is_available_now;
-    $('npDirOptIn').checked = np.directory_opt_in !== false;
+    $('npTermsAgree').checked = true;
     if (np.base_lat && np.base_lng) {
       $('gpsStatus').textContent = `✓ ${Number(np.base_lat).toFixed(3)}, ${Number(np.base_lng).toFixed(3)}`;
       $('gpsStatus').dataset.lat = String(np.base_lat);
@@ -835,7 +847,7 @@
     if (!normPhone) {
       const cleaned = rawPhone.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
       if (!/^\+?\d{6,15}$/.test(cleaned)) {
-        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
         msgEl.textContent = isFr ? '⚠️ Téléphone obligatoire (6 à 15 chiffres).' : '⚠️ رقم الهاتف إجباري (6 إلى 15 رقماً).';
         msgEl.classList.remove('hidden');
         return;
@@ -843,7 +855,7 @@
       normPhone = cleaned;
     }
     if (!$('npTermsAgree').checked) {
-      msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+      msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
       msgEl.textContent = isFr ? '⚠️ Acceptez les conditions d\'abord.' : '⚠️ يجب الموافقة على الشروط أولاً.';
       msgEl.classList.remove('hidden');
       return;
@@ -851,7 +863,7 @@
     try {
       const rpcRes = await S.client.rpc('is_phone_banned', { p: normPhone });
       if (!rpcRes.error && rpcRes.data === true) {
-        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
         msgEl.textContent = isFr ? '🚫 Numéro suspendu.' : '🚫 هذا الرقم محظور بسبب تكرار الشكاوى.';
         msgEl.classList.remove('hidden');
         return;
@@ -871,32 +883,85 @@
       license_number: 'TN-BETA',
       phone: normPhone,
       years_exp: $('npYearsExp').value ? Number($('npYearsExp').value) : null,
-      hourly_rate: $('npHourlyRate').value ? Number($('npHourlyRate').value) : null,
       languages: ($('npLanguages').value || '').trim() || null,
       specialties: ($('npSpecialties').value || '').trim() || null,
       is_available_now: !!$('npAvailNow').checked,
-      directory_opt_in: !!$('npDirOptIn').checked,
+      directory_opt_in: true,
       base_lat: $('gpsStatus').dataset.lat ? Number($('gpsStatus').dataset.lat) : null,
       base_lng: $('gpsStatus').dataset.lng ? Number($('gpsStatus').dataset.lng) : null,
       verification_status: 'verified'
     };
+    const saveBtn = $('saveProfileBtn');
+    const origTxt = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = isFr ? '⏳ Enregistrement...' : '⏳ جاري الحفظ...';
     const { error } = await S.client.from('nurse_profiles').upsert(payload, { onConflict: 'user_id' });
+    saveBtn.disabled = false;
     msgEl.classList.remove('hidden');
-    msgEl.className = error ? 'text-center text-xs font-extrabold text-rose-800' : 'text-center text-xs font-extrabold text-emerald-800';
-    msgEl.textContent = error ? ('⚠️ ' + error.message) : (isFr ? '✓ Profil enregistré !' : '✓ تم حفظ ملف الممرض بنجاح!');
-    if (!error) myProfile = payload;
+    if (error) {
+      saveBtn.textContent = origTxt;
+      msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2.5 text-center text-xs font-black text-rose-900';
+      msgEl.textContent = '⚠️ ' + error.message;
+    } else {
+      myProfile = payload;
+      saveBtn.textContent = isFr ? '✅ Profil enregistré !' : '✅ تم الحفظ بنجاح!';
+      msgEl.className = 'rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-3 py-2.5 text-center text-xs font-black text-[#0E5A3E]';
+      msgEl.textContent = isFr ? '✅ Vos modifications ont bien été enregistrées !' : '✅ تم حفظ جميع بياناتك بنجاح وظهورك في الدليل مفعّل!';
+      setTimeout(() => { saveBtn.textContent = origTxt; }, 3000);
+    }
+    msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
+
+  function compressAvatar(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 256;
+          const scale = Math.min(1, maxDim / Math.max(img.width || 1, img.height || 1));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => resolve(String(reader.result || ''));
+        img.src = String(reader.result || '');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   $('avatarFileInput').addEventListener('change', async (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f || !user) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = String(reader.result || '');
-      await S.client.from('profiles').upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: 'id' });
-      loadNurseProfile();
-    };
-    reader.readAsDataURL(f);
+    const isFr = S.getLang() === 'fr';
+    const st = $('profPhotoStatus');
+    st.classList.remove('hidden');
+    st.className = 'text-center text-[11px] font-extrabold text-[#5C6F63]';
+    st.textContent = isFr ? '⏳ Mise à jour de la photo...' : '⏳ جاري ضغط وحفظ الصورة...';
+    try {
+      const dataUrl = await compressAvatar(f);
+      let { error } = await S.client.from('profiles').update({ avatar_url: dataUrl }).eq('id', user.id);
+      if (error) {
+        ({ error } = await S.client.from('profiles').upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: 'id' }));
+      }
+      if (error) throw error;
+      ['nurseHdrAvatar', 'profAvatarPreview'].forEach((id) => {
+        const el = $(id); if (!el) return;
+        el.replaceChildren();
+        const img = document.createElement('img');
+        img.src = dataUrl; img.className = 'h-full w-full object-cover';
+        el.appendChild(img);
+      });
+      st.className = 'text-center text-[11px] font-extrabold text-[#0E5A3E]';
+      st.textContent = isFr ? '✅ Photo enregistrée avec succès !' : '✅ تم حفظ صورتك الشخصية بنجاح!';
+    } catch (err) {
+      st.className = 'text-center text-[11px] font-extrabold text-rose-800';
+      st.textContent = '⚠️ ' + ((err && err.message) || (isFr ? 'Erreur de téléversement' : 'تعذر حفظ الصورة'));
+    }
     e.target.value = '';
   });
 
@@ -1024,7 +1089,8 @@
           const isMyBlk = (r.senior_id && myBlockedSeniorIds.has(r.senior_id)) || (r.requester_user_id && myBlockedReqUids.has(r.requester_user_id));
           const myGov = getMyGovernorate();
           const reqGov = getReqGovernorate(r);
-          const okGov = !myGov || !reqGov || myGov === reqGov;
+          const dmRt = distMeters(r);
+          const okGov = !myGov || !reqGov || myGov === reqGov || (dmRt !== null && dmRt <= 25000);
           if (!isMyBlk && ((r.request_mode === 'open' && okG && okGov && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
             S.playStrongRingtone();
           }

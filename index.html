@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareGuard TN — بوابة الدخول</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
@@ -25,7 +25,7 @@
       </div>
       <div>
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">CareGuard TN</h1>
-        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.5-TN</p>
+        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.6-TN</p>
       </div>
     </div>
     <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3.5 py-2 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
@@ -105,8 +105,7 @@
   </p>
 </main>
 
-<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("./sw.js").catch(function(){});}</script>
-<script src="./shared.js?v=2.5"></script>
+<script src="./shared.js?v=2.6"></script>
 <script>
 (function () {
   'use strict';
@@ -184,14 +183,9 @@
       try {
         const parsed = new URL(u);
         const code = parsed.searchParams.get('code');
-        const hashParams = new URLSearchParams((parsed.hash || '').replace(/^#/, ''));
-        const at = hashParams.get('access_token');
-        const rt = hashParams.get('refresh_token');
-        if (code) {
-          await S.client.auth.exchangeCodeForSession(code);
-        } else if (at && rt) {
-          await S.client.auth.setSession({ access_token: at, refresh_token: rt });
-        }
+        if (!code) throw new Error('رمز التحقق PKCE غير موجود.');
+        const { error: exErr } = await S.client.auth.exchangeCodeForSession(code);
+        if (exErr) throw exErr;
         window.location.href = S.rolePageUrl(pickedRole || S.getRole() || 'senior');
       } catch (e) {
         showErr((e && e.message) || 'تعذر إتمام الدخول بحساب Google.');

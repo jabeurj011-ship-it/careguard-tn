@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careguard-tn-v2.4b';
+const CACHE_NAME = 'careguard-tn-v2.6';
 const SHELL_ASSETS = [
   './',
   './index.html',

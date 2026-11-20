@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareGuard TN — فضاء العائلة</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
@@ -22,7 +22,7 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.4-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.6-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -314,10 +314,22 @@
         : `💚 ${sp.display_name || 'قريبك'} بخير — آخر تأكيد الساعة ${lastChk}`;
       card.appendChild(okBadge);
 
-      // Meds list with actual taken timestamp
+      // Collapsible Meds Accordion (keeps family cards short & clean)
       if (meds.length) {
+        const det = document.createElement('details');
+        det.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] px-3 py-2.5';
+        const sum = document.createElement('summary');
+        sum.className = 'cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-[#0E5A3E]';
+        const takenCnt = meds.filter((m) => takenSet.has(m.id)).length;
+        const sLeft = document.createElement('span');
+        sLeft.textContent = isFr ? `💊 Médicaments (${takenCnt}/${meds.length})` : `💊 أدوية المسنّ (${takenCnt}/${meds.length})`;
+        const sRight = document.createElement('span');
+        sRight.className = 'text-[11px] text-[#5C6F63]';
+        sRight.textContent = isFr ? 'Voir la liste ▾' : 'اضغط للعرض ▾';
+        sum.append(sLeft, sRight);
+        det.appendChild(sum);
         const mWrap = document.createElement('div');
-        mWrap.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] p-3 space-y-1.5';
+        mWrap.className = 'mt-2.5 pt-2 border-t border-[#E6DCCB] space-y-1.5';
         meds.forEach((m) => {
           const isT = takenSet.has(m.id);
           const row = document.createElement('div');
@@ -333,7 +345,8 @@
           row.append(l, r);
           mWrap.appendChild(row);
         });
-        card.appendChild(mWrap);
+        det.appendChild(mWrap);
+        card.appendChild(det);
       }
 
       const seenTs = Number(localStorage.getItem('cg_v2_fam_seen_' + sp.id) || 0);
@@ -421,7 +434,7 @@
       c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-2';
       const nm = document.createElement('p');
       nm.className = 'text-sm font-black text-[#163024]';
-      nm.textContent = `${n.full_name || 'ممرض'} • ${n.region || 'TN'}` + (n.hourly_rate ? ` • ${n.hourly_rate} د.ت/س` : '');
+      nm.textContent = `${n.full_name || 'ممرض'} • ${n.region ? S.formatGovLabel(n.region) : 'تونس'}` + (n.city_zip ? ` (${n.city_zip})` : '');
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';

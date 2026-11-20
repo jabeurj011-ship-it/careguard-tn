@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareGuard TN — فضاء المسنّ</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
@@ -176,6 +176,7 @@
         <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-3 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
       </div>
+      <button id="deleteAccountBtn" type="button" class="tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800">🗑️ حذف بياناتي وحسابي نهائياً</button>
     </div>
   </section>
 </main>
@@ -389,7 +390,10 @@
     if (rows && rows[0]) {
       seniorProfile = rows[0];
     } else {
-      const code = 'CG-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const rnd = new Uint8Array(6);
+      (window.crypto || window.msCrypto).getRandomValues(rnd);
+      const code = 'CG-' + Array.from(rnd, (b) => chars[b % chars.length]).join('');
       const name = (user.user_metadata && user.user_metadata.full_name) || 'المسنّ';
       const { data: ins } = await S.client.from('senior_profiles').insert({ user_id: user.id, display_name: name, registration_number: code }).select('*').single();
       seniorProfile = ins;
@@ -479,7 +483,7 @@
     const h = Number(match[1]), mn = Number(match[2]);
     if (!Number.isFinite(h) || !Number.isFinite(mn)) return true;
     const now = new Date();
-    return (now.getHours() * 60 + now.getMinutes()) >= (h * 60 + mn);
+    return (now.getHours() * 60 + now.getMinutes()) >= ((h * 60 + mn) - 30);
   }
 
   function renderMeds() {
@@ -725,7 +729,9 @@
         if (pr && pr.avatar_url) { const img = document.createElement('img'); img.src = pr.avatar_url; img.className = 'h-full w-full object-cover'; av.appendChild(img); }
         else av.textContent = nName.charAt(0).toUpperCase();
         const det = document.createElement('div');
-        det.innerHTML = `<p class="text-sm font-black text-[#163024]">${nName}</p><p class="text-xs font-bold text-[#0E5A3E]">${r.care_reason || ''}</p>`;
+        const dp1 = document.createElement('p'); dp1.className = 'text-sm font-black text-[#163024]'; dp1.textContent = nName;
+        const dp2 = document.createElement('p'); dp2.className = 'text-xs font-bold text-[#0E5A3E]'; dp2.textContent = r.care_reason || '';
+        det.append(dp1, dp2);
         info.append(av, det);
         box.append(hdr, info);
         if (phone && S.safeTelHref(phone)) {
@@ -847,7 +853,7 @@
     list.forEach((n) => {
       const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-2';
       const nm = document.createElement('p'); nm.className = 'text-sm font-black text-[#163024]';
-      nm.textContent = `${n.full_name || 'ممرض'} • ${n.region || 'TN'}` + (n.hourly_rate ? ` • ${n.hourly_rate} د.ت/س` : '');
+      nm.textContent = `${n.full_name || 'ممرض'} • ${n.region ? S.formatGovLabel(n.region) : 'تونس'}` + (n.city_zip ? ` (${n.city_zip})` : '');
       const btn = document.createElement('button'); btn.type = 'button';
       btn.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] py-2 text-xs font-black text-white';
       btn.textContent = '📋 طلب زيارة';
@@ -910,7 +916,9 @@
     items.forEach((r) => {
       const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-1.5';
       const top = document.createElement('div'); top.className = 'flex justify-between text-xs font-black';
-      top.innerHTML = `<span>${r.accepted_by_name || r.nurse_name || 'في انتظار ممرض'}</span><span class="text-[#5C6F63]">${r.created_at ? new Date(r.created_at).toLocaleDateString() : ''}</span>`;
+      const ts1 = document.createElement('span'); ts1.textContent = r.accepted_by_name || r.nurse_name || 'في انتظار ممرض';
+      const ts2 = document.createElement('span'); ts2.className = 'text-[#5C6F63]'; ts2.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
+      top.append(ts1, ts2);
       const tl = document.createElement('p'); tl.className = 'text-[11px] font-bold text-[#5C6F63]';
       tl.textContent = [r.created_at ? '🕒 الطلب: ' + fmtT(r.created_at) : '', r.accepted_at ? '✅ الاستلام: ' + fmtT(r.accepted_at) : '', r.completed_at ? '🏁 التنفيذ: ' + fmtT(r.completed_at) : ''].filter(Boolean).join(' • ');
       c.append(top, tl);
@@ -1078,7 +1086,7 @@
       if (error) throw new Error(error.message || 'AI error');
       const ans = (data && typeof data.text === 'string') ? data.text.trim() : '';
       if (!ans) throw new Error(isFr ? 'Aucun médicament détecté.' : 'لم يتم العثور على أدوية واضحة في الصورة.');
-      const lines = ans.split(/\n+/).map((x) => x.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean);
+      const lines = ans.split(/\n+/).map((x) => x.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean).slice(0, 15);
       const listEl = $('rxExtractedList');
       listEl.replaceChildren();
       lines.forEach((ln) => {
@@ -1086,18 +1094,19 @@
         const nmVal = nmPart || ln;
         const tmVal = /^\d{2}:\d{2}$/.test(tmPart) ? tmPart : '08:00';
         const autoFreq = detectFreqFromName(nmVal);
-        const row = document.createElement('label');
-        row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 border border-violet-200 text-xs font-bold text-[#163024]';
-        const left = document.createElement('span');
+        const row = document.createElement('div');
+        row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-2.5 py-2 border border-violet-200 text-xs font-bold text-[#163024]';
+        const left = document.createElement('div');
         left.className = 'flex items-center gap-2 min-w-0 flex-1';
         const cb = document.createElement('input');
         cb.type = 'checkbox'; cb.checked = true;
         cb.className = 'rx-item-cb h-4 w-4 shrink-0 accent-violet-700';
         cb.dataset.name = nmVal; cb.dataset.time = tmVal; cb.dataset.freq = String(autoFreq);
-        const txt = document.createElement('span');
-        txt.className = 'break-words leading-snug'; txt.dir = 'auto';
-        txt.textContent = nmVal;
-        left.append(cb, txt);
+        const txtIn = document.createElement('input');
+        txtIn.type = 'text'; txtIn.value = nmVal; txtIn.dir = 'auto';
+        txtIn.className = 'min-w-0 flex-1 rounded-lg border border-violet-200 bg-[#FAF6EE] px-2 py-1 text-xs font-bold text-[#163024]';
+        txtIn.addEventListener('input', () => { cb.dataset.name = txtIn.value.trim(); });
+        left.append(cb, txtIn);
         const fSel = document.createElement('select');
         fSel.className = 'rounded-lg border border-[#D8CEBE] bg-[#FAF6EE] px-2 py-1 text-xs font-extrabold';
         [1, 2, 3, 4].forEach((n) => {
@@ -1292,6 +1301,28 @@
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  $('deleteAccountBtn').addEventListener('click', async () => {
+    const isFr = S.getLang() === 'fr';
+    const ok1 = window.confirm(isFr
+      ? 'Supprimer définitivement toutes vos données (médicaments, messages, alertes) ?'
+      : 'هل أنت متأكد من حذف جميع بياناتك (الأدوية، الرسائل، التنبيهات، الملف) نهائياً؟');
+    if (!ok1) return;
+    if (seniorId) {
+      await Promise.allSettled([
+        S.client.from('medication_logs').delete().eq('senior_id', seniorId),
+        S.client.from('medications').delete().eq('senior_id', seniorId),
+        S.client.from('care_direct_messages').delete().eq('senior_id', seniorId),
+        S.client.from('alerts').delete().eq('senior_id', seniorId),
+        S.client.from('safety_checkins').delete().eq('senior_id', seniorId),
+        S.client.from('senior_care_links').delete().eq('senior_id', seniorId)
+      ]);
+      try { await S.client.from('senior_profiles').delete().eq('id', seniorId); } catch (_) {}
+    }
+    try { localStorage.clear(); } catch (_) {}
+    alert(isFr ? '✓ Vos données ont été supprimées.' : '✓ تم حذف بياناتك بنجاح وتسجيل الخروج.');
+    S.signOut();
+  });
+
 
   // Boot
   (async function init() {
