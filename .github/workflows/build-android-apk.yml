@@ -42,7 +42,26 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Configure Android permissions (Alarms, Full-Screen Intent, GPS, Mic, Camera)
+      - name: Apply CareGuard TN Green Icon to Android
+        run: |
+          python3 -c '
+          import os, shutil
+          from pathlib import Path
+          src = Path("icon-512.png") if Path("icon-512.png").exists() else Path("icon-192.png")
+          if src.exists():
+            res = Path("android/app/src/main/res")
+            for mp in res.glob("mipmap-*"):
+              for fn in ["ic_launcher.png", "ic_launcher_round.png", "ic_launcher_foreground.png"]:
+                target = mp / fn
+                if target.exists():
+                  shutil.copyfile(src, target)
+            bg = res / "values" / "ic_launcher_background.xml"
+            if bg.exists():
+              bg.write_text("<?xml version=\"1.0\" encoding=\"utf-8\"?><resources><color name=\"ic_launcher_background\">#0E5A3E</color></resources>", encoding="utf-8")
+            print("Applied CareGuard TN icon from", src)
+          '
+
+      - name: Configure Android permissions & Deep Link (tn.careguard.app://callback)
         run: |
           node -e '
             const fs = require("fs");
@@ -65,6 +84,10 @@ jobs:
             if (ins.length) xml = xml.replace("<application", ins.join("\n") + "\n\n    <application");
             if (!xml.includes("android:showWhenLocked")) {
               xml = xml.replace("<activity", "<activity\n            android:showWhenLocked=\"true\"\n            android:turnScreenOn=\"true\"");
+            }
+            const deepLink = "\n            <intent-filter>\n                <action android:name=\"android.intent.action.VIEW\" />\n                <category android:name=\"android.intent.category.DEFAULT\" />\n                <category android:name=\"android.intent.category.BROWSABLE\" />\n                <data android:scheme=\"tn.careguard.app\" android:host=\"callback\" />\n            </intent-filter>\n        </activity>";
+            if (!xml.includes("tn.careguard.app")) {
+              xml = xml.replace("</activity>", deepLink);
             }
             fs.writeFileSync(mf, xml, "utf8");
             console.log("AndroidManifest.xml updated OK");
