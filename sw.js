@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careguard-tn-v2.4';
+const CACHE_NAME = 'careguard-tn-v2.4b';
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
+  if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('/')) {
     event.respondWith(
       fetch(req)
         .then((res) => {

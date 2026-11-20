@@ -1,468 +1,393 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>الخيارات المعتمدة في تطبيقات أوبر والتوصيل — دليل مرجعي</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
-  <style>
-    /* Utilitarian · On-Demand Mobility & Delivery Standards · Compact answer-first hero · 5 open sections + Sources · Cairo + IBM Plex Mono · Crisp white (#FFFFFF) + Deep Teal (#0F766E / #115E59) + Cobalt (#1D4ED8) · 0px radius · Hero benchmark strip · Inline SVG 3-model dispatch diagram + 2 open tables */
-    :root {
-      --paper: #FFFFFF;
-      --ink: #0F172A;
-      --ink2: #1E293B;
-      --mute: #475569;
-      --hair: #CBD5E1;
-      --accent: #0F766E;
-      --accent-text: #115E59;
-      --accent-2: #1D4ED8;
-      --accent-2-text: #1E40AF;
-    }
+/* CareGuard TN v2 — Shared Core (Supabase, Auth, Lang, Audio, Push, Helpers) */
+(function () {
+  'use strict';
 
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--paper);
-      color: var(--ink);
-      font-family: 'Cairo', sans-serif;
-      font-size: 16px;
-      line-height: 1.75;
-      -webkit-font-smoothing: antialiased;
-    }
+  const CONFIG = {
+    VERSION: 'v2.4-TN',
+    SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
+    SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
+    LANG_KEY: 'cg_v2_lang',
+    ROLE_KEY: 'cg_v2_role',
+    RINGTONE_KEY: 'cg_v2_ringtone_preset'
+  };
 
-    main {
-      width: 100%;
-      padding: 48px clamp(20px, 8vw, 108px) 84px;
-    }
+  let sbClient = null;
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  }
 
-    .measure { max-width: 68ch; }
+  const $ = (id) => document.getElementById(id);
 
-    /* Hero */
-    h1 {
-      margin: 0 0 14px;
-      font-size: clamp(32px, 4.6vw, 52px);
-      font-weight: 900;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      text-wrap: balance;
-      color: var(--ink);
-    }
+  function getLang() {
+    return localStorage.getItem(CONFIG.LANG_KEY) === 'fr' ? 'fr' : 'ar';
+  }
+  function setLang(lang) {
+    const clean = lang === 'fr' ? 'fr' : 'ar';
+    localStorage.setItem(CONFIG.LANG_KEY, clean);
+    document.documentElement.lang = clean;
+    document.documentElement.dir = clean === 'fr' ? 'ltr' : 'rtl';
+    return clean;
+  }
+  function applyDocDir() {
+    const l = getLang();
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === 'fr' ? 'ltr' : 'rtl';
+    return l;
+  }
 
-    .deck {
-      margin: 0 0 28px;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ink2);
-      max-width: 64ch;
-    }
+  function getRole() {
+    return localStorage.getItem(CONFIG.ROLE_KEY) || '';
+  }
+  function setRole(role) {
+    if (role) localStorage.setItem(CONFIG.ROLE_KEY, role);
+    else localStorage.removeItem(CONFIG.ROLE_KEY);
+  }
+  function rolePageUrl(role) {
+    if (role === 'senior') return './senior.html';
+    if (role === 'family') return './family.html';
+    if (role === 'nurse' || role === 'center') return './nurse.html';
+    return './index.html';
+  }
 
-    /* Inline Hero Benchmark Strip (Open Canvas, 0 cards) */
-    .bench-strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 24px;
-      border-top: 2px solid var(--ink);
-      border-bottom: 1px solid var(--hair);
-      padding: 20px 0;
-      margin-bottom: 56px;
+  async function getSessionUser() {
+    if (!sbClient) return null;
+    try {
+      const { data } = await sbClient.auth.getSession();
+      return (data && data.session && data.session.user) || null;
+    } catch (_) {
+      return null;
     }
-    .bench-val {
-      font-family: 'IBM Plex Mono', 'Cairo', monospace;
-      font-size: clamp(28px, 3.6vw, 42px);
-      font-weight: 600;
-      line-height: 1.1;
-      color: var(--accent-text);
-      white-space: nowrap;
-    }
-    .bench-desc {
-      margin: 6px 0 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--mute);
-      line-height: 1.5;
-    }
+  }
 
-    /* Sections */
-    .sec {
-      margin-top: 64px;
-      padding-top: 28px;
-      border-top: 1px solid var(--hair);
+  async function requireAuth(expectedRoles) {
+    const user = await getSessionUser();
+    if (!user) {
+      window.location.href = './index.html';
+      return null;
     }
-    .sec:first-of-type {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: none;
+    const role = getRole();
+    if (Array.isArray(expectedRoles) && expectedRoles.length && !expectedRoles.includes(role)) {
+      window.location.href = rolePageUrl(role);
+      return null;
     }
+    return user;
+  }
 
-    h2 {
-      margin: 0 0 16px;
-      font-size: clamp(24px, 2.8vw, 32px);
-      font-weight: 800;
-      line-height: 1.3;
-      color: var(--ink);
-      text-wrap: balance;
+  async function signOut() {
+    setRole('');
+    if (sbClient) {
+      try { await sbClient.auth.signOut(); } catch (_) {}
     }
+    window.location.href = './index.html';
+  }
 
-    h3 {
-      margin: 0 0 8px;
-      font-size: 19px;
-      font-weight: 800;
-      color: var(--accent-text);
-    }
+  function safeTelHref(raw) {
+    const clean = String(raw || '').replace(/[^\d+]/g, '');
+    return clean.length >= 6 ? 'tel:' + clean : '';
+  }
 
-    p {
-      margin: 0 0 16px;
-      color: var(--ink2);
-      font-size: 16px;
+  function normalizeTnPhone(raw) {
+    const digits = String(raw || '').replace(/\D/g, '');
+    if (digits.startsWith('216') && digits.length === 11) {
+      const local = digits.slice(3);
+      return `+216 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
     }
+    if (digits.length === 8 && /^[234579]\d{7}$/.test(digits)) {
+      return `+216 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+    }
+    return null;
+  }
 
-    a {
-      color: var(--accent-2-text);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    a:hover { color: var(--accent-text); }
+  function haversineMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const toRad = (d) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
 
-    /* Figures & SVG */
-    figure {
-      margin: 28px 0 32px;
-      padding: 0;
-      width: 100%;
-    }
-    .fig-title {
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--ink);
-      margin: 0 0 12px;
-    }
-    figcaption {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--mute);
-    }
 
-    /* Open Tables (0 cards, no zebra stripes) */
-    .table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      margin: 20px 0 24px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 15px;
-      text-align: right;
-    }
-    th {
-      font-weight: 800;
-      font-size: 13px;
-      color: var(--ink);
-      border-top: 2px solid var(--ink);
-      border-bottom: 1px solid var(--ink);
-      padding: 12px 10px;
-      vertical-align: bottom;
-    }
-    td {
-      padding: 13px 10px;
-      border-bottom: 1px solid var(--hair);
-      vertical-align: top;
-      color: var(--ink2);
-    }
-    .mono {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-      white-space: nowrap;
-      color: var(--accent-text);
-      font-weight: 600;
-    }
-    .status-ok { color: var(--accent-text); font-weight: 800; white-space: nowrap; }
-    .status-next { color: var(--accent-2-text); font-weight: 800; white-space: nowrap; }
+  const TN_GOVERNORATES = [
+    { id: 'Tunis', ar: 'تونس', lat: 36.8065, lng: 10.1815 },
+    { id: 'Ariana', ar: 'أريانة', lat: 36.8665, lng: 10.1647 },
+    { id: 'Ben Arous', ar: 'بن عروس', lat: 36.7531, lng: 10.2189 },
+    { id: 'Manouba', ar: 'منوبة', lat: 36.8101, lng: 10.0956 },
+    { id: 'Nabeul', ar: 'نابل', lat: 36.4561, lng: 10.7376 },
+    { id: 'Zaghouan', ar: 'زغوان', lat: 36.4029, lng: 10.1429 },
+    { id: 'Bizerte', ar: 'بنزرت', lat: 37.2744, lng: 9.8739 },
+    { id: 'Béja', ar: 'باجة', lat: 36.7256, lng: 9.1817 },
+    { id: 'Jendouba', ar: 'جندوبة', lat: 36.5011, lng: 8.7802 },
+    { id: 'Kef', ar: 'الكاف', lat: 36.1742, lng: 8.7049 },
+    { id: 'Siliana', ar: 'سليانة', lat: 36.0850, lng: 9.3708 },
+    { id: 'Sousse', ar: 'سوسة', lat: 35.8256, lng: 10.6369 },
+    { id: 'Monastir', ar: 'المنستير', lat: 35.7643, lng: 10.8113 },
+    { id: 'Mahdia', ar: 'المهدية', lat: 35.5047, lng: 11.0622 },
+    { id: 'Sfax', ar: 'صفاقس', lat: 34.7406, lng: 10.7603 },
+    { id: 'Kairouan', ar: 'القيروان', lat: 35.6781, lng: 10.0963 },
+    { id: 'Kasserine', ar: 'القصرين', lat: 35.1676, lng: 8.8365 },
+    { id: 'Sidi Bouzid', ar: 'سيدي بوزيد', lat: 35.0382, lng: 9.4849 },
+    { id: 'Gabès', ar: 'قابس', lat: 33.8815, lng: 10.0982 },
+    { id: 'Médenine', ar: 'مدنين', lat: 33.3549, lng: 10.5055 },
+    { id: 'Tataouine', ar: 'تطاوين', lat: 32.9297, lng: 10.4518 },
+    { id: 'Gafsa', ar: 'قفصة', lat: 34.4250, lng: 8.7842 },
+    { id: 'Tozeur', ar: 'توزر', lat: 33.9197, lng: 8.1335 },
+    { id: 'Kebili', ar: 'قبلي', lat: 33.7044, lng: 8.9690 }
+  ];
 
-    /* Open Multi-Column Strips */
-    .cols-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 28px 36px;
-      margin-top: 20px;
+  function detectTnGovernorate(lat, lng) {
+    const la = Number(lat), lo = Number(lng);
+    if (!Number.isFinite(la) || !Number.isFinite(lo)) return '';
+    let best = '', bestD = Infinity;
+    for (const g of TN_GOVERNORATES) {
+      const d = haversineMeters(la, lo, g.lat, g.lng);
+      if (d < bestD) { bestD = d; best = g.id; }
     }
-    .col-item {
-      border-top: 1px solid var(--hair);
-      padding-top: 16px;
-    }
+    return bestD <= 180000 ? best : '';
+  }
 
-    /* Asymmetric Split */
-    .split {
-      display: grid;
-      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-      gap: 24px 40px;
-      align-items: start;
-    }
+  function normGov(val) {
+    return String(val || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
 
-    /* Pull Quote / Callout */
-    blockquote {
-      margin: 36px 0;
-      padding: 8px 24px 8px 0;
-      border-right: 4px solid var(--accent);
-      font-size: clamp(20px, 2.4vw, 26px);
-      font-weight: 800;
-      line-height: 1.5;
-      color: var(--ink);
-    }
+  function formatGovLabel(val) {
+    const n = normGov(val);
+    if (!n) return '';
+    const g = TN_GOVERNORATES.find((x) => normGov(x.id) === n || x.ar === String(val || '').trim());
+    if (!g) return String(val || '');
+    return getLang() === 'fr' ? g.id : g.ar;
+  }
 
-    /* Clean Lists */
-    ul.clean, ol.sources {
-      margin: 12px 0 0;
-      padding: 0 22px 0 0;
-    }
-    ul.clean li, ol.sources li {
-      margin-bottom: 10px;
-      color: var(--ink2);
-    }
-    ol.sources li { font-size: 14px; }
+  function getLocalDateStr(d) {
+    const dt = d || new Date();
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
 
-    @media (max-width: 760px) {
-      .bench-strip, .cols-2, .split {
-        grid-template-columns: 1fr;
-        gap: 20px;
+  function getLocalDayStartIso() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }
+
+  // Loud Synth Ringtone + Custom Audio (IndexedDB-free lightweight dataURL in localStorage <= 2MB)
+  let activeAudio = null;
+  function stopRingtone() {
+    if (activeAudio) {
+      try { activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
+      activeAudio = null;
+    }
+  }
+  function playStrongRingtone() {
+    stopRingtone();
+    if (navigator.vibrate) { try { navigator.vibrate([500, 200, 500, 200, 700]); } catch (_) {} }
+    const preset = localStorage.getItem(CONFIG.RINGTONE_KEY) || 'loud_phone';
+    const customUrl = localStorage.getItem('cg_v2_custom_ringtone_url') || '';
+    if (preset === 'custom_file' && customUrl) {
+      try {
+        activeAudio = new Audio(customUrl);
+        activeAudio.volume = 1.0;
+        activeAudio.play().catch(() => playSynth(preset));
+        setTimeout(stopRingtone, 8000);
+        return;
+      } catch (_) {}
+    }
+    playSynth(preset);
+  }
+  function playSynth(mode) {
+    try {
+      if (!window.__cgAudioCtx) window.__cgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = window.__cgAudioCtx;
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      const now = ctx.currentTime;
+      const bursts = mode === 'urgent_alarm' ? 6 : 5;
+      for (let i = 0; i < bursts; i++) {
+        const t = now + i * 0.38;
+        const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
+        o1.type = mode === 'urgent_alarm' ? 'sawtooth' : (mode === 'classic_bell' ? 'triangle' : 'square');
+        o2.type = 'triangle';
+        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 987.77 : (mode === 'classic_bell' ? 880 : 740), t);
+        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1318.5 : (mode === 'classic_bell' ? 1174.6 : 987.77), t);
+        g.gain.setValueAtTime(0.85, t);
+        g.gain.exponentialRampToValueAtTime(0.02, t + 0.32);
+        o1.connect(g); o2.connect(g); g.connect(ctx.destination);
+        o1.start(t); o2.start(t); o1.stop(t + 0.34); o2.stop(t + 0.34);
       }
-      main { padding: 32px 18px 64px; }
+    } catch (_) {}
+  }
+
+  // Arabic / French TTS
+  function speakText(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const isFr = getLang() === 'fr';
+      const want = isFr ? 'fr' : 'ar';
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const matched = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(want));
+      if (matched) { u.voice = matched; u.lang = matched.lang; }
+      else u.lang = isFr ? 'fr-FR' : 'ar-SA';
+      u.rate = 0.92; u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    } catch (_) {}
+  }
+
+  // Web Push Subscribe / Unsubscribe Toggle
+  function urlB64ToU8(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const out = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) out[i] = rawData.charCodeAt(i);
+    return out;
+  }
+
+  async function toggleWebPush(user) {
+    const isFr = getLang() === 'fr';
+    if (!sbClient || !user) return { ok: false, active: false };
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الخلفية غير مدعومة في هذا المتصفح.');
+      return { ok: false, active: false };
     }
-  </style>
-</head>
-<body>
-<main>
-  <header>
-    <h1>خمس ركائز تشغيلية تعتمدها تطبيقات أوبر والتوصيل لإدارة الطلبات بأمان وسرعة</h1>
-    <p class="deck">خلاصة الخيارات القياسية المعمول بها في منصات النقل والتوصيل العالمية مثل Uber وBolt وinDrive وDoorDash وUber Eats، مع توضيح ما تملكه بالفعل في CareGuard TN وما يستحق إضافته للخدمات المنزلية في تونس.</p>
-  </header>
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing && localStorage.getItem('cg_push_muted') !== '1') {
+      const ep = existing.endpoint;
+      await existing.unsubscribe().catch(() => {});
+      try { await sbClient.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', ep); } catch (_) {}
+      localStorage.setItem('cg_push_muted', '1');
+      return { ok: true, active: false };
+    }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      alert(isFr ? 'Activez les notifications dans Chrome.' : 'يرجى تفعيل الإشعارات من إعدادات Chrome.');
+      return { ok: false, active: false };
+    }
+    const res = await fetch(CONFIG.SUPABASE_URL + '/functions/v1/notify-alerts-ts?vapid=1');
+    const json = await res.json();
+    if (!json || !json.publicKey) throw new Error('VAPID key missing');
+    const sub = existing || await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToU8(json.publicKey)
+    });
+    const raw = sub.toJSON();
+    const { error } = await sbClient.from('push_subscriptions').upsert({
+      user_id: user.id,
+      endpoint: raw.endpoint,
+      p256dh: raw.keys && raw.keys.p256dh ? raw.keys.p256dh : '',
+      auth: raw.keys && raw.keys.auth ? raw.keys.auth : ''
+    }, { onConflict: 'endpoint' });
+    if (error) throw error;
+    localStorage.removeItem('cg_push_muted');
+    return { ok: true, active: true };
+  }
 
-  <div class="bench-strip" aria-label="أرقام مرجعية في القطاع">
-    <div>
-      <div class="bench-val">15s</div>
-      <p class="bench-desc">المهلة القياسية لقبول الطلب في التوزيع المتسلسل قبل تحويله تلقائياً للمزوّد التالي.</p>
-    </div>
-    <div>
-      <div class="bench-val">4 PIN</div>
-      <p class="bench-desc">رمز تحقق من 4 أرقام يسلّمه الزبون عند الوصول لمنع الزيارات الوهمية وتأكيد الهوية.</p>
-    </div>
-    <div>
-      <div class="bench-val">6–12%</div>
-      <p class="bench-desc">نطاق عمولة نموذج التفاوض (inDrive) مقابل 20–30% في نموذج التسعير الخوارزمي.</p>
-    </div>
-  </div>
 
-  <!-- Section 1 -->
-  <section class="sec">
-    <h2>توزيع الطلبات لا يعتمد على المسافة وحدها بل على ثلاث آليات مطابقة</h2>
-    <p class="measure">تعتمد تطبيقات النقل والتوصيل على محرك مطابقة يوازن بين وقت الوصول الفعلي (<a href="https://www.uber.com/ca/en/blog/deepeta-how-uber-predicts-arrival-times/" target="_blank" rel="noopener noreferrer">Uber DeepETA</a>)، ومعدل القبول، وتقييم المزوّد، وليس مجرد خط مستقيم على الخريطة (<a href="https://dev.to/ishaanthedev/designing-uber-a-real-time-ride-matching-system-at-scale-pc9" target="_blank" rel="noopener noreferrer">Designing Uber</a>). في التطبيقات الميدانية توجد ثلاث طرق رئيسية لإيصال الطلب:</p>
+  // Shared Voice Message Recorder (MediaRecorder -> dataURL) & Message Bubble Renderer
+  function attachVoiceRecorder(btn, onRecorded) {
+    if (!btn) return;
+    let rec = null, chunks = [], stream = null, active = false;
+    btn.addEventListener('click', async () => {
+      const isFr = getLang() === 'fr';
+      if (active && rec) {
+        active = false;
+        try { rec.stop(); } catch (_) {}
+        btn.className = 'tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]';
+        btn.textContent = '🎤';
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(isFr ? 'Microphone non supporté.' : 'الميكروفون غير مدعوم في هذا المتصفح.');
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+        rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        chunks = [];
+        rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+        rec.onstop = () => {
+          try { stream.getTracks().forEach((t) => t.stop()); } catch (_) {}
+          const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = () => { if (onRecorded) onRecorded(String(reader.result || '')); };
+          reader.readAsDataURL(blob);
+        };
+        rec.start();
+        active = true;
+        btn.className = 'tap-btn rounded-xl bg-rose-600 px-3 py-2 text-sm font-black text-white animate-pulse';
+        btn.textContent = '⏹️';
+      } catch (_) {
+        alert(isFr ? 'Autorisez le microphone.' : 'يرجى السماح بالوصول إلى الميكروفون.');
+      }
+    });
+  }
 
-    <figure>
-      <div class="fig-title">البث الجماعي أسرع استجابةً لكن التوزيع المتسلسل والمزاد يعالجان الازدحام والأسعار</div>
-      <svg viewBox="0 0 700 380" width="100%" role="img" aria-label="مقارنة ثلاث آليات لتوزيع الطلبات في تطبيقات أوبر والتوصيل">
-        <!-- Row 1: Sequential -->
-        <line x1="20" y1="32" x2="680" y2="32" stroke="#CBD5E1" stroke-width="1" />
-        <text x="676" y="64" text-anchor="end" font-family="Cairo, sans-serif" font-size="16" font-weight="800" fill="#0F172A">1. التوزيع المتسلسل (Uber / Bolt)</text>
-        <rect x="490" y="80" width="185" height="44" fill="#F1F5F9" stroke="#0F766E" stroke-width="2" />
-        <text x="582" y="107" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#0F172A">أقرب مزوّد (مهلة 15 ثانية)</text>
-        <line x1="490" y1="102" x2="445" y2="102" stroke="#475569" stroke-width="2" />
-        <polygon points="445,97 435,102 445,107" fill="#475569" />
-        <rect x="245" y="80" width="185" height="44" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" />
-        <text x="337" y="107" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#1E293B">المزوّد الثاني تلقائياً</text>
-        <line x1="245" y1="102" x2="200" y2="102" stroke="#475569" stroke-width="2" />
-        <polygon points="200,97 190,102 200,107" fill="#475569" />
-        <rect x="24" y="80" width="160" height="44" fill="#0F766E" />
-        <text x="104" y="107" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="800" fill="#FFFFFF">تثبيت فوري للطلب</text>
+  function renderChatMessageEl(m, myUid) {
+    const mine = m.sender_user_id === myUid;
+    const d = document.createElement('div');
+    d.className = mine
+      ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]'
+      : 'rounded-2xl bg-white border border-slate-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between gap-2 text-[11px] font-black text-[#0E5A3E]';
+    const isFr = getLang() === 'fr';
+    const roleTag = m.sender_role === 'nurse' ? (isFr ? '🩺 Infirmier' : '🩺 الممرض')
+      : (m.sender_role === 'family' ? (isFr ? '👨‍👩‍👧 Famille' : '👨‍👩‍👧 العائلة')
+      : (m.sender_role === 'senior' ? (isFr ? '👴 Senior' : '👴 المسنّ') : ''));
+    const nm = document.createElement('span'); nm.textContent = (m.sender_name || '') + (roleTag ? ` (${roleTag})` : '');
+    const tm = document.createElement('span'); tm.className = 'text-[#5C6F63]';
+    tm.textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    hdr.append(nm, tm);
+    d.appendChild(hdr);
+    if (m.message_text) {
+      const p = document.createElement('p'); p.className = 'text-xs font-bold break-words';
+      p.textContent = m.message_text;
+      d.appendChild(p);
+    }
+    if (m.audio_data) {
+      const aud = document.createElement('audio');
+      aud.controls = true; aud.src = m.audio_data;
+      aud.className = 'w-full h-9';
+      d.appendChild(aud);
+    }
+    return d;
+  }
 
-        <!-- Row 2: Broadcast -->
-        <line x1="20" y1="152" x2="680" y2="152" stroke="#CBD5E1" stroke-width="1" />
-        <text x="676" y="184" text-anchor="end" font-family="Cairo, sans-serif" font-size="16" font-weight="800" fill="#0F172A">2. البث الجماعي السريع (نموذج CareGuard الحالي)</text>
-        <rect x="490" y="200" width="185" height="44" fill="#F1F5F9" stroke="#1D4ED8" stroke-width="2" />
-        <text x="582" y="227" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#0F172A">إشعار لكل مزوّدي الولاية</text>
-        <line x1="490" y1="222" x2="445" y2="222" stroke="#475569" stroke-width="2" />
-        <polygon points="445,217 435,222 445,227" fill="#475569" />
-        <rect x="245" y="200" width="185" height="44" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" />
-        <text x="337" y="227" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#1E293B">أول من يضغط «قبول» يفوز</text>
-        <line x1="245" y1="222" x2="200" y2="222" stroke="#475569" stroke-width="2" />
-        <polygon points="200,217 190,222 200,227" fill="#475569" />
-        <rect x="24" y="200" width="160" height="44" fill="#1D4ED8" />
-        <text x="104" y="227" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="800" fill="#FFFFFF">إغلاق فوري للبقية</text>
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
 
-        <!-- Row 3: Reverse Bidding -->
-        <line x1="20" y1="272" x2="680" y2="272" stroke="#CBD5E1" stroke-width="1" />
-        <text x="676" y="304" text-anchor="end" font-family="Cairo, sans-serif" font-size="16" font-weight="800" fill="#0F172A">3. التفاوض وعروض الأسعار (inDrive)</text>
-        <rect x="490" y="320" width="185" height="44" fill="#F1F5F9" stroke="#0F766E" stroke-width="2" />
-        <text x="582" y="347" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#0F172A">الزبون يقترح السعر أو الطلب</text>
-        <line x1="490" y1="342" x2="445" y2="342" stroke="#475569" stroke-width="2" />
-        <polygon points="445,337 435,342 445,347" fill="#475569" />
-        <rect x="245" y="320" width="185" height="44" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" />
-        <text x="337" y="347" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="700" fill="#1E293B">المزوّدون يرسلون عروضهم</text>
-        <line x1="245" y1="342" x2="200" y2="342" stroke="#475569" stroke-width="2" />
-        <polygon points="200,337 190,342 200,347" fill="#475569" />
-        <rect x="24" y="320" width="160" height="44" fill="#0F172A" />
-        <text x="104" y="347" text-anchor="middle" font-family="Cairo, sans-serif" font-size="14" font-weight="800" fill="#FFFFFF">الزبون يختار الأنسب</text>
-      </svg>
-      <figcaption>المصدر: تركيب معماري اعتماداً على توثيق Uber Engineering وinDrive.</figcaption>
-    </figure>
-  </section>
+  applyDocDir();
 
-  <!-- Section 2 -->
-  <section class="sec">
-    <h2>مقارنة النماذج العالمية في التسعير، الشفافية، ومهلة القبول</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>المنصة / النموذج</th>
-            <th>توزيع الطلب</th>
-            <th>آلية التسعير</th>
-            <th>ما يراه المزوّد قبل القبول</th>
-            <th>أنسب استخدام في تونس</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Uber / Bolt</strong></td>
-            <td>متسلسل حسب وقت الوصول (ETA) مع مهلة <span class="mono">15s</span></td>
-            <td>سعر ثابت أو ديناميكي تحدده المنصة</td>
-            <td>المسافة، وقت الوصول، وتقييم الزبون</td>
-            <td>الحالات المستعجلة التي تحتاج أسرع استجابة</td>
-          </tr>
-          <tr>
-            <td><strong>DoorDash / Uber Eats</strong></td>
-            <td>عرض مباشر مع وقت تسليم متوقع وحساب للربح</td>
-            <td>أجر أساسي + مسافة + إكرامية اختيارية</td>
-            <td>الخريطة، المسافة الكلية، والأجر المتوقع (<a href="https://therideshareguy.com/best-delivery-acceptance-screen/" target="_blank" rel="noopener noreferrer">Rideshare Guy</a>)</td>
-            <td>الزيارات النمطية ذات التعريفة الواضحة (حقنة، ضماد)</td>
-          </tr>
-          <tr>
-            <td><strong>inDrive</strong></td>
-            <td>بث للمزوّدين القريبين مع عروض متبادلة</td>
-            <td>الزبون يقترح سعراً والمزوّد يقبل أو يقترح بديلاً (<a href="https://indrive.com/price-estimate" target="_blank" rel="noopener noreferrer">inDrive</a>)</td>
-            <td>تفاصيل الطلب، المسافة، والسعر المقترح</td>
-            <td>خدمات الحرفيين والصيانة المنزلية المتفاوتة التكلفة</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Section 3 -->
-  <section class="sec">
-    <h2>معايير الأمان والتحقق تحمي الطرفين قبل فتح الباب</h2>
-    <p class="measure">في الخدمات التي تتطلب دخول المنزل، تصبح ميزات الثقة والأمان هي الفارق الحقيقي بين تطبيق يعتمد عليه الناس وتطبيق يتجنبونه. تعتمد المنصات الكبرى أربع أدوات أساسية:</p>
-
-    <div class="cols-2">
-      <div class="col-item">
-        <h3>رمز التحقق PIN عند الوصول</h3>
-        <p>يظهر للزبون رمز من 4 أرقام لا يمكن للمزوّد بدء الخدمة في التطبيق إلا بعد إدخاله (<a href="https://www.uber.com/au/en/blog/verify-your-ride/" target="_blank" rel="noopener noreferrer">Uber PIN</a>)، كما تعتمده <a href="https://help.uber.com/en/business/article/understanding-rider-pickup-pin-code-verification?nodeId=fc48bc82-c6ea-4833-83fd-ead478628280" target="_blank" rel="noopener noreferrer">Uber Health</a> لمنع بدء الزيارات الوهمية وتأكيد هوية الشخص عند الباب.</p>
-      </div>
-      <div class="col-item">
-        <h3>إخفاء الأرقام والتوثيق بالصورة</h3>
-        <p>تعتمد <a href="https://bolt.eu/en/rides/safety/" target="_blank" rel="noopener noreferrer">Bolt</a> إخفاء رقم الهاتف الحقيقي أثناء الاتصال، مع مطالبة المزوّد بصورة سيلفي حية دورياً للتأكد أن صاحب الحساب هو نفسه من يقدّم الخدمة (<a href="https://bolt.eu/en-nz/driver/guide/app-trip-recording/" target="_blank" rel="noopener noreferrer">Bolt Guide</a>).</p>
-      </div>
-      <div class="col-item">
-        <h3>مشاركة المسار وزر الطوارئ</h3>
-        <p>يتيح التطبيق للزبون أو عائلته تتبع حركة المزوّد لحظياً على الخريطة مع زر طوارئ سريع يرسل الموقع فوراً لفريق السلامة أو جهة الاتصال الموثوقة (<a href="https://bolt.eu/en/rides/safety/" target="_blank" rel="noopener noreferrer">Bolt Safety</a>).</p>
-      </div>
-      <div class="col-item">
-        <h3>حدّ الإرهاق ومنع العمل خارج التطبيق</h3>
-        <p>تفصل <a href="https://www.uber.com/za/en/blog/uber-eats-driving-time-limit/" target="_blank" rel="noopener noreferrer">Uber Eats</a> المزوّد تلقائياً لمدة 6 ساعات بعد 12 ساعة عمل متواصلة حفاظاً على السلامة، بينما تفرض المنصات عقوبات على محاولة الاتفاق خارج التطبيق لأن ذلك يلغي التتبع والحماية (<a href="https://businessnow.co.ke/how-to-cancel-an-offline-trip-on-bolt-to-enhance-your-safety/" target="_blank" rel="noopener noreferrer">Bolt Policy</a>).</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 4 -->
-  <section class="sec">
-    <div class="split">
-      <div>
-        <h2>تفاصيل تجربة الطلب التي ترفع نسبة الإنجاز</h2>
-      </div>
-      <div>
-        <p>بعيداً عن الخريطة، تعتمد تطبيقات التوصيل على سلسلة حالات دقيقة تمنع القلق والاتصالات المتكررة، مع قواعد واضحة للإلغاء والمواعيد:</p>
-        <ul class="clean">
-          <li><strong>تسلسل الحالات الواضح:</strong> ينتقل الطلب عبر مراحل مرئية للطرفين (تم الإرسال، تم القبول، في الطريق، وصل إلى العنوان، قيد التنفيذ، مكتمل) مع عرض الوقت المتوقع لكل مرحلة (<a href="https://help.uber.com/driving-and-delivering/article/anticipated-delivery-time-feature-faqs?nodeId=71c5c4e5-327d-4868-842f-7dd29e4f3694" target="_blank" rel="noopener noreferrer">Uber Help</a>).</li>
-          <li><strong>الانتهاء التلقائي للطلب غير المقبول:</strong> إذا لم يقبل أي مزوّد الطلب خلال مدة محددة (مثلاً 15–30 دقيقة)، يُغلق الطلب تلقائياً ويُشعر الزبون بدل بقائه معلقاً لساعات.</li>
-          <li><strong>الجدولة المسبقة:</strong> تتيح منصات مثل <a href="https://play.google.com/store/apps/details?id=ee.mtakso.client" target="_blank" rel="noopener noreferrer">Bolt</a> حجز موعد مسبق قبل 30 دقيقة وحتى 90 يوماً، وهو خيار مثالي لجلسات التمريض المنتظمة كالحقن اليومية وتغيير الضمادات.</li>
-          <li><strong>حماية ضد الإلغاء المتأخر:</strong> تطبّق المنصات فترة سماح قصيرة للإلغاء المجاني، وبعد تحرك المزوّد يُسجّل سبب الإلغاء لتقييم الالتزام ومنع الإلغاءات المتكررة (<a href="https://bolt.eu/en-py/legal/rides/tnc-drivers/" target="_blank" rel="noopener noreferrer">Bolt Terms</a>).</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <blockquote>أفضل نموذج للرعاية التمريضية في تونس يجمع بين «البث السريع داخل الولاية» للحالات العاجلة، و«الجدولة المسبقة + رمز التحقق PIN» للزيارات المنزلية الآمنة.</blockquote>
-
-  <!-- Section 5 -->
-  <section class="sec">
-    <h2>موقع CareGuard TN حالياً مقارنةً بمعايير القطاع</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>الميزة القياسية</th>
-            <th>الحالة في CareGuard TN</th>
-            <th>التوصية العملية</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>تصفية نفس الولاية + ترتيب الأقرب فالأقرب</td>
-            <td class="status-ok">موجود (v2.4-TN)</td>
-            <td>جاهز ويعمل بالـ GPS لجميع ولايات تونس الـ 24</td>
-          </tr>
-          <tr>
-            <td>قبول ذري يمنع تداخل ممرضين على نفس الطلب</td>
-            <td class="status-ok">موجود (RPC)</td>
-            <td>يضمن فوز أول ممرض يقبل وإغلاق الطلب فوراً للبقية</td>
-          </tr>
-          <tr>
-            <td>التوجيه بـ Google Maps + التقييم والحظر والتعليق</td>
-            <td class="status-ok">موجود</td>
-            <td>إغلاق متبادل بين الممرض والمسنّ لكشف أي تضارب</td>
-          </tr>
-          <tr>
-            <td>انتهاء صلاحية تلقائي للطلب المفتوح (مثلاً بعد 60 دقيقة)</td>
-            <td class="status-next">مقترح قريباً</td>
-            <td>يمنع تراكم طلبات قديمة على شاشة الممرضين</td>
-          </tr>
-          <tr>
-            <td>رمز تحقق PIN من 4 أرقام عند باب المنزل</td>
-            <td class="status-next">مقترح قريباً</td>
-            <td>يرفع ثقة العائلات ويمنع تسجيل زيارة وهمية</td>
-          </tr>
-          <tr>
-            <td>الجدولة المسبقة (تحديد ساعة ويوم الزيارة)</td>
-            <td class="status-next">مقترح قريباً</td>
-            <td>أساسي للحقن الصباحية أو الضمادات المتكررة</td>
-          </tr>
-          <tr>
-            <td>نظام عروض أسعار متبادلة (مثل inDrive)</td>
-            <td class="status-next">لتطبيق الحرفيين</td>
-            <td>ممتاز للصيانة والسباكة والكهرباء حيث تختلف التكلفة</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Sources -->
-  <section class="sec">
-    <h2>المصادر</h2>
-    <ol class="sources">
-      <li><a href="https://www.uber.com/ca/en/blog/deepeta-how-uber-predicts-arrival-times/" target="_blank" rel="noopener noreferrer">Uber Engineering — DeepETA: How Uber Predicts Arrival Times Using Deep Learning</a></li>
-      <li><a href="https://dev.to/ishaanthedev/designing-uber-a-real-time-ride-matching-system-at-scale-pc9" target="_blank" rel="noopener noreferrer">Designing Uber: A Real-Time Ride Matching System at Scale (Offer Timeouts &amp; Matching)</a></li>
-      <li><a href="https://www.uber.com/au/en/blog/verify-your-ride/" target="_blank" rel="noopener noreferrer">Uber — PIN Verification (Verify Your Ride Safety Feature)</a></li>
-      <li><a href="https://help.uber.com/en/business/article/understanding-rider-pickup-pin-code-verification?nodeId=fc48bc82-c6ea-4833-83fd-ead478628280" target="_blank" rel="noopener noreferrer">Uber for Business / Uber Health — Understanding Rider Pickup PIN Code Verification</a></li>
-      <li><a href="https://www.uber.com/za/en/blog/uber-eats-driving-time-limit/" target="_blank" rel="noopener noreferrer">Uber Eats — Driving Time Limit (12h Active / 6h Rest Safety Policy)</a></li>
-      <li><a href="https://help.uber.com/driving-and-delivering/article/anticipated-delivery-time-feature-faqs?nodeId=71c5c4e5-327d-4868-842f-7dd29e4f3694" target="_blank" rel="noopener noreferrer">Uber Help — Anticipated Delivery Time Feature FAQs</a></li>
-      <li><a href="https://bolt.eu/en/rides/safety/" target="_blank" rel="noopener noreferrer">Bolt — Safety Features (Phone Masking, GPS Tracking, Emergency Assist)</a></li>
-      <li><a href="https://bolt.eu/en-nz/driver/guide/app-trip-recording/" target="_blank" rel="noopener noreferrer">Bolt Driver Guide — Identity Verification, Trip Sharing &amp; Safety Tools</a></li>
-      <li><a href="https://indrive.com/price-estimate" target="_blank" rel="noopener noreferrer">inDrive — Fair Fare Negotiation &amp; Reverse-Bidding Model</a></li>
-      <li><a href="https://therideshareguy.com/best-delivery-acceptance-screen/" target="_blank" rel="noopener noreferrer">The Rideshare Guy — Delivery App Acceptance Screens (DoorDash / Uber Eats)</a></li>
-    </ol>
-  </section>
-</main>
-</body>
-</html>
+  window.CG_SHARED = {
+    CONFIG,
+    $,
+    client: sbClient,
+    getLang,
+    setLang,
+    applyDocDir,
+    getRole,
+    setRole,
+    rolePageUrl,
+    getSessionUser,
+    requireAuth,
+    signOut,
+    safeTelHref,
+    normalizeTnPhone,
+    haversineMeters,
+    getLocalDateStr,
+    getLocalDayStartIso,
+    playStrongRingtone,
+    stopRingtone,
+    speakText,
+    toggleWebPush,
+    attachVoiceRecorder,
+    renderChatMessageEl,
+    TN_GOVERNORATES,
+    detectTnGovernorate,
+    normGov,
+    formatGovLabel
+  };
+})();
