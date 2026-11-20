@@ -3,7 +3,7 @@
   'use strict';
 
   const CONFIG = {
-    VERSION: 'v2.4-TN',
+    VERSION: 'v2.5-TN',
     SUPABASE_URL: 'https://jobzviplbwfdoyrdrblt.supabase.co',
     SUPABASE_ANON_KEY: 'sb_publishable_Q8uQO_x9qrTEbohCi99Gpw__A2lo-Gi',
     LANG_KEY: 'cg_v2_lang',

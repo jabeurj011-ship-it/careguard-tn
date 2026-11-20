@@ -1,6 +1,6 @@
 {
   "name": "careguard-tn",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "CareGuard TN — Elderly Care, Medication Alerts & Home Nursing (Tunisia)",
   "private": true,
   "scripts": {
@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "@capacitor/core": "^6.1.2",
-    "@capacitor/local-notifications": "^6.1.1"
+    "@capacitor/local-notifications": "^6.1.1",
+    "@capacitor/app": "^6.0.1",
+    "@capacitor/browser": "^6.0.2"
   },
   "devDependencies": {
     "@capacitor/android": "^6.1.2",

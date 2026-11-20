@@ -119,6 +119,27 @@
         <input id="newMedTime" type="time" value="08:00" class="rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black" />
         <button id="addMedBtn" type="button" class="tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-4 py-2 text-sm font-black text-white">+ إضافة دواء</button>
       </div>
+
+      <!-- Prescription / Medicine Box Photo Scanner -->
+      <div class="pt-1 border-t border-[#EDE4D4] space-y-2">
+        <label for="rxPhotoInput" id="rxPhotoLbl" class="tap-btn flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#0E5A3E]/50 bg-[#EEF7F1] px-3 py-2.5 text-center text-xs font-black text-[#0E5A3E]">
+          📷 إضافة الأدوية من صورة الوصفة أو العلبة
+        </label>
+        <input id="rxPhotoInput" type="file" accept="image/*" class="hidden" />
+        <div id="rxPhotoPreviewWrap" class="hidden space-y-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-3">
+          <img id="rxPhotoPreview" alt="معاينة الصورة" class="max-h-48 w-full rounded-xl object-contain bg-white" />
+          <div class="flex gap-2">
+            <button id="rxAnalyzeBtn" type="button" class="tap-btn flex-1 rounded-xl bg-violet-700 px-3 py-2 text-xs font-black text-white">✨ قراءة الأدوية بالذكاء الاصطناعي</button>
+            <button id="rxClearPhotoBtn" type="button" class="tap-btn rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-black text-rose-800">🗑️</button>
+          </div>
+          <p id="rxPhotoStatus" class="hidden text-center text-xs font-extrabold text-violet-900"></p>
+        </div>
+        <div id="rxExtractedWrap" class="hidden space-y-2 rounded-2xl border border-violet-300 bg-violet-50/70 p-3">
+          <p id="rxExtractedTitle" class="text-xs font-black text-violet-950">📋 الأدوية المستخرجة من الصورة (راجعها ثم اضغط حفظ):</p>
+          <div id="rxExtractedList" class="space-y-1.5"></div>
+          <button id="rxSaveAllBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-xs font-black text-white">✓ حفظ الأدوية المحددة في الجدول</button>
+        </div>
+      </div>
     </div>
     <div id="medsList" class="space-y-2.5"></div>
   </section>
@@ -148,6 +169,7 @@
       <button id="testVoiceBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🔊 تجربة التذكير الصوتي</button>
       <button id="ringtoneBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 نغمة التنبيه</button>
       <button id="pushBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900">📲 تفعيل إشعارات الخلفية</button>
+      <button id="testNativeCallAlarmBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm font-black text-amber-950">📞 تجربة منبّه «مكالمة الدواء» بعد 5 ثوانٍ</button>
       <button id="editProfSetBtn" type="button" class="tap-btn w-full rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-base font-extrabold text-[#163024]">👤 تحديث معلومات المسنّ والصورة</button>
       <button id="exportReportBtn" type="button" class="tap-btn w-full rounded-2xl border border-emerald-300 bg-[#EFF7F1] px-4 py-3 text-base font-extrabold text-[#0E5A3E]">📥 تصدير التقرير الصحي (PDF / HTML)</button>
       <div class="grid grid-cols-2 gap-2 pt-1">
@@ -266,14 +288,20 @@
   </div>
 </div>
 
-<!-- Modal: Medication Due Alarm -->
-<div id="medDueModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4">
-  <div class="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl border-4 border-[#0E5A3E] space-y-4">
-    <h3 class="text-2xl font-black text-[#163024]">💊 حان وقت الدواء!</h3>
-    <p id="medDueName" class="text-xl font-black text-[#0E5A3E]"></p>
-    <p id="medDueTime" class="text-base font-extrabold text-[#5C6F63]"></p>
-    <button id="medDueTakeBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-5 py-4 text-lg font-black text-white">✓ تناولت الدواء الآن</button>
-    <button id="medDueSnoozeBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-[#D8CEBE] bg-[#FAF6EE] px-5 py-3 text-base font-black text-[#163024]">تأجيل 10 دقائق</button>
+<!-- Modal: Medication Due Incoming-Call Alarm -->
+<div id="medDueModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between bg-gradient-to-b from-[#0A3D2A] via-[#0E5A3E] to-[#082E20] px-6 py-10 text-center text-white">
+  <div class="space-y-2 pt-4">
+    <p class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-black tracking-wide">📞 مكالمة تذكير بالدواء • CareGuard TN</p>
+    <h3 class="text-3xl font-black">حان وقت الدواء!</h3>
+  </div>
+  <div class="flex flex-col items-center space-y-4">
+    <div class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-emerald-300 bg-white/15 text-6xl shadow-2xl animate-bounce">💊</div>
+    <p id="medDueName" class="text-2xl font-black text-white px-2 break-words"></p>
+    <p id="medDueTime" class="rounded-full bg-black/25 px-5 py-1.5 text-lg font-black text-emerald-200"></p>
+  </div>
+  <div class="w-full max-w-sm space-y-3 pb-4">
+    <button id="medDueTakeBtn" type="button" class="tap-btn w-full rounded-full bg-emerald-400 py-4 text-xl font-black text-[#082E20] shadow-xl">📞 ✓ أخذت دوائي الآن</button>
+    <button id="medDueSnoozeBtn" type="button" class="tap-btn w-full rounded-full border-2 border-white/40 bg-white/10 py-3.5 text-base font-black text-white">⏰ تأجيل 10 دقائق</button>
   </div>
 </div>
 
@@ -442,6 +470,16 @@
       if (l.status === 'taken') takenMap.set(l.medication_id, l.logged_at || new Date().toISOString());
     });
     renderMeds();
+    syncNativeMedAlarms();
+  }
+
+  function isMedDueNow(m) {
+    const match = String((m && m.dosage) || '').match(/(\d{1,2}):(\d{2})/);
+    if (!match) return true;
+    const h = Number(match[1]), mn = Number(match[2]);
+    if (!Number.isFinite(h) || !Number.isFinite(mn)) return true;
+    const now = new Date();
+    return (now.getHours() * 60 + now.getMinutes()) >= (h * 60 + mn);
   }
 
   function renderMeds() {
@@ -459,6 +497,7 @@
     }
     meds.forEach((m) => {
       const isT = takenMap.has(m.id);
+      const dueNow = isMedDueNow(m);
       const tIso = takenMap.get(m.id);
       const tStr = tIso ? new Date(tIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
       const row = document.createElement('div');
@@ -470,18 +509,27 @@
       nm.dir = 'auto';
       nm.textContent = `${m.name} (${m.dosage || '08:00'})`;
       const st = document.createElement('p');
-      st.className = isT ? 'text-xs font-black text-[#0E5A3E]' : 'text-xs font-bold text-amber-800';
-      st.textContent = isT ? ((isFr ? '✓ Pris à ' : '✓ تم التناول الساعة ') + tStr) : (isFr ? '⏳ En attente' : '⏳ لم يُؤخذ بعد');
+      if (isT) {
+        st.className = 'text-xs font-black text-[#0E5A3E]';
+        st.textContent = (isFr ? '✓ Pris à ' : '✓ تم التناول الساعة ') + tStr;
+      } else if (dueNow) {
+        st.className = 'text-xs font-bold text-amber-800';
+        st.textContent = isFr ? '⏳ C\'est l\'heure — en attente' : '⏳ حان الوقت — لم يُؤخذ بعد';
+      } else {
+        st.className = 'text-xs font-bold text-[#5C6F63]';
+        st.textContent = isFr ? `🔒 Prévu à ${m.dosage || ''}` : `🔒 يحين الساعة ${m.dosage || ''}`;
+      }
       left.append(nm, st);
 
       const btns = document.createElement('div');
       btns.className = 'flex items-center gap-1.5';
-      if (!isT) {
+      if (!isT && dueNow) {
         const takeBtn = document.createElement('button');
         takeBtn.type = 'button';
         takeBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
         takeBtn.textContent = isFr ? '✓ Pris' : '✓ تناولته';
         takeBtn.addEventListener('click', async () => {
+          if (!isMedDueNow(m)) return;
           takenMap.set(m.id, new Date().toISOString());
           renderMeds();
           try { await S.client.from('medication_logs').insert({ medication_id: m.id, senior_id: seniorId, status: 'taken' }); } catch (_) {}
@@ -503,6 +551,96 @@
     });
   }
 
+
+  // Native Android LocalNotifications (Capacitor) for closed-app Medication Call Alarms
+  let nativeAlarmReady = false;
+  async function syncNativeMedAlarms() {
+    const Cap = window.Capacitor;
+    if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) return;
+    const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
+    if (!LN) return;
+    try {
+      const perm = await LN.requestPermissions();
+      if (!perm || perm.display !== 'granted') return;
+      if (!nativeAlarmReady) {
+        nativeAlarmReady = true;
+        try {
+          await LN.createChannel({
+            id: 'careguard_med_call',
+            name: 'منبّه مكالمة الدواء',
+            description: 'تنبيه عاجل بموعد الدواء برنين عالٍ',
+            importance: 5,
+            visibility: 1,
+            vibration: true,
+            sound: 'default'
+          });
+        } catch (_) {}
+        LN.addListener('localNotificationActionPerformed', (ev) => {
+          const ex = (ev && ev.notification && ev.notification.extra) || {};
+          const nm = ex.medName || (ev && ev.notification && ev.notification.body) || 'موعد الدواء';
+          const tm = ex.medTime || '';
+          activeDueIds = ex.medId ? [ex.medId] : meds.filter((m) => !takenMap.has(m.id) && isMedDueNow(m)).map((m) => m.id);
+          $('medDueName').textContent = nm;
+          $('medDueTime').textContent = tm;
+          $('medDueModal').classList.remove('hidden');
+          S.playStrongRingtone();
+          setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${nm}` : `حان وقت الدواء: ${nm}`), 800);
+        });
+      }
+      const pend = await LN.getPending();
+      if (pend && pend.notifications && pend.notifications.length) {
+        const oldIds = pend.notifications.filter((n) => n.id >= 2000 && n.id < 3000).map((n) => ({ id: n.id }));
+        if (oldIds.length) await LN.cancel({ notifications: oldIds });
+      }
+      const toSched = [];
+      meds.forEach((m, i) => {
+        const mt = String(m.dosage || '').match(/(\d{1,2}):(\d{2})/);
+        if (!mt) return;
+        const h = Number(mt[1]), mn = Number(mt[2]);
+        if (!Number.isFinite(h) || !Number.isFinite(mn)) return;
+        toSched.push({
+          id: 2000 + i,
+          title: '📞 حان وقت الدواء — CareGuard TN',
+          body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
+          channelId: 'careguard_med_call',
+          schedule: { on: { hour: h, minute: mn }, allowWhileIdle: true, repeats: true },
+          extra: { medId: m.id, medName: m.name || 'الدواء', medTime: m.dosage || '' }
+        });
+      });
+      if (toSched.length) await LN.schedule({ notifications: toSched });
+    } catch (_) {}
+  }
+
+  $('testNativeCallAlarmBtn').addEventListener('click', async () => {
+    const Cap = window.Capacitor;
+    const isNative = !!(Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform());
+    const LN = isNative && Cap.Plugins && Cap.Plugins.LocalNotifications;
+    if (LN) {
+      try {
+        await LN.requestPermissions();
+        await LN.schedule({
+          notifications: [{
+            id: 2999,
+            title: '📞 مكالمة تذكير بالدواء — CareGuard TN',
+            body: 'تجربة منبّه الدواء — اضغط لفتح شاشة التأكيد',
+            channelId: 'careguard_med_call',
+            schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true },
+            extra: { medName: 'تجربة الدواء (Doliprane 1000)', medTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+          }]
+        });
+        alert('✓ تم ضبط التجربة! أغلق الشاشة الآن وخلال 5 ثوانٍ سيصل التنبيه.');
+        return;
+      } catch (_) {}
+    }
+    setTimeout(() => {
+      $('medDueName').textContent = 'تجربة الدواء (Doliprane 1000)';
+      $('medDueTime').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      $('medDueModal').classList.remove('hidden');
+      S.playStrongRingtone();
+    }, 5000);
+    alert('✓ ستظهر شاشة «مكالمة الدواء» بعد 5 ثوانٍ.');
+  });
+
   function checkDueMeds() {
     if (!$('medDueModal').classList.contains('hidden') || !meds.length) return;
     const now = new Date();
@@ -517,6 +655,7 @@
       return nowMins >= (h * 60 + mn);
     });
     if (!due.length) return;
+    renderMeds();
     due.forEach((m) => alertedMedKeys.add(`${m.id}|${today}|${m.dosage}`));
     activeDueIds = due.map((m) => m.id);
     const names = due.map((m) => m.name).join(' + ');
@@ -864,6 +1003,156 @@
     if (navigator.clipboard) navigator.clipboard.writeText($('myCodeTxt').textContent).catch(() => {});
     $('checkInFeedback').textContent = '✓ تم نسخ الرمز: ' + $('myCodeTxt').textContent;
     $('checkInFeedback').classList.remove('hidden');
+  });
+
+  // Prescription / Medicine Box Photo Scanner (via Supabase gemini-proxy)
+  let pendingRxDataUrl = '';
+  function compressRxImage(dataUrl, maxDim = 960) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width || 1, img.height || 1));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }
+  function detectFreqFromName(name) {
+    const m = String(name || '').match(/(?:x|\*)\s*([234])\s*(?:\/\s*j)?|\b([234])\s*(?:fois|\/?j)\b/i);
+    return m ? Number(m[1] || m[2]) : 1;
+  }
+  function getDoseTimesForFreq(freq, baseTime) {
+    const f = Number(freq) || 1;
+    if (f === 2) return ['08:00', '20:00'];
+    if (f === 3) return ['08:00', '14:00', '20:00'];
+    if (f === 4) return ['08:00', '12:00', '16:00', '20:00'];
+    return [baseTime || '08:00'];
+  }
+
+  $('rxPhotoInput').addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingRxDataUrl = String(reader.result || '');
+      $('rxPhotoPreview').src = pendingRxDataUrl;
+      $('rxPhotoPreviewWrap').classList.remove('hidden');
+      $('rxExtractedWrap').classList.add('hidden');
+      $('rxPhotoStatus').classList.add('hidden');
+    };
+    reader.readAsDataURL(f);
+    e.target.value = '';
+  });
+
+  $('rxClearPhotoBtn').addEventListener('click', () => {
+    pendingRxDataUrl = '';
+    $('rxPhotoPreview').src = '';
+    $('rxPhotoPreviewWrap').classList.add('hidden');
+    $('rxExtractedWrap').classList.add('hidden');
+    $('rxPhotoStatus').classList.add('hidden');
+  });
+
+  $('rxAnalyzeBtn').addEventListener('click', async () => {
+    const isFr = S.getLang() === 'fr';
+    const st = $('rxPhotoStatus');
+    st.classList.remove('hidden');
+    if (!pendingRxDataUrl) return;
+    st.textContent = isFr ? '⏳ Lecture de la photo en cours...' : '⏳ جاري قراءة الصورة واستخراج الأدوية...';
+    try {
+      const compressed = await compressRxImage(pendingRxDataUrl, 900);
+      const b64 = compressed.split(',')[1] || '';
+      const mime = (compressed.match(/^data:([^;]+);/) || [])[1] || 'image/jpeg';
+      const { data, error } = await S.client.functions.invoke('gemini-proxy', {
+        body: {
+          prompt: 'List each medication and dose on a separate line formatted exactly as: Name Dose | HH:MM (use 08:00 if time is not shown, no bullets or extra text).',
+          imageBase64: b64,
+          mimeType: mime
+        }
+      });
+      if (error) throw new Error(error.message || 'AI error');
+      const ans = (data && typeof data.text === 'string') ? data.text.trim() : '';
+      if (!ans) throw new Error(isFr ? 'Aucun médicament détecté.' : 'لم يتم العثور على أدوية واضحة في الصورة.');
+      const lines = ans.split(/\n+/).map((x) => x.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean);
+      const listEl = $('rxExtractedList');
+      listEl.replaceChildren();
+      lines.forEach((ln) => {
+        const [nmPart, tmPart] = ln.split('|').map((z) => (z || '').trim());
+        const nmVal = nmPart || ln;
+        const tmVal = /^\d{2}:\d{2}$/.test(tmPart) ? tmPart : '08:00';
+        const autoFreq = detectFreqFromName(nmVal);
+        const row = document.createElement('label');
+        row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 border border-violet-200 text-xs font-bold text-[#163024]';
+        const left = document.createElement('span');
+        left.className = 'flex items-center gap-2 min-w-0 flex-1';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'; cb.checked = true;
+        cb.className = 'rx-item-cb h-4 w-4 shrink-0 accent-violet-700';
+        cb.dataset.name = nmVal; cb.dataset.time = tmVal; cb.dataset.freq = String(autoFreq);
+        const txt = document.createElement('span');
+        txt.className = 'break-words leading-snug'; txt.dir = 'auto';
+        txt.textContent = nmVal;
+        left.append(cb, txt);
+        const fSel = document.createElement('select');
+        fSel.className = 'rounded-lg border border-[#D8CEBE] bg-[#FAF6EE] px-2 py-1 text-xs font-extrabold';
+        [1, 2, 3, 4].forEach((n) => {
+          const o = document.createElement('option');
+          o.value = String(n);
+          o.textContent = isFr ? (n + 'x/j') : (n === 1 ? 'مرة/يوم' : (n === 2 ? 'مرتان/يوم' : n + ' مرات/يوم'));
+          if (n === autoFreq) o.selected = true;
+          fSel.appendChild(o);
+        });
+        fSel.addEventListener('change', () => { cb.dataset.freq = fSel.value; });
+        row.append(left, fSel);
+        listEl.appendChild(row);
+      });
+      if (lines[0]) {
+        const [n0, t0] = lines[0].split('|').map((z) => (z || '').trim());
+        $('newMedName').value = n0 || '';
+        if (/^\d{2}:\d{2}$/.test(t0)) $('newMedTime').value = t0;
+      }
+      $('rxExtractedWrap').classList.remove('hidden');
+      st.textContent = isFr ? `✓ ${lines.length} médicament(s) détecté(s) !` : `✓ تم استخراج ${lines.length} دواء بنجاح!`;
+    } catch (err) {
+      st.textContent = '⚠️ ' + (err.message || (isFr ? 'Erreur de lecture' : 'تعذرت قراءة الصورة'));
+    }
+  });
+
+  $('rxSaveAllBtn').addEventListener('click', async () => {
+    if (!seniorId) return;
+    const isFr = S.getLang() === 'fr';
+    const checked = Array.from(document.querySelectorAll('.rx-item-cb:checked'));
+    if (!checked.length) return;
+    const rows = [];
+    checked.forEach((cb) => {
+      const nm = cb.dataset.name || '';
+      const freq = Number(cb.dataset.freq || 1);
+      const times = getDoseTimesForFreq(freq, cb.dataset.time || '08:00');
+      times.forEach((tm, idx) => {
+        rows.push({
+          senior_id: seniorId,
+          name: times.length > 1 ? `${nm} (${idx + 1}/${times.length})` : nm,
+          dosage: tm
+        });
+      });
+    });
+    if (!rows.length) return;
+    const { error } = await S.client.from('medications').insert(rows);
+    if (error) {
+      $('rxPhotoStatus').classList.remove('hidden');
+      $('rxPhotoStatus').textContent = '⚠️ ' + error.message;
+      return;
+    }
+    pendingRxDataUrl = '';
+    $('rxPhotoPreviewWrap').classList.add('hidden');
+    $('rxExtractedWrap').classList.add('hidden');
+    $('newMedName').value = '';
+    await loadMeds();
   });
 
   $('addMedBtn').addEventListener('click', async () => {

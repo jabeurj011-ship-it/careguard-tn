@@ -25,7 +25,7 @@
       </div>
       <div>
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">CareGuard TN</h1>
-        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.0-TN</p>
+        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.5-TN</p>
       </div>
     </div>
     <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3.5 py-2 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
@@ -105,7 +105,8 @@
   </p>
 </main>
 
-<script src="./shared.js"></script>
+<script>if("serviceWorker"in navigator){navigator.serviceWorker.register("./sw.js").catch(function(){});}</script>
+<script src="./shared.js?v=2.5"></script>
 <script>
 (function () {
   'use strict';
@@ -171,8 +172,48 @@
     renderText();
   });
 
+  const isCapNative = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+
+  if (isCapNative && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('appUrlOpen', async (ev) => {
+      const u = (ev && ev.url) || '';
+      if (!u.startsWith('tn.careguard.app://callback')) return;
+      try {
+        if (window.Capacitor.Plugins.Browser) await window.Capacitor.Plugins.Browser.close();
+      } catch (_) {}
+      try {
+        const parsed = new URL(u);
+        const code = parsed.searchParams.get('code');
+        const hashParams = new URLSearchParams((parsed.hash || '').replace(/^#/, ''));
+        const at = hashParams.get('access_token');
+        const rt = hashParams.get('refresh_token');
+        if (code) {
+          await S.client.auth.exchangeCodeForSession(code);
+        } else if (at && rt) {
+          await S.client.auth.setSession({ access_token: at, refresh_token: rt });
+        }
+        window.location.href = S.rolePageUrl(pickedRole || S.getRole() || 'senior');
+      } catch (e) {
+        showErr((e && e.message) || 'تعذر إتمام الدخول بحساب Google.');
+      }
+    });
+  }
+
   $('googleBtn').addEventListener('click', async () => {
     if (!S.client) return;
+    if (isCapNative && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+      const { data, error } = await S.client.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'tn.careguard.app://callback',
+          skipBrowserRedirect: true,
+          queryParams: { prompt: 'select_account' }
+        }
+      });
+      if (error) return showErr(error.message);
+      if (data && data.url) await window.Capacitor.Plugins.Browser.open({ url: data.url });
+      return;
+    }
     const redirectTo = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + S.rolePageUrl(pickedRole || 'senior').replace('./', '');
     const { error } = await S.client.auth.signInWithOAuth({
       provider: 'google',
