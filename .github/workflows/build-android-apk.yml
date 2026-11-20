@@ -93,6 +93,33 @@ jobs:
             console.log("AndroidManifest.xml updated OK");
           '
 
+      - name: Bump Android versionCode automatically
+        env:
+          RUN_NUM: ${{ github.run_number }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const bf = "android/app/build.gradle";
+            let g = fs.readFileSync(bf, "utf8");
+            const vc = Number(process.env.RUN_NUM || 1) + 10;
+            g = g.replace(/versionCode\s+\d+/, "versionCode " + vc);
+            g = g.replace(/versionName\s+"[^"]+"/, "versionName \"2.6." + process.env.RUN_NUM + "\"");
+            fs.writeFileSync(bf, g, "utf8");
+            console.log("Set Android versionCode=" + vc);
+          '
+
+      - name: Restore fixed Android debug keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            mkdir -p ~/.android
+            printf '%s' "$KEYSTORE_B64" | tr -d '[:space:]' | base64 -d > ~/.android/debug.keystore
+            echo "Fixed CareGuard TN debug.keystore restored OK"
+          else
+            echo "Warning: ANDROID_DEBUG_KEYSTORE_B64 secret not set; using ephemeral debug keystore"
+          fi
+
       - name: Build Android APK (Debug)
         run: |
           cd android
