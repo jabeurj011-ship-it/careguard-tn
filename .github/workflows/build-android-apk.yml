@@ -1,0 +1,84 @@
+name: Build CareGuard TN Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+    paths:
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - '.github/workflows/build-android-apk.yml'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Capacitor dependencies
+        run: npm install
+
+      - name: Prepare web assets into www/
+        run: npm run prepare:www
+
+      - name: Generate Android project & sync Capacitor
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap sync android
+
+      - name: Configure Android permissions (Alarms, Full-Screen Intent, GPS, Mic, Camera)
+        run: |
+          node -e '
+            const fs = require("fs");
+            const mf = "android/app/src/main/AndroidManifest.xml";
+            let xml = fs.readFileSync(mf, "utf8");
+            const perms = [
+              "android.permission.INTERNET",
+              "android.permission.POST_NOTIFICATIONS",
+              "android.permission.SCHEDULE_EXACT_ALARM",
+              "android.permission.USE_FULL_SCREEN_INTENT",
+              "android.permission.WAKE_LOCK",
+              "android.permission.VIBRATE",
+              "android.permission.ACCESS_FINE_LOCATION",
+              "android.permission.ACCESS_COARSE_LOCATION",
+              "android.permission.RECORD_AUDIO",
+              "android.permission.MODIFY_AUDIO_SETTINGS",
+              "android.permission.CAMERA"
+            ];
+            const ins = perms.filter((p) => !xml.includes(p)).map((p) => "    <uses-permission android:name=\"" + p + "\" />");
+            if (ins.length) xml = xml.replace("<application", ins.join("\n") + "\n\n    <application");
+            if (!xml.includes("android:showWhenLocked")) {
+              xml = xml.replace("<activity", "<activity\n            android:showWhenLocked=\"true\"\n            android:turnScreenOn=\"true\"");
+            }
+            fs.writeFileSync(mf, xml, "utf8");
+            console.log("AndroidManifest.xml updated OK");
+          '
+
+      - name: Build Android APK (Debug)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload CareGuard-TN.apk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CareGuard-TN-Android-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
