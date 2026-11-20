@@ -1,0 +1,17 @@
+{
+  "name": "careguard-tn",
+  "version": "2.4.0",
+  "description": "CareGuard TN — Elderly Care, Medication Alerts & Home Nursing (Tunisia)",
+  "private": true,
+  "scripts": {
+    "prepare:www": "node -e \"const fs=require('fs'); fs.rmSync('www',{recursive:true,force:true}); fs.mkdirSync('www',{recursive:true}); for(const f of fs.readdirSync('.')){ if(/\\.(html|css|js|json|png|jpg|jpeg|svg|webp)$/i.test(f) && !['package.json','package-lock.json','capacitor.config.json'].includes(f)){ fs.copyFileSync(f,'www/'+f); } }\""
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/local-notifications": "^6.1.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2"
+  }
+}
