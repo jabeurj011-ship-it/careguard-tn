@@ -13,7 +13,7 @@
 
   let sbClient = null;
   if (window.supabase && typeof window.supabase.createClient === 'function') {
-    sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } });
   }
 
   const $ = (id) => document.getElementById(id);
