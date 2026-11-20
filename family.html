@@ -22,7 +22,7 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.3-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.4-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -459,20 +459,27 @@
       }
       return;
     }
-    const { error } = await S.client.from('nurse_visit_requests').insert({
+    const sLat = sp ? (sp.home_lat || null) : null;
+    const sLng = sp ? (sp.home_lng || null) : null;
+    const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';
+    const basePayload = {
       senior_id: sp ? sp.id : null,
       requester_user_id: user.id,
       requester_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
       requester_phone: sp ? (sp.senior_phone || null) : null,
-      senior_lat: sp ? (sp.home_lat || null) : null,
-      senior_lng: sp ? (sp.home_lng || null) : null,
+      senior_lat: sLat,
+      senior_lng: sLng,
       care_reason: $('careReasonSel').value,
       preferred_gender: $('genderPrefSel').value,
       request_mode: mode,
       nurse_user_id: mode === 'open' ? null : nurseUid,
       nurse_name: mode === 'open' ? null : (nurseName || 'ممرض'),
       status: mode === 'open' ? 'open' : 'pending'
-    });
+    };
+    let { error } = await S.client.from('nurse_visit_requests').insert(reqGov ? Object.assign({ region: reqGov }, basePayload) : basePayload);
+    if (error && /region/i.test(error.message || '')) {
+      ({ error } = await S.client.from('nurse_visit_requests').insert(basePayload));
+    }
     st.classList.remove('hidden');
     st.textContent = error ? ('⚠️ ' + error.message) : '✅ تم إرسال طلب الزيارة بنجاح!';
   }

@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-sm font-black text-white shadow-sm">🩺</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.3-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.4-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -331,11 +331,25 @@
     return Math.round(S.haversineMeters(c.lat, c.lng, Number(r.senior_lat), Number(r.senior_lng)));
   }
 
+  function getMyGovernorate() {
+    if (myProfile && myProfile.region) return S.normGov(myProfile.region);
+    const c = getCoords();
+    return c ? S.normGov(S.detectTnGovernorate(c.lat, c.lng)) : '';
+  }
+
+  function getReqGovernorate(r) {
+    if (r && r.region) return S.normGov(r.region);
+    if (r && r.senior_lat && r.senior_lng) return S.normGov(S.detectTnGovernorate(r.senior_lat, r.senior_lng));
+    return '';
+  }
+
   function fmtDist(r, isFr) {
+    const gRaw = (r && r.region) || (r && r.senior_lat && r.senior_lng ? S.detectTnGovernorate(r.senior_lat, r.senior_lng) : '');
+    const gTxt = gRaw ? (' • 🏛️ ' + S.formatGovLabel(gRaw)) : '';
     const m = distMeters(r);
-    if (m === null) return r.senior_lat ? (isFr ? ' • 📍 GPS prêt' : ' • 📍 الموقع جاهز') : '';
-    if (m < 1000) return isFr ? ` • 📍 à ${m} m` : ` • 📍 يبعد ${m} م`;
-    return isFr ? ` • 📍 à ${(Math.round(m / 100) / 10).toFixed(1)} km` : ` • 📍 يبعد ${(Math.round(m / 100) / 10).toFixed(1)} كم`;
+    if (m === null) return gTxt + (r.senior_lat ? (isFr ? ' • 📍 GPS prêt' : ' • 📍 الموقع جاهز') : '');
+    if (m < 1000) return gTxt + (isFr ? ` • 📍 à ${m} m` : ` • 📍 يبعد ${m} م`);
+    return gTxt + (isFr ? ` • 📍 à ${(Math.round(m / 100) / 10).toFixed(1)} km` : ` • 📍 يبعد ${(Math.round(m / 100) / 10).toFixed(1)} كم`);
   }
 
   function setSubTab(t) {
@@ -399,14 +413,20 @@
       if (r.status === 'pending' && r.nurse_user_id === user.id) return true;
       if (r.request_mode === 'open' && r.status === 'open') {
         const pg = r.preferred_gender || 'any';
-        return pg === 'any' || pg === myGender;
+        if (!(pg === 'any' || pg === myGender)) return false;
+        const myG = getMyGovernorate();
+        const rG = getReqGovernorate(r);
+        if (myG && rG && myG !== rG) return false;
+        return true;
       }
       return false;
     });
     newReqs.sort((a, b) => {
       const da = distMeters(a), db = distMeters(b);
       if (da !== null && db !== null) return da - db;
-      return 0;
+      if (da !== null) return -1;
+      if (db !== null) return 1;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
     });
     const histReqs = cachedReqs.filter((r) => (r.status === 'completed' || r.status === 'declined') && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
 
@@ -1002,7 +1022,10 @@
           const pg = r.preferred_gender || 'any';
           const okG = pg === 'any' || pg === myG;
           const isMyBlk = (r.senior_id && myBlockedSeniorIds.has(r.senior_id)) || (r.requester_user_id && myBlockedReqUids.has(r.requester_user_id));
-          if (!isMyBlk && ((r.request_mode === 'open' && okG && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
+          const myGov = getMyGovernorate();
+          const reqGov = getReqGovernorate(r);
+          const okGov = !myGov || !reqGov || myGov === reqGov;
+          if (!isMyBlk && ((r.request_mode === 'open' && okG && okGov && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
             S.playStrongRingtone();
           }
         }

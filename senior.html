@@ -737,20 +737,27 @@
       }
       return;
     }
-    const { error } = await S.client.from('nurse_visit_requests').insert({
+    const sLat = (seniorProfile && seniorProfile.home_lat) || null;
+    const sLng = (seniorProfile && seniorProfile.home_lng) || null;
+    const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';
+    const basePayload = {
       senior_id: seniorId,
       requester_user_id: user.id,
       requester_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ',
       requester_phone: (seniorProfile && (seniorProfile.senior_phone || seniorProfile.emergency_phone)) || null,
-      senior_lat: (seniorProfile && seniorProfile.home_lat) || null,
-      senior_lng: (seniorProfile && seniorProfile.home_lng) || null,
+      senior_lat: sLat,
+      senior_lng: sLng,
       care_reason: $('fnReasonSel').value,
       preferred_gender: $('fnGenderSel').value,
       request_mode: mode,
       nurse_user_id: mode === 'open' ? null : nurseUid,
       nurse_name: mode === 'open' ? null : (nurseName || 'ممرض'),
       status: mode === 'open' ? 'open' : 'pending'
-    });
+    };
+    let { error } = await S.client.from('nurse_visit_requests').insert(reqGov ? Object.assign({ region: reqGov }, basePayload) : basePayload);
+    if (error && /region/i.test(error.message || '')) {
+      ({ error } = await S.client.from('nurse_visit_requests').insert(basePayload));
+    }
     st.textContent = error ? ('⚠️ ' + error.message) : '✅ تم إرسال طلب الزيارة بنجاح!';
   }
 
