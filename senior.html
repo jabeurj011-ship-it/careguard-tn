@@ -193,6 +193,7 @@
       </label>
       <button id="addApptBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white">+ حفظ الموعد الطبي</button>
       <p id="apptSaveMsg" class="hidden text-center text-xs font-extrabold"></p>
+      <button id="testApptCallBtn" type="button" class="tap-btn w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-black text-indigo-950">📞 تجربة رنة مكالمة الموعد بعد 5 ثوانٍ</button>
     </div>
     <div id="apptsList" class="space-y-2.5"></div>
   </section>
@@ -369,6 +370,23 @@
   </div>
 </div>
 
+<!-- Modal: Appointment Due Incoming-Call Alarm -->
+<div id="apptDueModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between bg-gradient-to-b from-[#1E1B4B] via-[#312E81] to-[#17153B] px-6 py-10 text-center text-white">
+  <div class="space-y-2 pt-4">
+    <p id="apptDueCallTag" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-black tracking-wide">📞 مكالمة تذكير بموعد طبي • CareGuard TN</p>
+    <h3 id="apptDueHeading" class="text-3xl font-black">حان وقت موعدك الطبي!</h3>
+  </div>
+  <div class="flex flex-col items-center space-y-4">
+    <div id="apptDueIcon" class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-indigo-300 bg-white/15 text-6xl shadow-2xl animate-bounce">📅</div>
+    <p id="apptDueTitle" class="text-2xl font-black text-white px-2 break-words"></p>
+    <p id="apptDueMeta" class="rounded-full bg-black/25 px-5 py-1.5 text-base font-black text-indigo-200"></p>
+  </div>
+  <div class="w-full max-w-sm space-y-3 pb-4">
+    <button id="apptDueConfirmBtn" type="button" class="tap-btn w-full rounded-full bg-emerald-400 py-4 text-xl font-black text-[#082E20] shadow-xl">📞 ✓ حسناً، فهمت</button>
+    <button id="apptDueSnoozeBtn" type="button" class="tap-btn w-full rounded-full border-2 border-white/40 bg-white/10 py-3.5 text-base font-black text-white">⏰ تأجيل 10 دقائق</button>
+  </div>
+</div>
+
 <!-- Ringtone Modal -->
 <div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
   <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
@@ -407,6 +425,8 @@
   let appts = [];
   let takenMap = new Map();
   let alertedMedKeys = new Set();
+  let alertedApptIds = new Set();
+  let activeDueAppt = null;
   let activeDueIds = [];
   let dmChannel = 'family';
   let mrTab = 'active';
@@ -693,6 +713,9 @@
         const m = APPT_META[a.appt_type] || APPT_META.doctor;
         const r24 = ts - 24 * 3600000;
         const r2 = ts - 2 * 3600000;
+        if (ts > now + 10000) {
+          toSched.push({ id: 3500 + idx, title: `📞 حان وقت موعدك الطبي — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call', schedule: { at: new Date(ts), allowWhileIdle: true }, extra: { kind: 'appt', apptId: a.id, apptTitle: a.title, apptType: a.appt_type, apptLoc: a.location || '', apptAt: a.appt_at, fasting: !!a.fasting_required } });
+        }
         if (r24 > now + 60000) {
           toSched.push({ id: 3000 + idx * 2, title: `📅 تذكير بموعد غداً — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call', schedule: { at: new Date(r24), allowWhileIdle: true } });
         }
@@ -819,6 +842,10 @@
         } catch (_) {}
         LN.addListener('localNotificationActionPerformed', (ev) => {
           const ex = (ev && ev.notification && ev.notification.extra) || {};
+          if (ex.kind === 'appt') {
+            triggerApptCallAlarm({ id: ex.apptId, title: ex.apptTitle || 'موعد طبي', appt_type: ex.apptType || 'doctor', location: ex.apptLoc || '', appt_at: ex.apptAt || new Date().toISOString(), fasting_required: !!ex.fasting });
+            return;
+          }
           const nm = ex.medName || (ev && ev.notification && ev.notification.body) || 'موعد الدواء';
           const tm = ex.medTime || '';
           activeDueIds = ex.medId ? [ex.medId] : meds.filter((m) => !takenMap.has(m.id) && isMedDueNow(m)).map((m) => m.id);
@@ -881,6 +908,77 @@
       S.playStrongRingtone();
     }, 5000);
     alert('✓ ستظهر شاشة «مكالمة الدواء» بعد 5 ثوانٍ.');
+  });
+
+
+  function triggerApptCallAlarm(a) {
+    if (!a) return;
+    const isFr = S.getLang() === 'fr';
+    const m = APPT_META[a.appt_type] || APPT_META.doctor;
+    activeDueAppt = a;
+    $('apptDueIcon').textContent = m.icon;
+    $('apptDueCallTag').textContent = isFr ? '📞 Appel de rappel RDV • CareGuard TN' : '📞 مكالمة تذكير بموعد طبي • CareGuard TN';
+    $('apptDueHeading').textContent = isFr ? 'C\'est l\'heure de votre rendez-vous !' : 'حان وقت موعدك الطبي!';
+    $('apptDueTitle').textContent = a.title || (isFr ? m.fr : m.ar);
+    const dt = new Date(a.appt_at || Date.now());
+    const tm = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    $('apptDueMeta').textContent = `🕒 ${tm}` + (a.location ? ` • 📍 ${a.location}` : '') + (a.fasting_required ? (isFr ? ' • 🍽️ À jeun' : ' • 🍽️ صائم') : '');
+    $('apptDueConfirmBtn').textContent = isFr ? '📞 ✓ Compris' : '📞 ✓ حسناً، فهمت';
+    $('apptDueSnoozeBtn').textContent = isFr ? '⏰ Reporter 10 min' : '⏰ تأجيل 10 دقائق';
+    $('apptDueModal').classList.remove('hidden');
+    S.playStrongRingtone();
+    setTimeout(() => {
+      S.speakText(isFr
+        ? `Rappel de votre rendez-vous médical : ${a.title || m.fr}`
+        : `تذكير بموعدك الطبي الآن: ${a.title || m.ar}`);
+    }, 900);
+  }
+
+  function checkDueAppts() {
+    if (!$('apptDueModal').classList.contains('hidden') || !appts.length) return;
+    const now = Date.now();
+    const due = appts.find((a) => {
+      if (a.status !== 'upcoming' || alertedApptIds.has(a.id)) return false;
+      const ts = new Date(a.appt_at).getTime();
+      return Number.isFinite(ts) && now >= ts && now <= ts + 30 * 60000;
+    });
+    if (!due) return;
+    alertedApptIds.add(due.id);
+    triggerApptCallAlarm(due);
+  }
+
+  $('apptDueConfirmBtn').addEventListener('click', () => {
+    S.stopRingtone();
+    $('apptDueModal').classList.add('hidden');
+    activeDueAppt = null;
+  });
+
+  $('apptDueSnoozeBtn').addEventListener('click', () => {
+    S.stopRingtone();
+    $('apptDueModal').classList.add('hidden');
+    const snoozed = activeDueAppt;
+    activeDueAppt = null;
+    if (snoozed && snoozed.id) {
+      setTimeout(() => { alertedApptIds.delete(snoozed.id); }, 10 * 60000);
+    }
+  });
+
+  $('testApptCallBtn').addEventListener('click', () => {
+    const isFr = S.getLang() === 'fr';
+    const sampleType = $('apptTypeSel').value || 'doctor';
+    const meta = APPT_META[sampleType] || APPT_META.doctor;
+    const sampleTitle = ($('apptTitleIn').value || '').trim() || (isFr ? meta.fr : meta.ar);
+    alert(isFr ? '✓ L\'appel de rappel apparaîtra dans 5 secondes.' : '✓ ستظهر مكالمة تذكير الموعد بعد 5 ثوانٍ.');
+    setTimeout(() => {
+      triggerApptCallAlarm({
+        id: 'test-appt',
+        appt_type: sampleType,
+        title: sampleTitle,
+        location: ($('apptLocIn').value || '').trim() || 'العيادة الطبية',
+        appt_at: new Date().toISOString(),
+        fasting_required: !!$('apptFastingChk').checked
+      });
+    }, 5000);
   });
 
   function checkDueMeds() {
@@ -1686,7 +1784,7 @@
         sync(); b.addEventListener('levelchange', sync);
       }).catch(() => {});
     }
-    setInterval(checkDueMeds, 15000);
+    setInterval(() => { checkDueMeds(); checkDueAppts(); }, 15000);
     S.client.channel('cg-v2-senior-' + user.id)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nurse_visit_requests', filter: 'requester_user_id=eq.' + user.id }, () => { S.playStrongRingtone(); loadVisitBanner(); })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); loadDirectMessages(); refreshUnreadBadge(); })
