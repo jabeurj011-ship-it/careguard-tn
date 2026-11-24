@@ -109,6 +109,18 @@
         <p id="tileMsgsSub" class="text-xs font-bold text-teal-900">العائلة والممرض</p>
       </button>
     </div>
+
+    <!-- Wide Home Tile: Medical Appointments & Tests -->
+    <button id="tileAppts" type="button" class="tap-btn flex w-full items-center justify-between gap-3 rounded-[24px] border border-[#D4CBEB] bg-gradient-to-l from-[#F6F3FD] to-[#ECE6FA] px-4 py-3.5 text-start shadow-sm">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="text-3xl shrink-0">📅</span>
+        <div class="min-w-0">
+          <h3 id="tileApptsLbl" class="text-base font-black text-indigo-950">المواعيد الطبية والفحوصات</h3>
+          <p id="tileApptsSub" class="text-xs font-bold text-indigo-800 truncate">عيادة، تحاليل، أشعة، تخطيط قلب...</p>
+        </div>
+      </div>
+      <span id="tileApptsCount" class="shrink-0 rounded-full bg-indigo-700 px-2.5 py-1 text-xs font-black text-white">0</span>
+    </button>
   </section>
 
   <!-- TAB 2: MEDICATIONS -->
@@ -151,6 +163,37 @@
       </div>
     </div>
     <div id="medsList" class="space-y-2.5"></div>
+  </section>
+
+  <!-- TAB 2B: MEDICAL APPOINTMENTS & LABS -->
+  <section id="secAppts" class="hidden space-y-3.5">
+    <div class="cg-card p-4 space-y-2.5">
+      <h2 id="apptsHeading" class="text-lg font-black text-[#0E5A3E]">📅 المواعيد الطبية والفحوصات</h2>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <select id="apptTypeSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-sm font-bold">
+          <option value="doctor">🩺 عيادة طبية / طبيب</option>
+          <option value="labs">🧪 تحاليل طبية</option>
+          <option value="xray">🩻 أشعة / سكانير / راديو</option>
+          <option value="ecg">❤️ تخطيط قلب (ECG / Écho)</option>
+          <option value="physio">🦵 علاج طبيعي (كيني)</option>
+          <option value="vaccine">💉 تلقيح أو حقنة دورية</option>
+          <option value="vision">👁️ عيون / أسنان / سمع</option>
+          <option value="cnam">🪪 تجديد CNAM / دفتر العلاج</option>
+        </select>
+        <input id="apptTitleIn" type="text" placeholder="الطبيب أو الفحص (مثال: د. بن سالم / تحليل سكري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="apptDateIn" type="date" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" dir="ltr" />
+        <input id="apptTimeIn" type="time" value="09:00" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black" dir="ltr" />
+      </div>
+      <input id="apptLocIn" type="text" placeholder="المكان / المصحة / المخبر (اختياري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <label class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-950">
+        <input id="apptFastingChk" type="checkbox" class="h-4 w-4 accent-amber-600" />
+        <span id="apptFastingLbl">🍽️ يتطلب صياماً قبل الموعد (تحليل على الريق)</span>
+      </label>
+      <button id="addApptBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white">+ حفظ الموعد الطبي</button>
+    </div>
+    <div id="apptsList" class="space-y-2.5"></div>
   </section>
 
   <!-- TAB 3: PRIVATE MESSAGES (FAMILY / NURSE) -->
@@ -201,9 +244,10 @@
 
 <!-- Bottom Navigation (Senior Only) -->
 <nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
-  <div class="mx-auto grid max-w-xl grid-cols-4 py-2 text-center text-xs font-black">
+  <div class="mx-auto grid max-w-xl grid-cols-5 py-2 text-center text-[11px] font-black">
     <button id="navHome" type="button" class="flex flex-col items-center gap-0.5 text-[#0E5A3E]"><span class="text-lg">🏠</span><span id="navHomeLbl">الرئيسية</span></button>
     <button id="navMeds" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">💊</span><span id="navMedsLbl">الأدوية</span></button>
+    <button id="navAppts" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">📅</span><span id="navApptsLbl">المواعيد</span></button>
     <button id="navMsgs" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">💬</span><span id="navMsgsLbl">الرسائل</span></button>
     <button id="navSet" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">⚙️</span><span id="navSetLbl">الإعدادات</span></button>
   </div>
@@ -359,6 +403,7 @@
   let seniorProfile = null;
   let seniorId = null;
   let meds = [];
+  let appts = [];
   let takenMap = new Map();
   let alertedMedKeys = new Set();
   let activeDueIds = [];
@@ -369,12 +414,15 @@
   function switchTab(t) {
     $('secHome').classList.toggle('hidden', t !== 'home');
     $('secMeds').classList.toggle('hidden', t !== 'meds');
+    $('secAppts').classList.toggle('hidden', t !== 'appts');
     $('secMsgs').classList.toggle('hidden', t !== 'msgs');
     $('secSettings').classList.toggle('hidden', t !== 'settings');
     $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (t === 'home' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
     $('navMeds').className = 'flex flex-col items-center gap-0.5 ' + (t === 'meds' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navAppts').className = 'flex flex-col items-center gap-0.5 ' + (t === 'appts' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
     $('navMsgs').className = 'flex flex-col items-center gap-0.5 ' + (t === 'msgs' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
     $('navSet').className = 'flex flex-col items-center gap-0.5 ' + (t === 'settings' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    if (t === 'appts') loadAppts();
     if (t === 'msgs') { loadDirectMessages(); if (seniorId && user) S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', seniorId).neq('sender_user_id', user.id).is('read_at', null).then(() => refreshUnreadBadge()).catch(() => {}); }
   }
 
@@ -391,6 +439,11 @@
     $('tileMsgsLbl').textContent = isFr ? 'Messages' : 'الرسائل';
     $('navHomeLbl').textContent = isFr ? 'Accueil' : 'الرئيسية';
     $('navMedsLbl').textContent = isFr ? 'Méds' : 'الأدوية';
+    $('navApptsLbl').textContent = isFr ? 'RDV' : 'المواعيد';
+    $('tileApptsLbl').textContent = isFr ? 'Rendez-vous & Examens' : 'المواعيد الطبية والفحوصات';
+    $('apptsHeading').textContent = isFr ? '📅 Rendez-vous & Examens médicaux' : '📅 المواعيد الطبية والفحوصات';
+    $('apptFastingLbl').textContent = isFr ? '🍽️ À jeun requis avant le RDV' : '🍽️ يتطلب صياماً قبل الموعد (تحليل على الريق)';
+    $('addApptBtn').textContent = isFr ? '+ Enregistrer le rendez-vous' : '+ حفظ الموعد الطبي';
     $('navMsgsLbl').textContent = isFr ? 'Messages' : 'الرسائل';
     $('navSetLbl').textContent = isFr ? 'Paramètres' : 'الإعدادات';
     $('fnBcTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
@@ -516,6 +569,137 @@
     });
     renderMeds();
     syncNativeMedAlarms();
+  }
+
+
+  const APPT_META = {
+    doctor: { icon: '🩺', ar: 'عيادة طبية', fr: 'Consultation' },
+    labs: { icon: '🧪', ar: 'تحاليل طبية', fr: 'Analyses' },
+    xray: { icon: '🩻', ar: 'أشعة / سكانير', fr: 'Radiologie' },
+    ecg: { icon: '❤️', ar: 'تخطيط قلب', fr: 'ECG / Écho' },
+    physio: { icon: '🦵', ar: 'علاج طبيعي', fr: 'Kinésithérapie' },
+    vaccine: { icon: '💉', ar: 'تلقيح / حقنة', fr: 'Vaccin / Injection' },
+    vision: { icon: '👁️', ar: 'عيون / أسنان / سمع', fr: 'Ophtalmo / Dentiste' },
+    cnam: { icon: '🪪', ar: 'تجديد CNAM', fr: 'Renouvellement CNAM' }
+  };
+
+  async function loadAppts() {
+    if (!seniorId) return;
+    try {
+      const { data, error } = await S.client
+        .from('medical_appointments')
+        .select('*')
+        .eq('senior_id', seniorId)
+        .eq('status', 'upcoming')
+        .order('appt_at', { ascending: true })
+        .limit(40);
+      if (!error && Array.isArray(data)) appts = data;
+    } catch (_) {}
+    renderAppts();
+    syncNativeApptAlarms();
+  }
+
+  function renderAppts() {
+    const isFr = S.getLang() === 'fr';
+    const now = Date.now();
+    const upcoming = appts.filter((a) => new Date(a.appt_at).getTime() >= now - 2 * 3600000);
+    if ($('tileApptsCount')) $('tileApptsCount').textContent = String(upcoming.length);
+    if ($('tileApptsSub')) {
+      if (upcoming[0]) {
+        const dt = new Date(upcoming[0].appt_at);
+        const m = APPT_META[upcoming[0].appt_type] || APPT_META.doctor;
+        $('tileApptsSub').textContent = `${m.icon} ${upcoming[0].title} • ${dt.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      } else {
+        $('tileApptsSub').textContent = isFr ? 'Consultation, analyses, radio, ECG...' : 'عيادة، تحاليل، أشعة، تخطيط قلب...';
+      }
+    }
+    const box = $('apptsList');
+    if (!box) return;
+    box.replaceChildren();
+    if (!upcoming.length) {
+      const emp = document.createElement('div');
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.textContent = isFr ? 'Aucun rendez-vous médical à venir.' : 'لا توجد مواعيد طبية قادمة حالياً.';
+      box.appendChild(emp);
+      return;
+    }
+    upcoming.forEach((a) => {
+      const m = APPT_META[a.appt_type] || APPT_META.doctor;
+      const dt = new Date(a.appt_at);
+      const card = document.createElement('div');
+      card.className = 'cg-card p-3.5 space-y-2';
+      const top = document.createElement('div');
+      top.className = 'flex items-start justify-between gap-2';
+      const left = document.createElement('div');
+      left.className = 'min-w-0 flex-1 space-y-0.5';
+      const badge = document.createElement('span');
+      badge.className = 'inline-block rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-black text-indigo-900';
+      badge.textContent = `${m.icon} ${isFr ? m.fr : m.ar}`;
+      const ttl = document.createElement('p');
+      ttl.className = 'text-sm font-black text-[#163024] break-words';
+      ttl.textContent = a.title;
+      const meta = document.createElement('p');
+      meta.className = 'text-xs font-bold text-[#0E5A3E]';
+      meta.textContent = `🗓️ ${dt.toLocaleDateString([], { weekday: 'short', day: '2-digit', month: '2-digit' })} • 🕒 ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` + (a.location ? ` • 📍 ${a.location}` : '');
+      left.append(badge, ttl, meta);
+      if (a.fasting_required) {
+        const fp = document.createElement('p');
+        fp.className = 'inline-block rounded-lg bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-950';
+        fp.textContent = isFr ? '🍽️ À jeun requis' : '🍽️ صائم قبل الموعد';
+        left.appendChild(fp);
+      }
+      const btns = document.createElement('div');
+      btns.className = 'flex flex-col gap-1 shrink-0';
+      const doneBtn = document.createElement('button');
+      doneBtn.type = 'button';
+      doneBtn.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-xs font-black text-white';
+      doneBtn.textContent = isFr ? '✓ Fait' : '✓ تم';
+      doneBtn.addEventListener('click', async () => {
+        await S.client.from('medical_appointments').update({ status: 'done' }).eq('id', a.id);
+        loadAppts();
+      });
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-800';
+      delBtn.textContent = '🗑️';
+      delBtn.addEventListener('click', async () => {
+        await S.client.from('medical_appointments').delete().eq('id', a.id);
+        loadAppts();
+      });
+      btns.append(doneBtn, delBtn);
+      top.append(left, btns);
+      card.appendChild(top);
+      box.appendChild(card);
+    });
+  }
+
+  async function syncNativeApptAlarms() {
+    const Cap = window.Capacitor;
+    if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) return;
+    const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
+    if (!LN) return;
+    try {
+      const pend = await LN.getPending();
+      if (pend && pend.notifications && pend.notifications.length) {
+        const oldIds = pend.notifications.filter((n) => n.id >= 3000 && n.id < 4000).map((n) => ({ id: n.id }));
+        if (oldIds.length) await LN.cancel({ notifications: oldIds });
+      }
+      const toSched = [];
+      const now = Date.now();
+      appts.slice(0, 15).forEach((a, idx) => {
+        const ts = new Date(a.appt_at).getTime();
+        const m = APPT_META[a.appt_type] || APPT_META.doctor;
+        const r24 = ts - 24 * 3600000;
+        const r2 = ts - 2 * 3600000;
+        if (r24 > now + 60000) {
+          toSched.push({ id: 3000 + idx * 2, title: `📅 تذكير بموعد غداً — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call', schedule: { at: new Date(r24), allowWhileIdle: true } });
+        }
+        if (r2 > now + 60000) {
+          toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — CareGuard TN`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: 'careguard_med_call', schedule: { at: new Date(r2), allowWhileIdle: true } });
+        }
+      });
+      if (toSched.length) await LN.schedule({ notifications: toSched });
+    } catch (_) {}
   }
 
   function isMedDueNow(m) {
@@ -1031,6 +1215,8 @@
   // Wiring
   $('navHome').addEventListener('click', () => switchTab('home'));
   $('navMeds').addEventListener('click', () => switchTab('meds'));
+  $('navAppts').addEventListener('click', () => switchTab('appts'));
+  $('tileAppts').addEventListener('click', () => switchTab('appts'));
   $('navMsgs').addEventListener('click', () => switchTab('msgs'));
   $('navSet').addEventListener('click', () => switchTab('settings'));
   $('tileMeds').addEventListener('click', () => switchTab('meds'));
@@ -1216,6 +1402,32 @@
     await loadMeds();
   });
 
+  if ($('apptDateIn')) $('apptDateIn').value = S.getLocalDateStr();
+  $('addApptBtn').addEventListener('click', async () => {
+    if (!seniorId) return;
+    const isFr = S.getLang() === 'fr';
+    const title = ($('apptTitleIn').value || '').trim();
+    const dtStr = $('apptDateIn').value;
+    const tmStr = $('apptTimeIn').value || '09:00';
+    if (!title || !dtStr) return alert(isFr ? 'Entrez le titre et la date.' : 'يرجى إدخال عنوان الموعد والتاريخ.');
+    const apptIso = new Date(`${dtStr}T${tmStr}:00`).toISOString();
+    const { error } = await S.client.from('medical_appointments').insert({
+      senior_id: seniorId,
+      appt_type: $('apptTypeSel').value,
+      title,
+      location: ($('apptLocIn').value || '').trim() || null,
+      appt_at: apptIso,
+      fasting_required: !!$('apptFastingChk').checked,
+      status: 'upcoming',
+      created_by: user.id
+    });
+    if (error) return alert('⚠️ ' + error.message);
+    $('apptTitleIn').value = '';
+    $('apptLocIn').value = '';
+    $('apptFastingChk').checked = false;
+    loadAppts();
+  });
+
   $('addMedBtn').addEventListener('click', async () => {
     const nm = ($('newMedName').value || '').trim();
     if (!nm || !seniorId) return;
@@ -1396,7 +1608,7 @@
     r.readAsDataURL(f);
   });
 
-  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); });
+  $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); renderAppts(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
   $('deleteAccountBtn').addEventListener('click', async () => {
@@ -1428,7 +1640,7 @@
     user = await S.requireAuth(['senior']);
     if (!user) return;
     await ensureSenior();
-    await Promise.all([loadMeds(), loadPendingLinks(), loadVisitBanner(), refreshUnreadBadge()]);
+    await Promise.all([loadMeds(), loadAppts(), loadPendingLinks(), loadVisitBanner(), refreshUnreadBadge()]);
     if ('getBattery' in navigator) {
       navigator.getBattery().then((b) => {
         const sync = () => {

@@ -208,13 +208,14 @@
     linkedCards = await Promise.all((links || []).map(async (lk) => {
       if (lk.status !== 'approved') return { kind: 'pending', lk };
       const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
-      const [{ data: chk }, { data: bat }, { data: meds }, { data: logs }, { data: alerts }, { data: dms }] = await Promise.all([
+      const [{ data: chk }, { data: bat }, { data: meds }, { data: logs }, { data: alerts }, { data: dms }, { data: appts }] = await Promise.all([
         S.client.from('safety_checkins').select('checked_in_at').eq('senior_id', sp.id).order('checked_in_at', { ascending: false }).limit(1),
         (async () => { let r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('created_at', { ascending: false }).limit(1); if (r.error || !r.data || !r.data.length) r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).order('recorded_at', { ascending: false }).limit(1); if (r.error) r = await S.client.from('device_status').select('battery_percent').eq('senior_id', sp.id).limit(200); return r; })(),
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
         S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
-        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(1)
+        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(1),
+        S.client.from('medical_appointments').select('id, appt_type, title, location, appt_at, fasting_required').eq('senior_id', sp.id).eq('status', 'upcoming').gte('appt_at', new Date(Date.now() - 2 * 3600000).toISOString()).order('appt_at', { ascending: true }).limit(10)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
       const takenTimeMap = new Map();
@@ -233,6 +234,7 @@
         takenTimeMap,
         water: sp.water_date === todayStr ? (sp.water_count || 0) : 0,
         alerts: alerts || [],
+        appts: appts || [],
         lastDm: dms && dms[0] ? dms[0] : null
       };
     }));
@@ -262,7 +264,7 @@
         box.appendChild(pend);
         return;
       }
-      const { sp, lastChk, batPct, meds, takenSet, takenTimeMap, water, alerts, lastDm } = item;
+      const { sp, lastChk, batPct, meds, takenSet, takenTimeMap, water, alerts, appts, lastDm } = item;
       totalAlerts += alerts.length;
 
       // Alerts tab items
@@ -347,6 +349,31 @@
         });
         det.appendChild(mWrap);
         card.appendChild(det);
+      }
+
+      if (appts && appts.length) {
+        const aDet = document.createElement('details');
+        aDet.className = 'rounded-2xl bg-[#F4F1FC] border border-[#D4CBEB] px-3 py-2.5';
+        const aSum = document.createElement('summary');
+        aSum.className = 'cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-indigo-950';
+        const aL = document.createElement('span');
+        aL.textContent = isFr ? `📅 Rendez-vous médicaux (${appts.length})` : `📅 المواعيد الطبية القادمة (${appts.length})`;
+        const aR = document.createElement('span');
+        aR.className = 'text-[11px] text-indigo-700';
+        aR.textContent = isFr ? 'Voir ▾' : 'عرض ▾';
+        aSum.append(aL, aR);
+        aDet.appendChild(aSum);
+        const aWrap = document.createElement('div');
+        aWrap.className = 'mt-2 pt-2 border-t border-[#D4CBEB] space-y-1.5 text-xs font-bold text-[#163024]';
+        appts.forEach((ap) => {
+          const dt = new Date(ap.appt_at);
+          const row = document.createElement('div');
+          row.className = 'border-b border-[#E4DDF5] pb-1 last:border-0 last:pb-0';
+          row.textContent = `📅 ${ap.title} — ${dt.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` + (ap.location ? ` (${ap.location})` : '') + (ap.fasting_required ? (isFr ? ' • À jeun' : ' • صائم') : '');
+          aWrap.appendChild(row);
+        });
+        aDet.appendChild(aWrap);
+        card.appendChild(aDet);
       }
 
       const seenTs = Number(localStorage.getItem('cg_v2_fam_seen_' + sp.id) || 0);
