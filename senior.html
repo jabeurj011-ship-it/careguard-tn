@@ -26,12 +26,12 @@
       </div>
       <div>
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">CareGuard</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.1-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.6-TN</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button id="openMyReqsBtn" type="button" class="tap-btn flex h-10 w-10 items-center justify-center rounded-full border border-[#E8DFCE] bg-[#FFFDF8] text-base shadow-sm" title="طلباتي">📋</button>
-      <button id="openProfileBtn" type="button" class="tap-btn flex h-10 w-10 items-center justify-center rounded-full border border-[#E8DFCE] bg-[#FFFDF8] text-base shadow-sm" title="بياناتي">👤</button>
+      <button id="openMyReqsBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">📋 طلباتي</button>
+      <button id="openProfileBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">👤 بياناتي</button>
       <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
     </div>
   </div>
@@ -74,6 +74,14 @@
     </div>
     <div id="checkInFeedback" class="hidden rounded-2xl border border-[#B8D8C2] bg-[#E9F5EC] px-4 py-2.5 text-center text-xs font-black text-[#0E5A3E]"></div>
 
+    <!-- Quick Due-Medication Alert on Home Screen -->
+    <div id="homeDueMedBanner" class="hidden rounded-3xl border-2 border-amber-400 bg-amber-50 p-3.5 shadow-sm flex items-center justify-between gap-2">
+      <div class="min-w-0 flex-1">
+        <p id="homeDueMedTxt" class="text-sm font-black text-amber-950 break-words"></p>
+      </div>
+      <button id="homeDueTakeBtn" type="button" class="tap-btn shrink-0 rounded-2xl bg-[#0E5A3E] px-3.5 py-2 text-xs font-black text-white shadow">✓ أخذته</button>
+    </div>
+
     <!-- 2x2 Illustrated Home Tiles -->
     <div class="grid grid-cols-2 gap-3.5">
       <button id="tileMeds" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#CFE4CC] bg-gradient-to-b from-[#F4FAF2] to-[#E5F2E2] p-4 text-center shadow-sm min-h-[150px]">
@@ -94,7 +102,8 @@
         <p id="tileNurseSub" class="text-xs font-extrabold text-[#3C5044]">أقرب ممرض متاح</p>
       </button>
 
-      <button id="tileMsgs" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#C4E4E0] bg-gradient-to-b from-[#EFFAF8] to-[#DFF2F0] p-4 text-center shadow-sm min-h-[150px]">
+      <button id="tileMsgs" type="button" class="tap-btn relative flex flex-col items-center justify-center rounded-[26px] border border-[#C4E4E0] bg-gradient-to-b from-[#EFFAF8] to-[#DFF2F0] p-4 text-center shadow-sm min-h-[150px]">
+        <span id="tileMsgsBadge" class="hidden absolute top-3 left-3 rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-black text-white animate-pulse">جديدة</span>
         <span class="text-4xl mb-1.5">💬</span>
         <h3 id="tileMsgsLbl" class="text-lg font-black text-[#163024]">الرسائل</h3>
         <p id="tileMsgsSub" class="text-xs font-bold text-teal-900">العائلة والممرض</p>
@@ -177,6 +186,15 @@
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
       </div>
       <button id="deleteAccountBtn" type="button" class="tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800">🗑️ حذف بياناتي وحسابي نهائياً</button>
+    </div>
+
+    <div class="cg-card p-4 text-center space-y-2">
+      <p id="setQrTitle" class="text-sm font-black text-[#0E5A3E]">📷 شارك تطبيق CareGuard TN عبر QR Code</p>
+      <p id="setQrSub" class="text-[11px] font-bold text-[#5C6F63]">امسح الكود بهاتف آخر لفتح التطبيق مباشرة</p>
+      <div class="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-[#DFD5C5] bg-white p-3 shadow-sm">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fjabeurj011-ship-it.github.io%2Fcareguard-tn%2F" alt="QR Code CareGuard TN" loading="lazy" class="h-36 w-36 rounded-lg" />
+        <span class="text-[10px] font-bold text-[#5C6F63]" dir="ltr">jabeurj011-ship-it.github.io/careguard-tn</span>
+      </div>
     </div>
   </section>
 </main>
@@ -357,7 +375,7 @@
     $('navMeds').className = 'flex flex-col items-center gap-0.5 ' + (t === 'meds' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
     $('navMsgs').className = 'flex flex-col items-center gap-0.5 ' + (t === 'msgs' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
     $('navSet').className = 'flex flex-col items-center gap-0.5 ' + (t === 'settings' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    if (t === 'msgs') loadDirectMessages();
+    if (t === 'msgs') { loadDirectMessages(); if (seniorId && user) S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', seniorId).neq('sender_user_id', user.id).is('read_at', null).then(() => refreshUnreadBadge()).catch(() => {}); }
   }
 
   function applyTexts() {
@@ -377,6 +395,29 @@
     $('navSetLbl').textContent = isFr ? 'Paramètres' : 'الإعدادات';
     $('fnBcTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
     $('fnBcSub').textContent = isFr ? 'Envoyé à tous — le 1er qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
+    $('openMyReqsBtn').textContent = isFr ? '📋 Demandes' : '📋 طلباتي';
+    $('openProfileBtn').textContent = isFr ? '👤 Profil' : '👤 بياناتي';
+    $('medsHeading').textContent = isFr ? '💊 Programme des médicaments' : '💊 جدول الأدوية اليومي';
+    $('addMedBtn').textContent = isFr ? '+ Ajouter' : '+ إضافة دواء';
+    $('rxPhotoLbl').textContent = isFr ? '📷 Importer depuis une photo d\'ordonnance' : '📷 إضافة الأدوية من صورة الوصفة أو العلبة';
+    $('rxAnalyzeBtn').textContent = isFr ? '✨ Lire avec l\'IA' : '✨ قراءة الأدوية بالذكاء الاصطناعي';
+    $('rxSaveAllBtn').textContent = isFr ? '✓ Enregistrer la sélection' : '✓ حفظ الأدوية المحددة في الجدول';
+    $('chFamBtn').textContent = isFr ? '💚 Famille' : '💚 العائلة';
+    $('chNurseBtn').textContent = isFr ? '🩺 Infirmier' : '🩺 الممرض';
+    $('dmInput').placeholder = isFr ? 'Écrivez votre message ici...' : 'اكتب رسالتك هنا...';
+    $('dmSendBtn').textContent = isFr ? 'Envoyer' : 'إرسال';
+    $('setHeading').textContent = isFr ? '⚙️ Paramètres, Eau & Alertes' : '⚙️ الإعدادات والماء والتنبيهات';
+    $('waterLbl').textContent = isFr ? 'Eau bue aujourd\'hui' : 'شرب الماء اليوم';
+    $('testVoiceBtn').textContent = isFr ? '🔊 Tester le rappel vocal' : '🔊 تجربة التذكير الصوتي';
+    $('ringtoneBtn').textContent = isFr ? '🔔 Sonnerie d\'alerte' : '🔔 نغمة التنبيه';
+    $('testNativeCallAlarmBtn').textContent = isFr ? '📞 Tester l\'appel médicament (5s)' : '📞 تجربة منبّه «مكالمة الدواء» بعد 5 ثوانٍ';
+    $('editProfSetBtn').textContent = isFr ? '👤 Modifier profil & photo' : '👤 تحديث معلومات المسنّ والصورة';
+    $('exportReportBtn').textContent = isFr ? '📥 Exporter le bilan santé (PDF)' : '📥 تصدير التقرير الصحي (PDF / HTML)';
+    $('switchRoleBtn').textContent = isFr ? '🔄 Changer de rôle' : '🔄 تغيير الدور';
+    $('signOutBtn').textContent = isFr ? '🚪 Déconnexion' : '🚪 تسجيل الخروج';
+    $('deleteAccountBtn').textContent = isFr ? '🗑️ Supprimer mes données' : '🗑️ حذف بياناتي وحسابي نهائياً';
+    $('setQrTitle').textContent = isFr ? '📷 Partager CareGuard TN par QR Code' : '📷 شارك تطبيق CareGuard TN عبر QR Code';
+    $('setQrSub').textContent = isFr ? 'Scannez avec un autre téléphone pour ouvrir l\'app' : 'امسح الكود بهاتف آخر لفتح التطبيق مباشرة';
     const opts = $('fnGenderSel').options;
     if (opts && opts.length >= 3) {
       opts[0].textContent = isFr ? '🤝 Peu importe (Homme ou Femme)' : '🤝 لا يهم (ممرض أو ممرضة)';
@@ -490,6 +531,17 @@
     const isFr = S.getLang() === 'fr';
     const takenCount = meds.filter((m) => takenMap.has(m.id)).length;
     $('tileMedsSub').textContent = isFr ? `${takenCount} / ${meds.length} doses` : `${takenCount} / ${meds.length} جرعة`;
+    const dueNowList = meds.filter((m) => !takenMap.has(m.id) && isMedDueNow(m));
+    const dueBanner = $('homeDueMedBanner');
+    if (dueBanner) {
+      if (dueNowList.length) {
+        $('homeDueMedTxt').textContent = (isFr ? '💊 À prendre maintenant : ' : '💊 حان وقت الدواء : ') + dueNowList.map((x) => x.name).join(' + ');
+        $('homeDueTakeBtn').textContent = isFr ? '✓ Pris' : '✓ أخذته';
+        dueBanner.classList.remove('hidden');
+      } else {
+        dueBanner.classList.add('hidden');
+      }
+    }
     const box = $('medsList');
     box.replaceChildren();
     if (!meds.length) {
@@ -1261,10 +1313,56 @@
     $('profileModal').classList.add('hidden');
   });
 
+  $('homeDueTakeBtn').addEventListener('click', async () => {
+    const dueNowList = meds.filter((m) => !takenMap.has(m.id) && isMedDueNow(m));
+    if (!dueNowList.length || !seniorId) return;
+    const nowIso = new Date().toISOString();
+    const rows = dueNowList.map((m) => { takenMap.set(m.id, nowIso); return { medication_id: m.id, senior_id: seniorId, status: 'taken' }; });
+    renderMeds();
+    try { await S.client.from('medication_logs').insert(rows); } catch (_) {}
+  });
+
+  async function refreshUnreadBadge() {
+    if (!seniorId || !user) return;
+    try {
+      const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await S.client.from('care_direct_messages')
+        .select('id')
+        .eq('senior_id', seniorId)
+        .neq('sender_user_id', user.id)
+        .is('read_at', null)
+        .gte('created_at', since24h)
+        .limit(5);
+      const hasUnread = !!(data && data.length);
+      if ($('tileMsgsBadge')) $('tileMsgsBadge').classList.toggle('hidden', !hasUnread);
+    } catch (_) {}
+  }
+
   $('sendSosBtn').addEventListener('click', async () => {
-    const msg = `🚨 استغاثة عاجلة (SOS) من ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'}`;
-    await S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'sos', severity: 'critical', status: 'open', message: msg });
-    $('sosMsg').textContent = '✅ تم إرسال الاستغاثة إلى العائلة والممرض!';
+    const btn = $('sendSosBtn');
+    btn.disabled = true;
+    let lat = seniorProfile && seniorProfile.home_lat;
+    let lng = seniorProfile && seniorProfile.home_lng;
+    if (navigator.geolocation) {
+      await new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { lat = pos.coords.latitude; lng = pos.coords.longitude; resolve(); },
+          () => resolve(),
+          { enableHighAccuracy: true, timeout: 3000 }
+        );
+      });
+    }
+    const mapLink = (lat && lng) ? ` — الموقع: https://www.google.com/maps?q=${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}` : '';
+    const msg = `🚨 استغاثة عاجلة (SOS) من ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'}${mapLink}`;
+    await Promise.allSettled([
+      S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'sos', severity: 'critical', status: 'open', message: msg }),
+      S.client.from('care_direct_messages').insert([
+        { senior_id: seniorId, sender_user_id: user.id, sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ', sender_role: 'senior', channel: 'family', message_text: msg },
+        { senior_id: seniorId, sender_user_id: user.id, sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ', sender_role: 'senior', channel: 'nurse', message_text: msg }
+      ])
+    ]);
+    btn.disabled = false;
+    $('sosMsg').textContent = S.getLang() === 'fr' ? '✅ SOS envoyé avec votre position GPS !' : '✅ تم إرسال الاستغاثة مع موقعك إلى العائلة والممرض!';
     $('sosMsg').classList.remove('hidden');
   });
 
@@ -1330,7 +1428,7 @@
     user = await S.requireAuth(['senior']);
     if (!user) return;
     await ensureSenior();
-    await Promise.all([loadMeds(), loadPendingLinks(), loadVisitBanner()]);
+    await Promise.all([loadMeds(), loadPendingLinks(), loadVisitBanner(), refreshUnreadBadge()]);
     if ('getBattery' in navigator) {
       navigator.getBattery().then((b) => {
         const sync = () => {
@@ -1344,7 +1442,7 @@
     setInterval(checkDueMeds, 15000);
     S.client.channel('cg-v2-senior-' + user.id)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nurse_visit_requests', filter: 'requester_user_id=eq.' + user.id }, () => { S.playStrongRingtone(); loadVisitBanner(); })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); loadDirectMessages(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); loadDirectMessages(); refreshUnreadBadge(); })
       .subscribe();
   })();
 })();
