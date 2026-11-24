@@ -192,6 +192,7 @@
         <span id="apptFastingLbl">🍽️ يتطلب صياماً قبل الموعد (تحليل على الريق)</span>
       </label>
       <button id="addApptBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white">+ حفظ الموعد الطبي</button>
+      <p id="apptSaveMsg" class="hidden text-center text-xs font-extrabold"></p>
     </div>
     <div id="apptsList" class="space-y-2.5"></div>
   </section>
@@ -602,7 +603,8 @@
   function renderAppts() {
     const isFr = S.getLang() === 'fr';
     const now = Date.now();
-    const upcoming = appts.filter((a) => new Date(a.appt_at).getTime() >= now - 2 * 3600000);
+    const todayStartMs = new Date(S.getLocalDayStartIso()).getTime();
+    const upcoming = appts.filter((a) => new Date(a.appt_at).getTime() >= todayStartMs);
     if ($('tileApptsCount')) $('tileApptsCount').textContent = String(upcoming.length);
     if ($('tileApptsSub')) {
       if (upcoming[0]) {
@@ -1402,14 +1404,32 @@
     await loadMeds();
   });
 
-  if ($('apptDateIn')) $('apptDateIn').value = S.getLocalDateStr();
+  if ($('apptDateIn')) {
+    const defD = new Date();
+    if (defD.getHours() >= 18) defD.setDate(defD.getDate() + 1);
+    $('apptDateIn').value = S.getLocalDateStr(defD);
+  }
   $('addApptBtn').addEventListener('click', async () => {
-    if (!seniorId) return;
     const isFr = S.getLang() === 'fr';
-    const title = ($('apptTitleIn').value || '').trim();
+    const msgEl = $('apptSaveMsg');
+    if (!seniorId) {
+      if (msgEl) {
+        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.textContent = isFr ? '⏳ Chargement du profil...' : '⏳ جاري تحميل ملف المسنّ، حاول بعد لحظة.';
+        msgEl.classList.remove('hidden');
+      }
+      return;
+    }
+    const apptType = $('apptTypeSel').value;
+    const typeMeta = APPT_META[apptType] || APPT_META.doctor;
+    const title = ($('apptTitleIn').value || '').trim() || (isFr ? typeMeta.fr : typeMeta.ar);
     const dtStr = $('apptDateIn').value;
     const tmStr = $('apptTimeIn').value || '09:00';
-    if (!title || !dtStr) return alert(isFr ? 'Entrez le titre et la date.' : 'يرجى إدخال عنوان الموعد والتاريخ.');
+    if (!dtStr) return alert(isFr ? 'Choisissez la date du rendez-vous.' : 'يرجى اختيار تاريخ الموعد.');
+    const btn = $('addApptBtn');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = isFr ? '⏳ Enregistrement...' : '⏳ جاري الحفظ...';
     const apptIso = new Date(`${dtStr}T${tmStr}:00`).toISOString();
     const { error } = await S.client.from('medical_appointments').insert({
       senior_id: seniorId,
@@ -1421,11 +1441,26 @@
       status: 'upcoming',
       created_by: user.id
     });
-    if (error) return alert('⚠️ ' + error.message);
+    btn.disabled = false;
+    btn.textContent = orig;
+    if (error) {
+      if (msgEl) {
+        msgEl.className = 'text-center text-xs font-extrabold text-rose-800';
+        msgEl.textContent = '⚠️ ' + error.message;
+        msgEl.classList.remove('hidden');
+      }
+      return alert('⚠️ ' + error.message);
+    }
     $('apptTitleIn').value = '';
     $('apptLocIn').value = '';
     $('apptFastingChk').checked = false;
-    loadAppts();
+    if (msgEl) {
+      msgEl.className = 'text-center text-xs font-extrabold text-[#0E5A3E]';
+      msgEl.textContent = isFr ? '✅ Rendez-vous enregistré !' : '✅ تم حفظ الموعد الطبي بنجاح!';
+      msgEl.classList.remove('hidden');
+      setTimeout(() => msgEl.classList.add('hidden'), 3500);
+    }
+    await loadAppts();
   });
 
   $('addMedBtn').addEventListener('click', async () => {
