@@ -37,14 +37,15 @@ jobs:
         run: |
           npm install
           npm run prepare:www
-          curl -fsSL https://cdn.tailwindcss.com/3.4.17 -o www/tailwind.js
-          python3 - <<'PYEOF'
-          from pathlib import Path
-          for f in Path('www').glob('*.html'):
-              s = f.read_text(encoding='utf-8')
-              if 'https://cdn.tailwindcss.com/3.4.17' in s:
-                  f.write_text(s.replace('https://cdn.tailwindcss.com/3.4.17', './tailwind.js'), encoding='utf-8')
-          PYEOF
+          if curl -fsSL -A "Mozilla/5.0" https://cdn.tailwindcss.com/3.4.17 -o www/tailwind.js && [ -s www/tailwind.js ]; then
+            python3 - <<'PYEOF'
+            from pathlib import Path
+            for f in Path('www').glob('*.html'):
+                s = f.read_text(encoding='utf-8')
+                if 'https://cdn.tailwindcss.com/3.4.17' in s:
+                    f.write_text(s.replace('https://cdn.tailwindcss.com/3.4.17', './tailwind.js'), encoding='utf-8')
+            PYEOF
+          fi
 
       - name: Set Android appName to SoinsDar
         run: |
@@ -159,25 +160,25 @@ jobs:
           if [ -n "$REL_KS_B64" ] && [ -n "$REL_ALIAS" ] && [ -n "$REL_STORE_PASS" ] && [ -n "$REL_KEY_PASS" ]; then
             echo "$REL_KS_B64" | base64 -d > android/app/soinsdar-release.jks
             python3 - <<'PYEOF'
-          from pathlib import Path
-          import os, re
-          bg = Path('android/app/build.gradle')
-          s = bg.read_text()
-          signing_blk = """
-    signingConfigs {
-        release {
-            storeFile file('soinsdar-release.jks')
-            storePassword System.getenv('REL_STORE_PASS')
-            keyAlias System.getenv('REL_ALIAS')
-            keyPassword System.getenv('REL_KEY_PASS')
-        }
-    }
-    buildTypes {"""
-          s = s.replace('    buildTypes {', signing_blk, 1)
-          s = re.sub(r'(release\s*\{)', r'\1
-            signingConfig signingConfigs.release', s, count=1)
-          bg.write_text(s)
-          PYEOF
+            from pathlib import Path
+            import re
+            bg = Path('android/app/build.gradle')
+            s = bg.read_text()
+            signing_blk = (
+                '    signingConfigs {\n'
+                '        release {\n'
+                '            storeFile file("soinsdar-release.jks")\n'
+                '            storePassword System.getenv("REL_STORE_PASS")\n'
+                '            keyAlias System.getenv("REL_ALIAS")\n'
+                '            keyPassword System.getenv("REL_KEY_PASS")\n'
+                '        }\n'
+                '    }\n'
+                '    buildTypes {'
+            )
+            s = s.replace('    buildTypes {', signing_blk, 1)
+            s = re.sub(r'(release\s*\{)', '\\1\n            signingConfig signingConfigs.release', s, count=1)
+            bg.write_text(s)
+            PYEOF
             cd android
             chmod +x gradlew
             ./gradlew assembleRelease
