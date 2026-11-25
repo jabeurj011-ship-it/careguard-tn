@@ -1,4 +1,4 @@
-name: Build CareGuard TN Android APK
+name: Build SoinsDar Android APK
 
 on:
   workflow_dispatch:
@@ -37,6 +37,18 @@ jobs:
         run: |
           npm install
           npm run prepare:www
+
+      - name: Set Android appName to SoinsDar
+        run: |
+          python3 - <<'EOF'
+          import json
+          from pathlib import Path
+          p = Path('capacitor.config.json')
+          if p.exists():
+              d = json.loads(p.read_text())
+              d['appName'] = 'SoinsDar'
+              p.write_text(json.dumps(d, ensure_ascii=False, indent=2))
+          EOF
 
       - name: Add Android platform & sync
         run: |
@@ -124,7 +136,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: CareGuard TN — نسخة أندرويد الرسمية (APK)
-          body: تحميل مباشر لتطبيق CareGuard TN للأندرويد.
+          name: SoinsDar — نسخة أندرويد الرسمية (APK)
+          body: تحميل مباشر لتطبيق SoinsDar للأندرويد.
           files: careguard-tn.apk
           make_latest: true
