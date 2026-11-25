@@ -30,8 +30,8 @@
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button id="openMyReqsBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">📋 طلباتي</button>
-      <button id="openProfileBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">👤 بياناتي</button>
+      <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
+      <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
       <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
     </div>
   </div>
@@ -85,26 +85,26 @@
     <!-- 2x2 Illustrated Home Tiles -->
     <div class="grid grid-cols-2 gap-3.5">
       <button id="tileMeds" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#CFE4CC] bg-gradient-to-b from-[#F4FAF2] to-[#E5F2E2] p-4 text-center shadow-sm min-h-[150px]">
-        <span class="text-4xl mb-1.5">💊</span>
+        <span class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0E5A3E] text-white shadow-sm"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.5 20.5L20.5 10.5a4.95 4.95 0 00-7-7L3.5 13.5a4.95 4.95 0 007 7z"/><path d="M8.5 8.5l7 7"/></svg></span>
         <h3 id="tileMedsLbl" class="text-lg font-black text-[#163024]">الأدوية</h3>
         <p id="tileMedsSub" class="text-xs font-extrabold text-[#0E5A3E]">0 / 0 جرعة</p>
       </button>
 
       <button id="tileSos" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#F3CECE] bg-gradient-to-b from-[#FFF5F5] to-[#FBE4E4] p-4 text-center shadow-sm min-h-[150px]">
-        <span class="text-4xl mb-1.5">🚨</span>
+        <span class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-sm"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
         <h3 id="tileSosLbl" class="text-lg font-black text-rose-900">الطوارئ</h3>
         <p id="tileSosSub" class="text-xs font-bold text-rose-700">اتصال سريع وSOS</p>
       </button>
 
       <button id="tileFindNurse" type="button" class="tap-btn flex flex-col items-center justify-center rounded-[26px] border border-[#BFDDC9] bg-gradient-to-b from-[#F2FBF5] to-[#DEF3E6] p-4 text-center shadow-sm min-h-[150px]">
-        <span class="text-4xl mb-1.5">🩺</span>
+        <span class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-700 text-white shadow-sm"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg></span>
         <h3 id="tileNurseLbl" class="text-lg font-black text-[#0E5A3E]">طلب ممرض</h3>
         <p id="tileNurseSub" class="text-xs font-extrabold text-[#3C5044]">أقرب ممرض متاح</p>
       </button>
 
       <button id="tileMsgs" type="button" class="tap-btn relative flex flex-col items-center justify-center rounded-[26px] border border-[#C4E4E0] bg-gradient-to-b from-[#EFFAF8] to-[#DFF2F0] p-4 text-center shadow-sm min-h-[150px]">
         <span id="tileMsgsBadge" class="hidden absolute top-3 left-3 rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-black text-white animate-pulse">جديدة</span>
-        <span class="text-4xl mb-1.5">💬</span>
+        <span class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-700 text-white shadow-sm"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M21 11.5a8.5 8.5 0 01-12.5 7.5L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg></span>
         <h3 id="tileMsgsLbl" class="text-lg font-black text-[#163024]">الرسائل</h3>
         <p id="tileMsgsSub" class="text-xs font-bold text-teal-900">العائلة والممرض</p>
       </button>
@@ -113,7 +113,7 @@
     <!-- Wide Home Tile: Medical Appointments & Tests -->
     <button id="tileAppts" type="button" class="tap-btn flex w-full items-center justify-between gap-3 rounded-[24px] border border-[#D4CBEB] bg-gradient-to-l from-[#F6F3FD] to-[#ECE6FA] px-4 py-3.5 text-start shadow-sm">
       <div class="flex items-center gap-3 min-w-0">
-        <span class="text-3xl shrink-0">📅</span>
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-700 text-white shadow-sm"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
         <div class="min-w-0">
           <h3 id="tileApptsLbl" class="text-base font-black text-indigo-950">المواعيد الطبية والفحوصات</h3>
           <p id="tileApptsSub" class="text-xs font-bold text-indigo-800 truncate">عيادة، تحاليل، أشعة، تخطيط قلب...</p>
@@ -247,11 +247,11 @@
 <!-- Bottom Navigation (Senior Only) -->
 <nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
   <div class="mx-auto grid max-w-xl grid-cols-5 py-2 text-center text-[11px] font-black">
-    <button id="navHome" type="button" class="flex flex-col items-center gap-0.5 text-[#0E5A3E]"><span class="text-lg">🏠</span><span id="navHomeLbl">الرئيسية</span></button>
-    <button id="navMeds" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">💊</span><span id="navMedsLbl">الأدوية</span></button>
-    <button id="navAppts" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">📅</span><span id="navApptsLbl">المواعيد</span></button>
-    <button id="navMsgs" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">💬</span><span id="navMsgsLbl">الرسائل</span></button>
-    <button id="navSet" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]"><span class="text-lg">⚙️</span><span id="navSetLbl">الإعدادات</span></button>
+    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg><span id="navHomeLbl">الرئيسية</span></button>
+    <button id="navMeds" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.5 20.5L20.5 10.5a4.95 4.95 0 00-7-7L3.5 13.5a4.95 4.95 0 007 7z"/><path d="M8.5 8.5l7 7"/></svg><span id="navMedsLbl">الأدوية</span></button>
+    <button id="navAppts" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span id="navApptsLbl">المواعيد</span></button>
+    <button id="navMsgs" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M21 11.5a8.5 8.5 0 01-12.5 7.5L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg><span id="navMsgsLbl">الرسائل</span></button>
+    <button id="navSet" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span id="navSetLbl">الإعدادات</span></button>
   </div>
 </nav>
 
@@ -469,8 +469,8 @@
     $('navSetLbl').textContent = isFr ? 'Paramètres' : 'الإعدادات';
     $('fnBcTitle').textContent = isFr ? '⚡ 1er infirmier disponible' : '⚡ طلب أقرب ممرض متاح الآن';
     $('fnBcSub').textContent = isFr ? 'Envoyé à tous — le 1er qui accepte vient' : 'يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك';
-    $('openMyReqsBtn').textContent = isFr ? '📋 Demandes' : '📋 طلباتي';
-    $('openProfileBtn').textContent = isFr ? '👤 Profil' : '👤 بياناتي';
+    if ($('openMyReqsBtn').lastElementChild) $('openMyReqsBtn').lastElementChild.textContent = isFr ? 'Demandes' : 'طلباتي';
+    if ($('openProfileBtn').lastElementChild) $('openProfileBtn').lastElementChild.textContent = isFr ? 'Profil' : 'بياناتي';
     $('medsHeading').textContent = isFr ? '💊 Programme des médicaments' : '💊 جدول الأدوية اليومي';
     $('addMedBtn').textContent = isFr ? '+ Ajouter' : '+ إضافة دواء';
     $('rxPhotoLbl').textContent = isFr ? '📷 Importer depuis une photo d\'ordonnance' : '📷 إضافة الأدوية من صورة الوصفة أو العلبة';
@@ -714,13 +714,13 @@
         const r24 = ts - 24 * 3600000;
         const r2 = ts - 2 * 3600000;
         if (ts > now + 10000) {
-          toSched.push({ id: 3500 + idx, title: `📞 حان وقت موعدك الطبي — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call', schedule: { at: new Date(ts), allowWhileIdle: true }, extra: { kind: 'appt', apptId: a.id, apptTitle: a.title, apptType: a.appt_type, apptLoc: a.location || '', apptAt: a.appt_at, fasting: !!a.fasting_required } });
+          toSched.push({ id: 3500 + idx, title: `📞 حان وقت موعدك الطبي — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call_v2', schedule: { at: new Date(ts), allowWhileIdle: true }, extra: { kind: 'appt', apptId: a.id, apptTitle: a.title, apptType: a.appt_type, apptLoc: a.location || '', apptAt: a.appt_at, fasting: !!a.fasting_required } });
         }
         if (r24 > now + 60000) {
-          toSched.push({ id: 3000 + idx * 2, title: `📅 تذكير بموعد غداً — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call', schedule: { at: new Date(r24), allowWhileIdle: true } });
+          toSched.push({ id: 3000 + idx * 2, title: `📅 تذكير بموعد غداً — CareGuard TN`, body: `${m.icon} ${a.title}`, channelId: 'careguard_med_call_v2', schedule: { at: new Date(r24), allowWhileIdle: true } });
         }
         if (r2 > now + 60000) {
-          toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — CareGuard TN`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: 'careguard_med_call', schedule: { at: new Date(r2), allowWhileIdle: true } });
+          toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — CareGuard TN`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: 'careguard_med_call_v2', schedule: { at: new Date(r2), allowWhileIdle: true } });
         }
       });
       if (toSched.length) await LN.schedule({ notifications: toSched });
@@ -831,13 +831,13 @@
         nativeAlarmReady = true;
         try {
           await LN.createChannel({
-            id: 'careguard_med_call',
+            id: 'careguard_med_call_v2',
             name: 'منبّه مكالمة الدواء',
             description: 'تنبيه عاجل بموعد الدواء برنين عالٍ',
             importance: 5,
             visibility: 1,
             vibration: true,
-            sound: 'default'
+            sound: 'careguard_ringtone'
           });
         } catch (_) {}
         LN.addListener('localNotificationActionPerformed', (ev) => {
@@ -871,7 +871,7 @@
           id: 2000 + i,
           title: '📞 حان وقت الدواء — CareGuard TN',
           body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
-          channelId: 'careguard_med_call',
+          channelId: 'careguard_med_call_v2',
           schedule: { on: { hour: h, minute: mn }, allowWhileIdle: true, repeats: true },
           extra: { medId: m.id, medName: m.name || 'الدواء', medTime: m.dosage || '' }
         });
@@ -892,7 +892,7 @@
             id: 2999,
             title: '📞 مكالمة تذكير بالدواء — CareGuard TN',
             body: 'تجربة منبّه الدواء — اضغط لفتح شاشة التأكيد',
-            channelId: 'careguard_med_call',
+            channelId: 'careguard_med_call_v2',
             schedule: { at: new Date(Date.now() + 5000), allowWhileIdle: true },
             extra: { medName: 'تجربة الدواء (Doliprane 1000)', medTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
           }]
@@ -1778,10 +1778,29 @@
       navigator.getBattery().then((b) => {
         const sync = () => {
           const pct = Math.round(b.level * 100);
-          $('heroBatPill').textContent = `🔋 ${pct}%`;
-          if (seniorId) try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: !!b.charging })).catch(() => {}); } catch (_) {}
+          const isChg = !!b.charging;
+          $('heroBatPill').textContent = `${isChg ? '⚡' : '🔋'} ${pct}%`;
+          $('heroBatPill').className = (pct <= 20 && !isChg)
+            ? 'rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-black text-rose-800 animate-pulse'
+            : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]';
+          if (seniorId) {
+            try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: isChg })).catch(() => {}); } catch (_) {}
+            if (pct <= 20 && !isChg) {
+              const batKey = 'cg_v2_lowbat_at_' + seniorId;
+              const lastAt = Number(localStorage.getItem(batKey) || 0);
+              if (Date.now() - lastAt > 2 * 3600000) {
+                try { localStorage.setItem(batKey, String(Date.now())); } catch (_) {}
+                const batMsg = S.getLang() === 'fr'
+                  ? `🔋 Batterie faible (${pct}%) pour ${(seniorProfile && seniorProfile.display_name) || 'Senior'} — pensez à charger le téléphone`
+                  : `🔋 بطارية هاتف ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'} منخفضة (${pct}%) — يرجى شحن الهاتف`;
+                try { Promise.resolve(S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'low_battery', severity: 'warning', status: 'open', message: batMsg })).catch(() => {}); } catch (_) {}
+              }
+            }
+          }
         };
-        sync(); b.addEventListener('levelchange', sync);
+        sync();
+        b.addEventListener('levelchange', sync);
+        b.addEventListener('chargingchange', sync);
       }).catch(() => {});
     }
     setInterval(() => { checkDueMeds(); checkDueAppts(); }, 15000);

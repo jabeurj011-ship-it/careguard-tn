@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareGuard TN — لوحة الإدارة</title>
+  <meta name="theme-color" content="#0E5A3E" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="min-h-screen pb-16">
+
+<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+  <div class="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3">
+    <div class="flex items-center gap-2.5">
+      <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0E5A3E] text-white shadow-sm">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4v5c0 5.25-3.5 9.74-8 11-4.5-1.26-8-5.75-8-11V7l8-4z"/></svg>
+      </div>
+      <div>
+        <h1 class="font-serif-brand text-xl font-extrabold leading-none text-[#0E5A3E]">لوحة الإدارة</h1>
+        <p class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • مراقبة شاملة</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="admRefreshBtn" type="button" class="tap-btn rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
+      <a href="./index.html?choose=1" class="tap-btn inline-flex items-center rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">الرئيسية</a>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-2xl space-y-4 px-4 pt-4">
+  <div id="admGuardBox" class="hidden cg-card p-6 text-center space-y-3">
+    <p class="text-base font-black text-rose-800">🔒 هذه الصفحة مخصصة لإدارة التطبيق فقط.</p>
+    <p id="admGuardEmail" class="text-xs font-bold text-[#5C6F63]"></p>
+    <a href="./index.html?choose=1" class="inline-block rounded-xl bg-[#0E5A3E] px-5 py-2.5 text-xs font-black text-white">العودة للبوابة</a>
+  </div>
+
+  <div id="admContentWrap" class="hidden space-y-4">
+    <!-- KPI Summary -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div class="cg-card p-3 text-center">
+        <div id="kpiSeniors" class="text-xl font-black text-[#0E5A3E]">0</div>
+        <div class="text-[11px] font-extrabold text-[#5C6F63]">👴 المسنّون</div>
+      </div>
+      <div class="cg-card p-3 text-center">
+        <div id="kpiNurses" class="text-xl font-black text-teal-800">0</div>
+        <div class="text-[11px] font-extrabold text-[#5C6F63]">🩺 الممرضون</div>
+      </div>
+      <div class="cg-card p-3 text-center">
+        <div id="kpiReqs" class="text-xl font-black text-indigo-800">0</div>
+        <div class="text-[11px] font-extrabold text-[#5C6F63]">📋 الطلبات</div>
+      </div>
+      <div class="cg-card p-3 text-center">
+        <div id="kpiAlerts" class="text-xl font-black text-rose-700">0</div>
+        <div class="text-[11px] font-extrabold text-[#5C6F63]">🚨 تنبيهات مفتوحة</div>
+      </div>
+    </div>
+
+    <!-- 5 Subtabs -->
+    <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1.5">
+      <button type="button" data-adm-tab="nurses" class="rounded-xl bg-[#0E5A3E] text-white py-2 text-xs font-black">🩺 الممرضون</button>
+      <button type="button" data-adm-tab="requests" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">📋 الطلبات</button>
+      <button type="button" data-adm-tab="reviews" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">⭐ التقييمات</button>
+      <button type="button" data-adm-tab="seniors" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👴 المسنّون</button>
+      <button type="button" data-adm-tab="alerts" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">🚨 التنبيهات</button>
+    </div>
+
+    <div id="admToast" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+    <div id="admList" class="space-y-2.5"></div>
+  </div>
+</main>
+
+<script src="./shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  const S = window.CG_SHARED;
+  const $ = S.$;
+  const ADMIN_EMAIL = 'jabeurj011@gmail.com';
+  let user = null;
+  let activeTab = 'nurses';
+  let dataState = { seniors: [], nurses: [], reqs: [], reviews: [], alerts: [] };
+
+  function showMsg(txt) {
+    const el = $('admToast');
+    el.textContent = txt;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 3200);
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString('ar-TN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (_) { return String(iso); }
+  }
+
+  async function loadAll() {
+    $('admList').textContent = '⏳ جاري تحميل البيانات...';
+    const [sRes, nRes, rRes, revRes, alRes] = await Promise.all([
+      S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, home_address, created_at').order('created_at', { ascending: false }).limit(200),
+      S.client.from('nurse_profiles').select('*').order('created_at', { ascending: false }).limit(200),
+      S.client.from('nurse_visit_requests').select('*').order('created_at', { ascending: false }).limit(120),
+      S.client.from('nurse_reviews').select('*').order('created_at', { ascending: false }).limit(100),
+      S.client.from('alerts').select('*').order('created_at', { ascending: false }).limit(100)
+    ]);
+    dataState.seniors = (!sRes.error && sRes.data) || [];
+    dataState.nurses = (!nRes.error && nRes.data) || [];
+    dataState.reqs = (!rRes.error && rRes.data) || [];
+    dataState.reviews = (!revRes.error && revRes.data) || [];
+    dataState.alerts = (!alRes.error && alRes.data) || [];
+
+    $('kpiSeniors').textContent = String(dataState.seniors.length);
+    $('kpiNurses').textContent = String(dataState.nurses.length);
+    $('kpiReqs').textContent = String(dataState.reqs.length);
+    $('kpiAlerts').textContent = String(dataState.alerts.filter((a) => a.status === 'open').length);
+    renderTab();
+  }
+
+  function renderTab() {
+    document.querySelectorAll('[data-adm-tab]').forEach((b) => {
+      const on = b.dataset.admTab === activeTab;
+      b.className = on ? 'rounded-xl bg-[#0E5A3E] text-white py-2 text-xs font-black' : 'rounded-xl text-[#3C5044] py-2 text-xs font-extrabold';
+    });
+
+    const box = $('admList');
+    box.replaceChildren();
+
+    if (activeTab === 'nurses') {
+      if (!dataState.nurses.length) { box.textContent = 'لا يوجد ممرضون مسجّلون بعد.'; return; }
+      dataState.nurses.forEach((n) => {
+        const isBan = !!n.is_banned;
+        const isVer = n.verification_status === 'verified';
+        const isSusp = !!(n.suspended_until && new Date(n.suspended_until).getTime() > Date.now());
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 space-y-2 ' + (isBan ? 'border-rose-300 bg-rose-50/40' : '');
+        const top = document.createElement('div');
+        top.className = 'flex items-center justify-between gap-2';
+        const nm = document.createElement('p');
+        nm.className = 'text-sm font-black text-[#163024]';
+        nm.textContent = `🩺 ${n.full_name || 'ممرض'} (${n.credential || 'IDE'})`;
+        const bdg = document.createElement('span');
+        bdg.className = isBan ? 'rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-black text-white' : (isSusp ? 'rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-white' : (isVer ? 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]' : 'rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-black text-slate-700'));
+        bdg.textContent = isBan ? 'محظور' : (isSusp ? 'معلّق' : (isVer ? '✓ موثّق' : 'قيد المراجعة'));
+        top.append(nm, bdg);
+        const meta = document.createElement('p');
+        meta.className = 'text-xs font-bold text-[#5C6F63]';
+        meta.textContent = `📍 ${S.formatGovLabel(n.region) || '—'} ${n.city_zip ? '(' + n.city_zip + ')' : ''} • 📞 ${n.phone || '—'}`;
+        const row = document.createElement('div');
+        row.className = 'flex flex-wrap gap-1.5 pt-1';
+
+        const bVer = document.createElement('button');
+        bVer.type = 'button';
+        bVer.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-[11px] font-black text-white';
+        bVer.textContent = isVer ? 'إلغاء التوثيق' : '🏅 توثيق';
+        bVer.addEventListener('click', async () => {
+          const next = isVer ? 'pending' : 'verified';
+          await S.client.from('nurse_profiles').update({ verification_status: next }).eq('user_id', n.user_id);
+          n.verification_status = next; renderTab(); showMsg('✓ تم تحديث حالة التوثيق');
+        });
+
+        const bSusp = document.createElement('button');
+        bSusp.type = 'button';
+        bSusp.className = 'rounded-xl bg-amber-100 px-2.5 py-1.5 text-[11px] font-black text-amber-950';
+        bSusp.textContent = isSusp ? 'رفع التعليق' : '⏸️ تعليق أسبوع';
+        bSusp.addEventListener('click', async () => {
+          const until = isSusp ? null : new Date(Date.now() + 7 * 86400000).toISOString();
+          await S.client.from('nurse_profiles').update({ suspended_until: until }).eq('user_id', n.user_id);
+          n.suspended_until = until; renderTab(); showMsg(until ? '⏸️ تم تعليق الممرض أسبوعاً' : '✓ تم رفع التعليق');
+        });
+
+        const bBan = document.createElement('button');
+        bBan.type = 'button';
+        bBan.className = 'rounded-xl bg-rose-100 px-2.5 py-1.5 text-[11px] font-black text-rose-900';
+        bBan.textContent = isBan ? 'فك الحظر' : '🚫 حظر';
+        bBan.addEventListener('click', async () => {
+          await S.client.from('nurse_profiles').update({ is_banned: !isBan }).eq('user_id', n.user_id);
+          n.is_banned = !isBan; renderTab(); showMsg(!isBan ? '🚫 تم حظر الممرض' : '✓ تم فك الحظر');
+        });
+
+        row.append(bVer, bSusp, bBan);
+        c.append(top, meta, row);
+        box.appendChild(c);
+      });
+      return;
+    }
+
+    if (activeTab === 'requests') {
+      if (!dataState.reqs.length) { box.textContent = 'لا توجد طلبات زيارة بعد.'; return; }
+      dataState.reqs.forEach((r) => {
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 space-y-1.5 ' + (r.discrepancy_flag ? 'border-rose-400 bg-rose-50/40' : '');
+        const top = document.createElement('div');
+        top.className = 'flex items-center justify-between gap-2 text-xs font-black';
+        const s1 = document.createElement('span');
+        s1.textContent = `📋 ${r.requester_name || 'مريض'} ← ${r.accepted_by_name || r.nurse_name || 'مفتوح'}`;
+        const s2 = document.createElement('span');
+        s2.className = 'rounded-full bg-slate-100 px-2 py-0.5 text-[10px]';
+        s2.textContent = r.status;
+        top.append(s1, s2);
+        const p = document.createElement('p');
+        p.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p.textContent = `${r.care_reason || ''} • ${S.formatGovLabel(r.region) || ''} • ${fmtDate(r.created_at)}` + (r.discrepancy_flag ? ' • ⚠️ تعارض نتيجة' : '');
+        c.append(top, p);
+        if (r.status === 'open' || r.status === 'pending' || r.status === 'accepted') {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'rounded-xl bg-rose-100 px-3 py-1 text-[11px] font-black text-rose-900';
+          btn.textContent = '✕ إغلاق الطلب';
+          btn.addEventListener('click', async () => {
+            await S.client.from('nurse_visit_requests').update({ status: 'declined' }).eq('id', r.id);
+            r.status = 'declined'; renderTab(); showMsg('✓ تم إغلاق الطلب');
+          });
+          c.appendChild(btn);
+        }
+        box.appendChild(c);
+      });
+      return;
+    }
+
+    if (activeTab === 'reviews') {
+      if (!dataState.reviews.length) { box.textContent = 'لا توجد تقييمات أو شكاوى بعد.'; return; }
+      dataState.reviews.forEach((rv) => {
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 space-y-1.5 ' + (rv.is_complaint ? 'border-rose-300 bg-rose-50/40' : '');
+        const p1 = document.createElement('p');
+        p1.className = 'text-xs font-black text-[#163024]';
+        p1.textContent = `${'⭐'.repeat(Math.max(1, Math.min(5, rv.rating || 5)))} — ${rv.reviewer_name || 'مستخدم'} ${rv.is_complaint ? '• ⚠️ شكوى' : ''}`;
+        const p2 = document.createElement('p');
+        p2.className = 'text-xs font-bold text-[#5C6F63]';
+        p2.textContent = (rv.comment || 'بدون تعليق') + ' • ' + fmtDate(rv.created_at);
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'rounded-xl bg-rose-100 px-2.5 py-1 text-[11px] font-black text-rose-900';
+        del.textContent = '🗑️ حذف التقييم';
+        del.addEventListener('click', async () => {
+          await S.client.from('nurse_reviews').delete().eq('id', rv.id);
+          dataState.reviews = dataState.reviews.filter((x) => x.id !== rv.id);
+          renderTab(); showMsg('🗑️ تم حذف التقييم');
+        });
+        c.append(p1, p2, del);
+        box.appendChild(c);
+      });
+      return;
+    }
+
+    if (activeTab === 'seniors') {
+      if (!dataState.seniors.length) { box.textContent = 'لا يوجد مسنّون مسجّلون بعد.'; return; }
+      dataState.seniors.forEach((sp) => {
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 flex items-center justify-between gap-2';
+        const d = document.createElement('div');
+        const p1 = document.createElement('p');
+        p1.className = 'text-sm font-black text-[#163024]';
+        p1.textContent = `👴 ${sp.display_name || 'مسنّ'}`;
+        const p2 = document.createElement('p');
+        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'} • ${sp.home_address || '—'}`;
+        d.append(p1, p2);
+        const dt = document.createElement('span');
+        dt.className = 'text-[10px] font-bold text-[#5C6F63] shrink-0';
+        dt.textContent = fmtDate(sp.created_at);
+        c.append(d, dt);
+        box.appendChild(c);
+      });
+      return;
+    }
+
+    if (activeTab === 'alerts') {
+      if (!dataState.alerts.length) { box.textContent = 'لا توجد تنبيهات حالياً.'; return; }
+      dataState.alerts.forEach((al) => {
+        const isOpen = al.status === 'open';
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 space-y-1.5 ' + (isOpen ? 'border-rose-300 bg-rose-50/40' : '');
+        const p1 = document.createElement('p');
+        p1.className = 'text-xs font-black text-rose-900';
+        p1.textContent = `🚨 ${al.message || al.alert_type || 'تنبيه'}`;
+        const p2 = document.createElement('p');
+        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p2.textContent = `${al.status} • ${fmtDate(al.created_at)}`;
+        c.append(p1, p2);
+        if (isOpen) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'rounded-xl bg-[#0E5A3E] px-3 py-1 text-[11px] font-black text-white';
+          b.textContent = '✓ إغلاق التنبيه';
+          b.addEventListener('click', async () => {
+            await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
+            al.status = 'resolved';
+            $('kpiAlerts').textContent = String(dataState.alerts.filter((x) => x.status === 'open').length);
+            renderTab(); showMsg('✓ تم إغلاق التنبيه');
+          });
+          c.appendChild(b);
+        }
+        box.appendChild(c);
+      });
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-adm-tab]');
+    if (btn) {
+      activeTab = btn.dataset.admTab;
+      renderTab();
+    }
+  });
+  $('admRefreshBtn').addEventListener('click', loadAll);
+
+  (async function init() {
+    user = await S.getSessionUser();
+    const email = user && user.email ? String(user.email).toLowerCase() : '';
+    if (!user || email !== ADMIN_EMAIL) {
+      $('admGuardBox').classList.remove('hidden');
+      $('admGuardEmail').textContent = email ? `الحساب الحالي: ${email}` : 'يرجى تسجيل الدخول بحساب الإدارة أولاً من البوابة.';
+      return;
+    }
+    $('admContentWrap').classList.remove('hidden');
+    await loadAll();
+  })();
+})();
+</script>
+</body>
+</html>

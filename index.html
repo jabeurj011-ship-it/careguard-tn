@@ -42,7 +42,7 @@
 
     <button id="btnSenior" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-[#0E5A3E] bg-[#EFF7F1] px-4 py-4 text-start shadow-sm">
       <div>
-        <p id="lblSeniorTitle" class="text-lg font-black text-[#0E5A3E]">👴 أنا كبير السنّ</p>
+        <div class="flex items-center gap-2"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0E5A3E] text-white"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0112 6.5 5.5 5.5 0 0121.5 12C19 16.5 12 21 12 21z"/></svg></span><p id="lblSeniorTitle" class="text-lg font-black text-[#0E5A3E]">أنا كبير السنّ</p></div>
         <p id="lblSeniorSub" class="text-xs font-bold text-[#3C5044]">الأدوية، الطوارئ، طلب ممرض والرسائل</p>
       </div>
       <span class="text-2xl font-black text-[#0E5A3E]">›</span>
@@ -50,7 +50,7 @@
 
     <button id="btnFamily" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-sky-200 bg-sky-50 px-4 py-3.5 text-start shadow-sm">
       <div>
-        <p id="lblFamilyTitle" class="text-base font-black text-sky-950">👨‍👩‍👧 العائلة</p>
+        <div class="flex items-center gap-2"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-700 text-white"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><p id="lblFamilyTitle" class="text-base font-black text-sky-950">العائلة</p></div>
         <p id="lblFamilySub" class="text-xs font-bold text-sky-800">متابعة قريبك برمز الدعوة وطلب ممرض</p>
       </div>
       <span class="text-2xl font-black text-sky-700">›</span>
@@ -58,7 +58,7 @@
 
     <button id="btnNurse" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-teal-200 bg-teal-50 px-4 py-3.5 text-start shadow-sm">
       <div>
-        <p id="lblNurseTitle" class="text-base font-black text-teal-950">🩺 ممرض / ممرضة</p>
+        <div class="flex items-center gap-2"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-700 text-white"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg></span><p id="lblNurseTitle" class="text-base font-black text-teal-950">ممرض / ممرضة</p></div>
         <p id="lblNurseSub" class="text-xs font-bold text-teal-800">استقبال طلبات الزيارة والتوجيه عبر الخريطة</p>
       </div>
       <span class="text-2xl font-black text-teal-700">›</span>
@@ -108,8 +108,9 @@
     <p id="authMsg" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-center text-xs font-extrabold text-rose-900"></p>
   </section>
 
-  <p class="text-center text-xs font-bold text-[#5C6F63]">
+  <p class="text-center text-xs font-bold text-[#5C6F63] space-y-2">
     <a href="./privacy.html" class="underline text-[#0E5A3E]" id="privLink">سياسة الخصوصية والشروط</a>
+    <span id="adminGateWrap" class="hidden block pt-1"><a id="adminGateLink" href="./admin.html" class="inline-block rounded-xl border border-[#0E5A3E] bg-[#EFF7F1] px-4 py-1.5 text-xs font-black text-[#0E5A3E]">🛡️ لوحة الإدارة</a></span>
   </p>
 </main>
 
@@ -244,11 +245,14 @@
 
   renderText();
   // Auto-redirect if already logged in with a saved role (unless ?choose=1)
-  if (!new URLSearchParams(window.location.search).get('choose')) {
-    S.getSessionUser().then((u) => {
-      if (u && pickedRole) window.location.href = S.rolePageUrl(pickedRole);
-    });
-  }
+  S.getSessionUser().then((u) => {
+    if (u && String(u.email || '').toLowerCase() === 'jabeurj011@gmail.com' && $('adminGateWrap')) {
+      $('adminGateWrap').classList.remove('hidden');
+    }
+    if (!new URLSearchParams(window.location.search).get('choose') && u && pickedRole) {
+      window.location.href = S.rolePageUrl(pickedRole);
+    }
+  });
 })();
 </script>
 </body>
