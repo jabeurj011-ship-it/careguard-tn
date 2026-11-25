@@ -12,6 +12,9 @@ on:
       - 'capacitor.config.json'
       - '.github/workflows/build-android-apk.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -30,83 +33,70 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Capacitor dependencies
-        run: npm install
-
-      - name: Prepare web assets into www/
-        run: npm run prepare:www
-
-      - name: Generate Android project & sync Capacitor
+      - name: Install dependencies and prepare www
         run: |
-          rm -rf android
+          npm install
+          npm run prepare:www
+
+      - name: Add Android platform & sync
+        run: |
           npx cap add android
           npx cap sync android
 
-      - name: Apply CareGuard TN Green Icon to Android
+      - name: Generate 18-second custom ringtone in res/raw
         run: |
-          python3 -c '
-          import os, shutil
+          mkdir -p android/app/src/main/res/raw
+          python3 - <<'EOF'
+          import wave, math, struct
+          with wave.open('android/app/src/main/res/raw/careguard_ringtone.wav', 'w') as wf:
+              sr = 22050
+              wf.setnchannels(1)
+              wf.setsampwidth(2)
+              wf.setframerate(sr)
+              frames = bytearray()
+              for _ in range(6):
+                  for i in range(int(sr * 1.2)):
+                      t = i / sr
+                      pulse = 1.0 if (t % 0.12) < 0.08 else 0.25
+                      s = pulse * 0.5 * (math.sin(2 * math.pi * 740 * t) + math.sin(2 * math.pi * 988 * t))
+                      frames += struct.pack('<h', max(-32767, min(32767, int(s * 28000))))
+                  frames += b'\x00\x00' * int(sr * 1.8)
+              wf.writeframes(frames)
+          EOF
+
+      - name: Configure versionCode, permissions and deep link
+        run: |
+          python3 - <<'EOF'
           from pathlib import Path
-          src = Path("icon-512.png") if Path("icon-512.png").exists() else Path("icon-192.png")
-          if src.exists():
-            res = Path("android/app/src/main/res")
-            for mp in res.glob("mipmap-*"):
-              for fn in ["ic_launcher.png", "ic_launcher_round.png", "ic_launcher_foreground.png"]:
-                target = mp / fn
-                if target.exists():
-                  shutil.copyfile(src, target)
-            bg = res / "values" / "ic_launcher_background.xml"
-            if bg.exists():
-              bg.write_text("<?xml version=\"1.0\" encoding=\"utf-8\"?><resources><color name=\"ic_launcher_background\">#0E5A3E</color></resources>", encoding="utf-8")
-            print("Applied CareGuard TN icon from", src)
-          '
+          import re
 
-      - name: Configure Android permissions & Deep Link (tn.careguard.app://callback)
-        run: |
-          node -e '
-            const fs = require("fs");
-            const mf = "android/app/src/main/AndroidManifest.xml";
-            let xml = fs.readFileSync(mf, "utf8");
-            const perms = [
-              "android.permission.INTERNET",
-              "android.permission.POST_NOTIFICATIONS",
-              "android.permission.SCHEDULE_EXACT_ALARM",
-              "android.permission.USE_FULL_SCREEN_INTENT",
-              "android.permission.WAKE_LOCK",
-              "android.permission.VIBRATE",
-              "android.permission.ACCESS_FINE_LOCATION",
-              "android.permission.ACCESS_COARSE_LOCATION",
-              "android.permission.RECORD_AUDIO",
-              "android.permission.MODIFY_AUDIO_SETTINGS",
-              "android.permission.CAMERA"
-            ];
-            const ins = perms.filter((p) => !xml.includes(p)).map((p) => "    <uses-permission android:name=\"" + p + "\" />");
-            if (ins.length) xml = xml.replace("<application", ins.join("\n") + "\n\n    <application");
-            if (!xml.includes("android:showWhenLocked")) {
-              xml = xml.replace("<activity", "<activity\n            android:showWhenLocked=\"true\"\n            android:turnScreenOn=\"true\"");
-            }
-            const deepLink = "\n            <intent-filter>\n                <action android:name=\"android.intent.action.VIEW\" />\n                <category android:name=\"android.intent.category.DEFAULT\" />\n                <category android:name=\"android.intent.category.BROWSABLE\" />\n                <data android:scheme=\"tn.careguard.app\" android:host=\"callback\" />\n            </intent-filter>\n        </activity>";
-            if (!xml.includes("tn.careguard.app")) {
-              xml = xml.replace("</activity>", deepLink);
-            }
-            fs.writeFileSync(mf, xml, "utf8");
-            console.log("AndroidManifest.xml updated OK");
-          '
+          bg = Path('android/app/build.gradle')
+          s = bg.read_text()
+          s = re.sub(r'versionCode\s+\d+', 'versionCode ${{ github.run_number }}', s)
+          bg.write_text(s)
 
-      - name: Bump Android versionCode automatically
-        env:
-          RUN_NUM: ${{ github.run_number }}
-        run: |
-          node -e '
-            const fs = require("fs");
-            const bf = "android/app/build.gradle";
-            let g = fs.readFileSync(bf, "utf8");
-            const vc = Number(process.env.RUN_NUM || 1) + 10;
-            g = g.replace(/versionCode\s+\d+/, "versionCode " + vc);
-            g = g.replace(/versionName\s+"[^"]+"/, "versionName \"2.6." + process.env.RUN_NUM + "\"");
-            fs.writeFileSync(bf, g, "utf8");
-            console.log("Set Android versionCode=" + vc);
-          '
+          mf = Path('android/app/src/main/AndroidManifest.xml')
+          m = mf.read_text()
+          perms = [
+              'android.permission.POST_NOTIFICATIONS',
+              'android.permission.SCHEDULE_EXACT_ALARM',
+              'android.permission.VIBRATE',
+              'android.permission.WAKE_LOCK'
+          ]
+          for p in perms:
+              if p not in m:
+                  m = m.replace('<application', f'<uses-permission android:name="{p}" />\n    <application', 1)
+          if 'tn.careguard.app' not in m:
+              intent = '''
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tn.careguard.app" android:host="callback" />
+            </intent-filter>'''
+              m = m.replace('</activity>', intent + '\n        </activity>', 1)
+          mf.write_text(m)
+          EOF
 
       - name: Restore fixed Android debug keystore
         env:
@@ -114,21 +104,27 @@ jobs:
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
             mkdir -p ~/.android
-            printf '%s' "$KEYSTORE_B64" | tr -d '[:space:]' | base64 -d > ~/.android/debug.keystore
-            echo "Fixed CareGuard TN debug.keystore restored OK"
-          else
-            echo "Warning: ANDROID_DEBUG_KEYSTORE_B64 secret not set; using ephemeral debug keystore"
+            echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
           fi
 
-      - name: Build Android APK (Debug)
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../careguard-tn.apk
 
-      - name: Upload CareGuard-TN.apk artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CareGuard-TN-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
+          name: careguard-tn-apk
+          path: careguard-tn.apk
+
+      - name: Publish APK to Latest Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: CareGuard TN — نسخة أندرويد الرسمية (APK)
+          body: تحميل مباشر لتطبيق CareGuard TN للأندرويد.
+          files: careguard-tn.apk
+          make_latest: true
