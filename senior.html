@@ -874,6 +874,13 @@
     });
   }
 
+  function getNativeRingChannel() {
+    const k = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone';
+    if (k === 'urgent_alarm') return 'careguard_urgent_v3';
+    if (k === 'classic_bell' || k === 'piano_melody' || k === 'morning_harp') return 'careguard_bell_v3';
+    return 'careguard_med_call_v3';
+  }
+
   async function syncNativeApptAlarms() {
     const Cap = window.Capacitor;
     if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) return;
@@ -902,25 +909,8 @@
           toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — SoinsDar`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: getNativeRingChannel(), schedule: { at: new Date(r2), allowWhileIdle: true } });
         }
       });
-      if (typeof LN.checkExactNotificationSetting === 'function') {
-        try {
-          const exSet = await LN.checkExactNotificationSetting();
-          if (exSet && exSet.exact_alarm !== 'granted' && typeof LN.changeExactNotificationSetting === 'function') {
-            await LN.changeExactNotificationSetting();
-          }
-        } catch (_) {}
-      }
-      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'schedule');
-      if (stEl) {
-        stEl.textContent = `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
-        stEl.classList.remove('hidden');
-      }
-    } catch (err) {
-      if (stEl) {
-        stEl.textContent = '⚠️ خطأ منبّه الأندرويد: ' + (err && err.message ? err.message : String(err));
-        stEl.classList.remove('hidden');
-      }
-    }
+      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'appt_schedule');
+    } catch (_) {}
   }
 
   function isMedDueNow(m) {
@@ -1104,8 +1094,25 @@
           });
         }
       });
-      if (toSched.length) await LN.schedule({ notifications: toSched });
-    } catch (_) {}
+      if (typeof LN.checkExactNotificationSetting === 'function') {
+        try {
+          const exSet = await LN.checkExactNotificationSetting();
+          if (exSet && exSet.exact_alarm !== 'granted' && typeof LN.changeExactNotificationSetting === 'function') {
+            await LN.changeExactNotificationSetting();
+          }
+        } catch (_) {}
+      }
+      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule');
+      if (stEl) {
+        stEl.textContent = `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
+        stEl.classList.remove('hidden');
+      }
+    } catch (err) {
+      if (stEl) {
+        stEl.textContent = '⚠️ خطأ منبّه الأندرويد: ' + (err && err.message ? err.message : String(err));
+        stEl.classList.remove('hidden');
+      }
+    }
   }
 
   $('testNativeCallAlarmBtn').addEventListener('click', async () => {
