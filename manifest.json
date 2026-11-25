@@ -1,8 +1,8 @@
 {
   "id": "/careguard-tn/",
-  "name": "CareGuard TN — الرعاية والسكينة",
-  "short_name": "CareGuard TN",
-  "description": "تطبيق CareGuard TN لمتابعة كبار السن، التذكير بالأدوية، شرب الماء، والتواصل مع العائلة والممرض.",
+  "name": "SoinsDar — الرعاية والتمريض المنزلي",
+  "short_name": "SoinsDar",
+  "description": "تطبيق SoinsDar لمتابعة كبار السن، التذكير بالأدوية والمواعيد، وطلب الممرض المنزلي في تونس.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

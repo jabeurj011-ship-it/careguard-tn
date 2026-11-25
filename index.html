@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CareGuard TN — بوابة الدخول</title>
+  <title>SoinsDar — بوابة الدخول</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -24,19 +24,25 @@
         </svg>
       </div>
       <div>
-        <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">CareGuard TN</h1>
-        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">صحتك وسكينتك • v2.6-TN</p>
+        <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">SOINSDAR</h1>
+        <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">رعايتهم تجمعنا • v2.6-TN</p>
       </div>
     </div>
     <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3.5 py-2 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
   </div>
 </header>
 
-<main class="mx-auto w-full max-w-md flex-1 space-y-5 px-4 py-6">
+<main class="mx-auto w-full max-w-md flex-1 space-y-4 px-4 py-5">
+  <div id="gwSloganCard" class="rounded-3xl bg-[#F4EDE0] border border-[#E6DCCB] px-4 py-3.5 text-center space-y-1 shadow-sm">
+    <p id="gwSloganBrand" class="text-lg font-black tracking-wide text-[#6E5434]">SOINSDAR</p>
+    <p id="gwSloganMain" class="text-base font-black text-[#6E5434]">رعايتهم تجمعنا</p>
+    <p id="gwSloganSub" class="text-xs font-bold text-[#6E5434]/90">من أجل حياة أكثر أماناً وراحة لكبارنا.</p>
+  </div>
+
   <!-- Step 1: Role Chooser -->
   <section id="roleSection" class="cg-card p-5 space-y-3.5">
     <div class="text-center space-y-1">
-      <h2 id="roleTitle" class="text-xl font-black text-[#0E5A3E]">من يستخدم CareGuard TN؟</h2>
+      <h2 id="roleTitle" class="text-xl font-black text-[#0E5A3E]">من يستخدم SoinsDar؟</h2>
       <p id="roleSub" class="text-xs font-bold text-[#5C6F63]">اختر صفتك ليفتح لك الفضاء المستقل الخاص بك</p>
     </div>
 
@@ -67,7 +73,7 @@
     <div class="mt-2 rounded-2xl border border-[#E6DCCB] bg-[#FAF6EE] p-3.5 text-center space-y-2">
       <p id="gwQrTitle" class="text-xs font-black text-[#0E5A3E]">📷 شارك التطبيق عبر مسح الـ QR Code</p>
       <div class="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-[#DFD5C5] bg-white p-2.5 shadow-sm">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fjabeurj011-ship-it.github.io%2Fcareguard-tn%2F" alt="QR Code CareGuard TN" loading="lazy" class="h-32 w-32 rounded-lg" />
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fjabeurj011-ship-it.github.io%2Fcareguard-tn%2F" alt="QR Code SoinsDar" loading="lazy" class="h-32 w-32 rounded-lg" />
         <span class="text-[10px] font-bold text-[#5C6F63]" dir="ltr">jabeurj011-ship-it.github.io/careguard-tn</span>
       </div>
     </div>
@@ -125,8 +131,19 @@
   function renderText() {
     const isFr = S.getLang() === 'fr';
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
-    $('gwSub').textContent = (isFr ? 'Votre santé et sérénité • ' : 'صحتك وسكينتك • ') + S.CONFIG.VERSION;
-    $('roleTitle').textContent = isFr ? 'Qui utilise CareGuard TN ?' : 'من يستخدم CareGuard TN؟';
+    $('gwSub').textContent = (isFr ? 'La maison du bien-être • ' : 'رعايتهم تجمعنا • ') + S.CONFIG.VERSION;
+    if ($('gwSloganCard')) {
+      $('gwSloganCard').className = isFr
+        ? 'rounded-3xl bg-[#EAF4F1] border border-[#C7DFCE] px-4 py-3.5 text-center space-y-1 shadow-sm'
+        : 'rounded-3xl bg-[#F4EDE0] border border-[#E6DCCB] px-4 py-3.5 text-center space-y-1 shadow-sm';
+      const tc = isFr ? 'text-[#0E5A3E]' : 'text-[#6E5434]';
+      $('gwSloganBrand').className = 'text-lg font-black tracking-wide ' + tc;
+      $('gwSloganMain').className = 'text-base font-black ' + tc;
+      $('gwSloganSub').className = 'text-xs font-bold ' + tc + '/90';
+      $('gwSloganMain').textContent = isFr ? 'La maison du bien-être' : 'رعايتهم تجمعنا';
+      $('gwSloganSub').textContent = isFr ? 'Accompagner nos aînés, rassurer leurs familles.' : 'من أجل حياة أكثر أماناً وراحة لكبارنا.';
+    }
+    $('roleTitle').textContent = isFr ? 'Qui utilise SoinsDar ?' : 'من يستخدم SoinsDar؟';
     $('roleSub').textContent = isFr ? 'Choisissez votre espace indépendant' : 'اختر صفتك ليفتح لك الفضاء المستقل الخاص بك';
     $('lblSeniorTitle').textContent = isFr ? '👴 Je suis Senior' : '👴 أنا كبير السنّ';
     $('lblSeniorSub').textContent = isFr ? 'Médicaments, urgences, infirmier et messages' : 'الأدوية، الطوارئ، طلب ممرض والرسائل';

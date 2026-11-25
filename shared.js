@@ -1,4 +1,4 @@
-/* CareGuard TN v2 — Shared Core (Supabase, Auth, Lang, Audio, Push, Helpers) */
+/* SoinsDar v2 — Shared Core (Supabase, Auth, Lang, Audio, Push, Helpers) */
 (function () {
   'use strict';
 

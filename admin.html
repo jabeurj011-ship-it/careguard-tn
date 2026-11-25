@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CareGuard TN — لوحة الإدارة</title>
+  <title>SoinsDar — لوحة الإدارة</title>
   <meta name="theme-color" content="#0E5A3E" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
@@ -22,7 +22,7 @@
       </div>
       <div>
         <h1 class="font-serif-brand text-xl font-extrabold leading-none text-[#0E5A3E]">لوحة الإدارة</h1>
-        <p class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • مراقبة شاملة</p>
+        <p class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SoinsDar • مراقبة شاملة</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -60,12 +60,13 @@
       </div>
     </div>
 
-    <!-- 5 Subtabs -->
-    <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1.5">
+    <!-- 6 Subtabs -->
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1.5">
       <button type="button" data-adm-tab="nurses" class="rounded-xl bg-[#0E5A3E] text-white py-2 text-xs font-black">🩺 الممرضون</button>
+      <button type="button" data-adm-tab="seniors" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👴 المسنّون</button>
+      <button type="button" data-adm-tab="families" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👨‍👩‍👧 العائلات</button>
       <button type="button" data-adm-tab="requests" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">📋 الطلبات</button>
       <button type="button" data-adm-tab="reviews" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">⭐ التقييمات</button>
-      <button type="button" data-adm-tab="seniors" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👴 المسنّون</button>
       <button type="button" data-adm-tab="alerts" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">🚨 التنبيهات</button>
     </div>
 
@@ -83,7 +84,7 @@
   const ADMIN_EMAIL = 'jabeurj011@gmail.com';
   let user = null;
   let activeTab = 'nurses';
-  let dataState = { seniors: [], nurses: [], reqs: [], reviews: [], alerts: [] };
+  let dataState = { seniors: [], families: [], nurses: [], reqs: [], reviews: [], alerts: [] };
 
   function showMsg(txt) {
     const el = $('admToast');
@@ -101,14 +102,16 @@
 
   async function loadAll() {
     $('admList').textContent = '⏳ جاري تحميل البيانات...';
-    const [sRes, nRes, rRes, revRes, alRes] = await Promise.all([
+    const [sRes, fRes, nRes, rRes, revRes, alRes] = await Promise.all([
       S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, home_address, created_at').order('created_at', { ascending: false }).limit(200),
+      S.client.from('senior_care_links').select('id, senior_id, requester_user_id, requester_name, role_type, status, created_at, senior_profiles(display_name)').eq('role_type', 'family').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_profiles').select('*').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_visit_requests').select('*').order('created_at', { ascending: false }).limit(120),
       S.client.from('nurse_reviews').select('*').order('created_at', { ascending: false }).limit(100),
       S.client.from('alerts').select('*').order('created_at', { ascending: false }).limit(100)
     ]);
     dataState.seniors = (!sRes.error && sRes.data) || [];
+    dataState.families = (!fRes.error && fRes.data) || [];
     dataState.nurses = (!nRes.error && nRes.data) || [];
     dataState.reqs = (!rRes.error && rRes.data) || [];
     dataState.reviews = (!revRes.error && revRes.data) || [];
@@ -182,7 +185,19 @@
           n.is_banned = !isBan; renderTab(); showMsg(!isBan ? '🚫 تم حظر الممرض' : '✓ تم فك الحظر');
         });
 
-        row.append(bVer, bSusp, bBan);
+        const bDel = document.createElement('button');
+        bDel.type = 'button';
+        bDel.className = 'rounded-xl border border-rose-200 bg-white px-2.5 py-1.5 text-[11px] font-black text-rose-800';
+        bDel.textContent = '🗑️ مسح';
+        bDel.addEventListener('click', async () => {
+          if (!confirm(`مسح ملف الممرض «${n.full_name || ''}» دون حظره؟`)) return;
+          const { error } = await S.client.from('nurse_profiles').delete().eq('user_id', n.user_id);
+          if (error) return alert('⚠️ ' + error.message);
+          dataState.nurses = dataState.nurses.filter((x) => x.user_id !== n.user_id);
+          $('kpiNurses').textContent = String(dataState.nurses.length);
+          renderTab(); showMsg('🗑️ تم مسح الممرض دون حظره');
+        });
+        row.append(bVer, bSusp, bBan, bDel);
         c.append(top, meta, row);
         box.appendChild(c);
       });
@@ -254,17 +269,60 @@
         const c = document.createElement('div');
         c.className = 'cg-card p-3.5 flex items-center justify-between gap-2';
         const d = document.createElement('div');
+        d.className = 'min-w-0 flex-1';
         const p1 = document.createElement('p');
-        p1.className = 'text-sm font-black text-[#163024]';
+        p1.className = 'text-sm font-black text-[#163024] truncate';
         p1.textContent = `👴 ${sp.display_name || 'مسنّ'}`;
         const p2 = document.createElement('p');
-        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
-        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'} • ${sp.home_address || '—'}`;
+        p2.className = 'text-[11px] font-bold text-[#5C6F63] break-words';
+        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'} • ${sp.home_address || '—'} • ${fmtDate(sp.created_at)}`;
         d.append(p1, p2);
-        const dt = document.createElement('span');
-        dt.className = 'text-[10px] font-bold text-[#5C6F63] shrink-0';
-        dt.textContent = fmtDate(sp.created_at);
-        c.append(d, dt);
+        const bDel = document.createElement('button');
+        bDel.type = 'button';
+        bDel.className = 'shrink-0 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[11px] font-black text-rose-800';
+        bDel.textContent = '🗑️ مسح';
+        bDel.addEventListener('click', async () => {
+          if (!confirm(`مسح ملف المسنّ «${sp.display_name || ''}» دون حظره؟`)) return;
+          const { error } = await S.client.from('senior_profiles').delete().eq('id', sp.id);
+          if (error) return alert('⚠️ ' + error.message);
+          dataState.seniors = dataState.seniors.filter((x) => x.id !== sp.id);
+          dataState.families = dataState.families.filter((f) => f.senior_id !== sp.id);
+          $('kpiSeniors').textContent = String(dataState.seniors.length);
+          renderTab(); showMsg('🗑️ تم مسح ملف المسنّ');
+        });
+        c.append(d, bDel);
+        box.appendChild(c);
+      });
+      return;
+    }
+
+    if (activeTab === 'families') {
+      if (!dataState.families.length) { box.textContent = 'لا توجد حسابات عائلات مرتبطة بعد.'; return; }
+      dataState.families.forEach((f) => {
+        const c = document.createElement('div');
+        c.className = 'cg-card p-3.5 flex items-center justify-between gap-2';
+        const d = document.createElement('div');
+        d.className = 'min-w-0 flex-1';
+        const p1 = document.createElement('p');
+        p1.className = 'text-sm font-black text-[#163024] truncate';
+        p1.textContent = `👨‍👩‍👧 ${f.requester_name || 'قريب / عائلة'}`;
+        const p2 = document.createElement('p');
+        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
+        const senName = (f.senior_profiles && f.senior_profiles.display_name) || '—';
+        p2.textContent = `مرتبط بـ: ${senName} • الحالة: ${f.status} • ${fmtDate(f.created_at)}`;
+        d.append(p1, p2);
+        const bDel = document.createElement('button');
+        bDel.type = 'button';
+        bDel.className = 'shrink-0 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[11px] font-black text-rose-800';
+        bDel.textContent = '🗑️ مسح';
+        bDel.addEventListener('click', async () => {
+          if (!confirm(`مسح ربط العائلة «${f.requester_name || ''}» دون حظرها؟`)) return;
+          const { error } = await S.client.from('senior_care_links').delete().eq('id', f.id);
+          if (error) return alert('⚠️ ' + error.message);
+          dataState.families = dataState.families.filter((x) => x.id !== f.id);
+          renderTab(); showMsg('🗑️ تم مسح العائلة من القائمة');
+        });
+        c.append(d, bDel);
         box.appendChild(c);
       });
       return;

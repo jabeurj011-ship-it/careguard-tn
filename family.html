@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CareGuard TN — فضاء العائلة</title>
+  <title>SoinsDar — فضاء العائلة</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -22,12 +22,12 @@
       <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.6-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SOINSDAR • رعايتهم تجمعنا</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button id="ringtoneBtn" type="button" class="tap-btn rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-black text-amber-950">🎵</button>
-      <button id="pushBtn" type="button" class="tap-btn rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-900">🔔</button>
+      <button id="ringtoneBtn" type="button" class="tap-btn flex h-9 w-9 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-950"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+      <button id="pushBtn" type="button" class="tap-btn flex h-9 w-9 items-center justify-center rounded-full border border-rose-200 bg-rose-50 text-rose-900"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
       <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E]">FR</button>
     </div>
   </div>
@@ -99,16 +99,16 @@
 <!-- Bottom Navigation (Family Only) -->
 <nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
   <div class="mx-auto grid max-w-xl grid-cols-3 py-2 text-center text-xs font-black">
-    <button id="navHome" type="button" class="flex flex-col items-center gap-0.5 text-[#0E5A3E]">
-      <span class="text-lg">🏠</span>
+    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>
       <span id="navHomeLbl">المتابعة</span>
     </button>
-    <button id="navAlerts" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
-      <span class="text-lg">🚨</span>
+    <button id="navAlerts" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
       <span><span id="navAlertsLbl">التنبيهات</span> (<span id="alertsCnt">0</span>)</span>
     </button>
-    <button id="navNurse" type="button" class="flex flex-col items-center gap-0.5 text-[#5C6F63]">
-      <span class="text-lg">🩺</span>
+    <button id="navNurse" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg>
       <span id="navNurseLbl">طلب ممرض</span>
     </button>
   </div>
@@ -180,6 +180,7 @@
     const isFr = S.getLang() === 'fr';
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
     $('hdrTitle').textContent = isFr ? 'Espace Famille' : 'فضاء العائلة';
+    $('hdrSub').textContent = isFr ? 'SOINSDAR • La maison du bien-être' : 'SOINSDAR • رعايتهم تجمعنا';
     $('navHomeLbl').textContent = isFr ? 'Suivi' : 'المتابعة';
     $('navAlertsLbl').textContent = isFr ? 'Alertes' : 'التنبيهات';
     $('navNurseLbl').textContent = isFr ? 'Infirmier' : 'طلب ممرض';
@@ -622,6 +623,7 @@
     await loadFamilyData();
     S.client.channel('cg-v2-fam-' + user.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' }, () => { S.playStrongRingtone(); loadFamilyData(); })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'device_status' }, () => { loadFamilyData(); })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'safety_checkins' }, () => {
         const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const toast = $('liveCheckInToast');

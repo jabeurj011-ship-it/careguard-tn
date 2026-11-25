@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CareGuard TN — فضاء الممرض</title>
+  <title>SoinsDar — فضاء الممرض</title>
   <meta name="theme-color" content="#0E5A3E" />
   <link rel="manifest" href="./manifest.json" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -22,7 +22,7 @@
       <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-white shadow-sm"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg></div>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">CareGuard TN • v2.6-TN</p>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SOINSDAR • رعايتهم تجمعنا</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
@@ -309,6 +309,7 @@
     const isFr = S.getLang() === 'fr';
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
     $('hdrTitle').textContent = isFr ? 'Espace Infirmier' : 'فضاء الممرض';
+    $('hdrSub').textContent = isFr ? 'SOINSDAR • La maison du bien-être' : 'SOINSDAR • رعايتهم تجمعنا';
     $('reqHeading').textContent = isFr ? '🩺 Demandes de visite' : '🩺 طلبات الزيارة';
     $('reqSub').textContent = isFr ? 'Acceptez vite et suivez Google Maps' : 'اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps';
     $('navReqLbl').textContent = isFr ? 'Demandes' : 'الطلبات';
