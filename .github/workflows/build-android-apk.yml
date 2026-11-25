@@ -63,6 +63,22 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Set SoinsDar Android Launcher Icon
+        run: |
+          python3 - <<'PYEOF'
+          import shutil
+          from pathlib import Path
+          src = Path('icon-512.png') if Path('icon-512.png').exists() else Path('icon-192.png')
+          if src.exists():
+              anydpi = Path('android/app/src/main/res/mipmap-anydpi-v26')
+              if anydpi.exists():
+                  shutil.rmtree(anydpi)
+              for d in Path('android/app/src/main/res').glob('mipmap-*'):
+                  if d.is_dir():
+                      shutil.copyfile(src, d / 'ic_launcher.png')
+                      shutil.copyfile(src, d / 'ic_launcher_round.png')
+          PYEOF
+
       - name: Generate 18-second custom ringtone in res/raw
         run: |
           mkdir -p android/app/src/main/res/raw
