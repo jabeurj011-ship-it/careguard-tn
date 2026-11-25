@@ -148,21 +148,50 @@ jobs:
           mf.write_text(m)
           EOF
 
-      - name: Restore fixed Android debug keystore
+      - name: Configure Release Signing & Build APK
         env:
+          REL_KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          REL_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          REL_STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          REL_KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
           KEYSTORE_B64: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then
-            mkdir -p ~/.android
-            echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+          if [ -n "$REL_KS_B64" ] && [ -n "$REL_ALIAS" ] && [ -n "$REL_STORE_PASS" ] && [ -n "$REL_KEY_PASS" ]; then
+            echo "$REL_KS_B64" | base64 -d > android/app/soinsdar-release.jks
+            python3 - <<'PYEOF'
+          from pathlib import Path
+          import os, re
+          bg = Path('android/app/build.gradle')
+          s = bg.read_text()
+          signing_blk = """
+    signingConfigs {
+        release {
+            storeFile file('soinsdar-release.jks')
+            storePassword System.getenv('REL_STORE_PASS')
+            keyAlias System.getenv('REL_ALIAS')
+            keyPassword System.getenv('REL_KEY_PASS')
+        }
+    }
+    buildTypes {"""
+          s = s.replace('    buildTypes {', signing_blk, 1)
+          s = re.sub(r'(release\s*\{)', r'\1
+            signingConfig signingConfigs.release', s, count=1)
+          bg.write_text(s)
+          PYEOF
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleRelease
+            cp app/build/outputs/apk/release/app-release.apk ../careguard-tn.apk
+          else
+            if [ -n "$KEYSTORE_B64" ]; then
+              mkdir -p ~/.android
+              echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+            fi
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk ../careguard-tn.apk
           fi
-
-      - name: Build Debug APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../careguard-tn.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
