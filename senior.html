@@ -17,22 +17,22 @@
 
 <!-- Top Header -->
 <header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
-  <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
-    <div class="flex items-center gap-2">
-      <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0E5A3E] text-white shadow-sm">
-        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+  <div class="mx-auto flex max-w-xl items-center justify-between gap-1.5 px-3 py-2.5">
+    <div class="flex items-center gap-2 min-w-0 flex-1">
+      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#0E5A3E] text-white shadow-sm">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 14.35l-1.15-1.05C8.3 13.02 6.8 11.65 6.8 9.95c0-1.36 1.07-2.45 2.42-2.45.77 0 1.51.36 1.98.94.47-.58 1.21-.94 1.98-.94 1.35 0 2.42 1.09 2.42 2.45 0 1.7-1.5 3.07-4.05 5.35L12 16.35z"/>
         </svg>
       </div>
-      <div>
-        <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">SOINSDAR</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">رعايتهم تجمعنا • v2.6-TN</p>
+      <div class="min-w-0 flex-1">
+        <h1 class="font-serif-brand truncate text-lg font-extrabold leading-none text-[#0E5A3E]">SOINSDAR</h1>
+        <p id="hdrSub" class="mt-0.5 truncate text-[10px] font-bold text-[#5C6F63]">رعايتهم تجمعنا • v2.6-TN</p>
       </div>
     </div>
-    <div class="flex items-center gap-1.5">
-      <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
-      <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2.5 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
-      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E] shadow-sm">FR</button>
+    <div class="flex shrink-0 items-center gap-1">
+      <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
+      <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-2 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
+      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#0E5A3E]/30 bg-[#EFF7F1] px-2.5 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm">FR</button>
     </div>
   </div>
 </header>
@@ -457,6 +457,8 @@
     $('checkInLbl').textContent = isFr ? 'Je vais bien' : 'أنا بخير';
     $('tileMedsLbl').textContent = isFr ? 'Médicaments' : 'الأدوية';
     $('tileSosLbl').textContent = isFr ? 'Urgence' : 'الطوارئ';
+    $('tileSosSub').textContent = isFr ? 'Appel rapide & SOS' : 'اتصال سريع وSOS';
+    $('tileMsgsSub').textContent = isFr ? 'Famille & Infirmier' : 'العائلة والممرض';
     $('tileNurseLbl').textContent = isFr ? 'Infirmier' : 'طلب ممرض';
     $('tileNurseSub').textContent = isFr ? 'Demander une visite' : 'أقرب ممرض متاح';
     $('tileMsgsLbl').textContent = isFr ? 'Messages' : 'الرسائل';
