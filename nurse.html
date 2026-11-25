@@ -650,15 +650,28 @@
       const title = document.createElement('p');
       title.className = 'text-base font-black text-[#163024]';
       title.textContent = sp.display_name || 'المسنّ';
-      const sub = document.createElement('p');
-      sub.className = 'text-xs font-bold text-[#5C6F63]';
-      sub.textContent = [
-        sp.blood_type ? `🩸 ${sp.blood_type}` : '',
-        sp.allergies ? `⚠️ ${sp.allergies}` : '',
-        sp.conditions ? `🩺 ${sp.conditions}` : '',
-        sp.home_address || ''
-      ].filter(Boolean).join(' • ');
-      card.append(title, sub);
+      card.appendChild(title);
+      const medGrid = document.createElement('div');
+      medGrid.className = 'space-y-1.5 text-xs';
+      const addInfoRow = (icon, lbl, val, boxCls) => {
+        if (!val) return;
+        const row = document.createElement('div');
+        row.className = `rounded-xl px-2.5 py-1.5 flex items-start gap-1.5 ${boxCls}`;
+        const k = document.createElement('span');
+        k.className = 'shrink-0 font-black';
+        k.textContent = `${icon} ${lbl}:`;
+        const v = document.createElement('span');
+        v.className = 'min-w-0 flex-1 font-bold break-words';
+        v.dir = 'auto';
+        v.textContent = val;
+        row.append(k, v);
+        medGrid.appendChild(row);
+      };
+      addInfoRow('🩸', isFr ? 'Groupe sanguin' : 'فصيلة الدم', sp.blood_type, 'bg-rose-50 text-rose-900 border border-rose-200');
+      addInfoRow('⚠️', isFr ? 'Allergies' : 'الحساسية', sp.allergies, 'bg-amber-50 text-amber-950 border border-amber-200');
+      addInfoRow('🩺', isFr ? 'Maladies' : 'الأمراض المزمنة', sp.conditions, 'bg-emerald-50 text-[#0E5A3E] border border-emerald-200');
+      addInfoRow('📍', isFr ? 'Adresse' : 'العنوان', sp.home_address, 'bg-slate-50 text-slate-700 border border-slate-200');
+      if (medGrid.childNodes.length) card.appendChild(medGrid);
 
       // Collapsible Patient Medications Accordion
       const mDet = document.createElement('details');
