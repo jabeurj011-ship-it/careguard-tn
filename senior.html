@@ -55,9 +55,11 @@
       <div class="min-w-0 flex-1 space-y-1.5">
         <p id="greetPrefix" class="text-sm font-bold text-[#5C6F63]">مرحباً،</p>
         <h2 id="heroName" class="font-serif-brand truncate text-2xl font-extrabold text-[#0E5A3E]">المسنّ</h2>
-        <div class="flex flex-wrap items-center gap-1.5 pt-1">
-          <span id="heroMedPill" class="rounded-full bg-white border border-[#E6DCCB] px-2.5 py-0.5 text-[11px] font-extrabold text-[#163024]">🛡️ البطاقة الطبية</span>
-          <span id="heroBatPill" class="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]">🔋 --%</span>
+        <div id="heroMedRows" class="space-y-1 pt-1">
+          <span id="heroMedPill" class="inline-block rounded-full bg-white border border-[#E6DCCB] px-2.5 py-0.5 text-[11px] font-extrabold text-[#163024]">🛡️ البطاقة الطبية</span>
+        </div>
+        <div class="pt-0.5">
+          <span id="heroBatPill" class="inline-block rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]">🔋 --%</span>
         </div>
       </div>
       <div id="heroAvatar" class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#DCE6DA] text-3xl font-black text-[#0E5A3E] shadow-md">م</div>
@@ -556,8 +558,28 @@
     const isFr = S.getLang() === 'fr';
     $('heroName').textContent = seniorProfile.display_name || (isFr ? 'Senior' : 'المسنّ');
     $('myCodeTxt').textContent = seniorProfile.registration_number || 'CG------';
-    const medInfo = [seniorProfile.blood_type, seniorProfile.allergies].filter(Boolean).join(' • ');
-    $('heroMedPill').textContent = '🛡️ ' + (medInfo || (isFr ? 'Fiche médicale' : 'البطاقة الطبية'));
+    const mr = $('heroMedRows');
+    if (mr) {
+      mr.replaceChildren();
+      const addHRow = (icon, lbl, val, cls) => {
+        if (!val) return;
+        const d = document.createElement('div');
+        d.className = `rounded-xl px-2.5 py-1 text-[11px] flex items-start gap-1 ${cls}`;
+        const k = document.createElement('span'); k.className = 'shrink-0 font-black'; k.textContent = `${icon} ${lbl}:`;
+        const v = document.createElement('span'); v.className = 'min-w-0 flex-1 font-bold break-words'; v.dir = 'auto'; v.textContent = val;
+        d.append(k, v);
+        mr.appendChild(d);
+      };
+      addHRow('🩸', isFr ? 'Groupe' : 'فصيلة الدم', seniorProfile.blood_type, 'bg-rose-50 text-rose-900 border border-rose-200');
+      addHRow('⚠️', isFr ? 'Allergies' : 'الحساسية', seniorProfile.allergies, 'bg-amber-50 text-amber-950 border border-amber-200');
+      addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', seniorProfile.conditions, 'bg-emerald-50 text-[#0E5A3E] border border-emerald-200');
+      if (!mr.childNodes.length) {
+        const sp = document.createElement('span');
+        sp.className = 'inline-block rounded-full bg-white border border-[#E6DCCB] px-2.5 py-0.5 text-[11px] font-extrabold text-[#163024]';
+        sp.textContent = '🛡️ ' + (isFr ? 'Fiche médicale' : 'البطاقة الطبية');
+        mr.appendChild(sp);
+      }
+    }
     const av = $('heroAvatar');
     av.replaceChildren();
     if (seniorProfile.avatar_url) {
