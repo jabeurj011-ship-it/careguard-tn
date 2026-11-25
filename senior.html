@@ -290,6 +290,7 @@
       <button id="ringtoneBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 نغمة التنبيه</button>
       <button id="pushBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900">📲 تفعيل إشعارات الخلفية</button>
       <button id="testNativeCallAlarmBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm font-black text-amber-950">📞 تجربة منبّه «مكالمة الدواء» بعد 5 ثوانٍ</button>
+      <p id="nativeAlarmStatus" class="hidden text-center text-[11px] font-black text-[#0E5A3E]"></p>
       <button id="fallDetectBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-orange-300 bg-orange-50 px-4 py-3 text-sm font-black text-orange-950">
         <span id="fallDetectLbl">🛡️ كشف السقوط التلقائي</span>
         <span id="fallDetectState" class="rounded-full bg-white px-2.5 py-0.5 text-xs font-black text-orange-900">متوقف</span>
@@ -894,7 +895,19 @@
           toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — SoinsDar`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: getNativeRingChannel(), schedule: { at: new Date(r2), allowWhileIdle: true } });
         }
       });
+      if (typeof LN.checkExactNotificationSetting === 'function') {
+        try {
+          const exSet = await LN.checkExactNotificationSetting();
+          if (exSet && exSet.exact_alarm !== 'granted' && typeof LN.changeExactNotificationSetting === 'function') {
+            await LN.changeExactNotificationSetting();
+          }
+        } catch (_) {}
+      }
       if (toSched.length) await LN.schedule({ notifications: toSched });
+      if ($('nativeAlarmStatus')) {
+        $('nativeAlarmStatus').textContent = `✓ تمت برمجة ${toSched.length} منبّه دقيق على الهاتف`;
+        $('nativeAlarmStatus').classList.remove('hidden');
+      }
     } catch (_) {}
   }
 
@@ -949,8 +962,13 @@
         st.className = 'text-xs font-black text-[#0E5A3E]';
         st.textContent = (isFr ? '✓ Pris à ' : '✓ تم التناول الساعة ') + tStr;
       } else if (dueNow) {
-        st.className = 'text-xs font-bold text-amber-800';
-        st.textContent = isFr ? '⏳ C\'est l\'heure — en attente' : '⏳ حان الوقت — لم يُؤخذ بعد';
+        const _mt = String((m && m.dosage) || '').match(/(\d{1,2}):(\d{2})/);
+        const _now = new Date();
+        const _isExactOrPast = !_mt || ((_now.getHours() * 60 + _now.getMinutes()) >= (Number(_mt[1]) * 60 + Number(_mt[2])));
+        st.className = _isExactOrPast ? 'text-xs font-bold text-amber-800' : 'text-xs font-bold text-sky-800';
+        st.textContent = _isExactOrPast
+          ? (isFr ? '⏳ C\'est l\'heure — en attente' : '⏳ حان الوقت — لم يُؤخذ بعد')
+          : (isFr ? `🕒 Bientôt (${m.dosage || ''})` : `🕒 اقترب الموعد (${m.dosage || ''})`);
       } else {
         st.className = 'text-xs font-bold text-[#5C6F63]';
         st.textContent = isFr ? `🔒 Prévu à ${m.dosage || ''}` : `🔒 يحين الساعة ${m.dosage || ''}`;
@@ -1002,9 +1020,9 @@
         nativeAlarmReady = true;
         try {
           for (const ch of [
-            { id: 'careguard_med_call_v2', name: 'منبّه مكالمة الدواء (1)', sound: 'careguard_ringtone' },
-            { id: 'careguard_urgent_v2', name: 'إنذار طوارئ عاجل (2)', sound: 'careguard_urgent' },
-            { id: 'careguard_bell_v2', name: 'جرس دواء هادئ (3)', sound: 'careguard_bell' }
+            { id: 'careguard_med_call_v3', name: 'منبّه مكالمة الدواء (1)', sound: 'careguard_ringtone' },
+            { id: 'careguard_urgent_v3', name: 'إنذار طوارئ عاجل (2)', sound: 'careguard_urgent' },
+            { id: 'careguard_bell_v3', name: 'جرس دواء هادئ (3)', sound: 'careguard_bell' }
           ]) {
             await LN.createChannel({
               id: ch.id, name: ch.name,
