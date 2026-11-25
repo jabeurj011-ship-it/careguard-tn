@@ -880,7 +880,7 @@
     const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
     if (!LN) return;
     try {
-      const pend = await LN.getPending();
+      const pend = await withNativeTimeout(LN.getPending(), 3000, 'getPending').catch(() => null);
       if (pend && pend.notifications && pend.notifications.length) {
         const oldIds = pend.notifications.filter((n) => n.id >= 3000 && n.id < 4000).map((n) => ({ id: n.id }));
         if (oldIds.length) await LN.cancel({ notifications: oldIds });
@@ -910,7 +910,7 @@
           }
         } catch (_) {}
       }
-      if (toSched.length) await LN.schedule({ notifications: toSched });
+      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'schedule');
       if (stEl) {
         stEl.textContent = `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
         stEl.classList.remove('hidden');
@@ -1020,22 +1020,30 @@
 
   // Native Android LocalNotifications (Capacitor) for closed-app Medication Call Alarms
   let nativeAlarmReady = false;
+  function withNativeTimeout(pr, ms, label) {
+    return Promise.race([
+      pr,
+      new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timeout')), ms || 3500))
+    ]);
+  }
+
   async function syncNativeMedAlarms() {
     const stEl = $('nativeAlarmStatus');
+    if (stEl) { stEl.textContent = '⏳ جاري التحقق من منبّهات الأندرويد...'; stEl.classList.remove('hidden'); }
     const Cap = window.Capacitor;
     if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) {
-      if (stEl) { stEl.textContent = 'ℹ️ تعمل الآن من المتصفح — منبّهات إغلاق التطبيق تعمل داخل نسخة الأندرويد (APK)'; stEl.classList.remove('hidden'); }
+      if (stEl) stEl.textContent = 'ℹ️ تعمل الآن من المتصفح — منبّهات إغلاق التطبيق تعمل داخل نسخة الأندرويد (APK)';
       return;
     }
     const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
     if (!LN) {
-      if (stEl) { stEl.textContent = '⚠️ إضافة الإشعارات المحلية غير مفعّلة في هذا الـ APK'; stEl.classList.remove('hidden'); }
+      if (stEl) stEl.textContent = '⚠️ إضافة الإشعارات المحلية غير مفعّلة في هذا الـ APK';
       return;
     }
     try {
-      const perm = await LN.requestPermissions();
+      const perm = await withNativeTimeout(LN.requestPermissions(), 4000, 'requestPermissions');
       if (!perm || perm.display !== 'granted') {
-        if (stEl) { stEl.textContent = '⚠️ يرجى السماح بإذن الإشعارات لتطبيق SoinsDar من إعدادات الهاتف'; stEl.classList.remove('hidden'); }
+        if (stEl) stEl.textContent = '⚠️ يرجى السماح بإذن الإشعارات لتطبيق SoinsDar من إعدادات الهاتف';
         return;
       }
       if (!nativeAlarmReady) {
@@ -2221,10 +2229,16 @@
   $('pushBtn').addEventListener('click', async () => {
     const Cap = window.Capacitor;
     if (Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform()) {
-      await syncNativeMedAlarms();
-      await syncNativeApptAlarms();
-      $('pushBtn').className = 'tap-btn w-full rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white';
-      $('pushBtn').textContent = '📲 منبّهات الأندرويد مفعّلة ✓';
+      $('pushBtn').textContent = '⏳ جاري تفعيل منبّهات الأندرويد...';
+      try { await syncNativeMedAlarms(); } catch (_) {}
+      try { await withNativeTimeout(syncNativeApptAlarms(), 3000, 'appts'); } catch (_) {}
+      const stTxt = ($('nativeAlarmStatus') && $('nativeAlarmStatus').textContent) || '';
+      const ok = stTxt.includes('✓');
+      $('pushBtn').className = ok
+        ? 'tap-btn w-full rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white'
+        : 'tap-btn w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950';
+      $('pushBtn').textContent = ok ? '📲 منبّهات الأندرويد مفعّلة ✓' : '📲 إعادة فحص منبّهات الأندرويد';
+      if (stTxt) alert(stTxt);
       return;
     }
     const r = await S.toggleWebPush(user);
