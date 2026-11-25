@@ -912,7 +912,7 @@
       }
       if (toSched.length) await LN.schedule({ notifications: toSched });
       if ($('nativeAlarmStatus')) {
-        $('nativeAlarmStatus').textContent = `✓ تمت برمجة ${toSched.length} منبّه دقيق على الهاتف`;
+        $('nativeAlarmStatus').textContent = `✓ تمت برمجة ${toSched.length} منبّه دقيق (${meds.length} دواء)`;
         $('nativeAlarmStatus').classList.remove('hidden');
       }
     } catch (_) {}
@@ -1811,7 +1811,8 @@
 
   $('addMedBtn').addEventListener('click', async () => {
     const nm = ($('newMedName').value || '').trim();
-    if (!nm || !seniorId) return;
+    if (!nm) { alert(S.getLang() === 'fr' ? 'Écrivez le nom du médicament d\'abord.' : 'يرجى كتابة اسم الدواء أولاً.'); return; }
+    if (!seniorId) return;
     const freq = Number($('newMedFreq').value || 1);
     const times = freq === 2 ? ['08:00', '20:00'] : (freq === 3 ? ['08:00', '14:00', '20:00'] : (freq === 4 ? ['08:00', '12:00', '16:00', '20:00'] : [$('newMedTime').value || '08:00']));
     const rows = times.map((t, i) => ({ senior_id: seniorId, name: times.length > 1 ? `${nm} (${i + 1}/${times.length})` : nm, dosage: t }));
