@@ -736,7 +736,19 @@
       approvedItems.forEach(({ sp, meds, takenSet, alerts }) => {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-[#F2EAE0] last:border-0 font-bold text-[#163024]';
-        tr.innerHTML = `<td class="py-2 pe-2 font-black">${sp.display_name || '-'}</td><td class="py-2 px-1 text-center text-rose-700">${sp.blood_type || '-'}</td><td class="py-2 px-1 text-center text-[#0E5A3E]">${takenSet.size}/${meds.length}</td><td class="py-2 ps-1 text-center">${alerts.length ? '<span class="rounded-full bg-rose-100 px-2 py-0.5 text-rose-800">' + alerts.length + '</span>' : '✅'}</td>`;
+        const td1 = document.createElement('td'); td1.className = 'py-2 pe-2 font-black'; td1.textContent = sp.display_name || '-';
+        const td2 = document.createElement('td'); td2.className = 'py-2 px-1 text-center text-rose-700'; td2.textContent = sp.blood_type || '-';
+        const td3 = document.createElement('td'); td3.className = 'py-2 px-1 text-center text-[#0E5A3E]'; td3.textContent = `${takenSet.size}/${meds.length}`;
+        const td4 = document.createElement('td'); td4.className = 'py-2 ps-1 text-center';
+        if (alerts.length) {
+          const spn = document.createElement('span');
+          spn.className = 'rounded-full bg-rose-100 px-2 py-0.5 text-rose-800';
+          spn.textContent = String(alerts.length);
+          td4.appendChild(spn);
+        } else {
+          td4.textContent = '✅';
+        }
+        tr.append(td1, td2, td3, td4);
         tbody.appendChild(tr);
       });
       tbl.append(thead, tbody);

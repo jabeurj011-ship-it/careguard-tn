@@ -637,7 +637,12 @@
       (window.crypto || window.msCrypto).getRandomValues(rnd);
       const code = 'CG-' + Array.from(rnd, (b) => chars[b % chars.length]).join('');
       const name = (user.user_metadata && user.user_metadata.full_name) || 'المسنّ';
-      const { data: ins } = await S.client.from('senior_profiles').insert({ user_id: user.id, display_name: name, registration_number: code }).select('*').single();
+      const { data: ins, error: insErr } = await S.client.from('senior_profiles').insert({ user_id: user.id, display_name: name, registration_number: code }).select('*').single();
+      if (insErr || !ins) {
+        const fb = $('checkInFeedback');
+        if (fb) { fb.textContent = S.getLang() === 'fr' ? '⚠️ Erreur de chargement du profil — réessayez.' : '⚠️ تعذر تهيئة الملف الشخصي — تحقق من الإنترنت وأعد المحاولة.'; fb.classList.remove('hidden'); }
+        return;
+      }
       seniorProfile = ins;
     }
     if (!seniorProfile) return;
@@ -1062,17 +1067,17 @@
         const d1 = new Date();
         d1.setHours(h, mn, 0, 0);
         if (d1.getTime() <= nowMs + 5000) d1.setDate(d1.getDate() + 1);
-        const d2 = new Date(d1.getTime() + 24 * 3600000);
-        [d1, d2].forEach((dt, k) => {
+        for (let k = 0; k < 7; k++) {
+          const dt = new Date(d1.getTime() + k * 24 * 3600000);
           toSched.push({
-            id: 2000 + i * 2 + k,
+            id: 2000 + i * 7 + k,
             title: '📞 حان وقت الدواء — SoinsDar',
             body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
             channelId: getNativeRingChannel(),
             schedule: { at: dt, allowWhileIdle: true },
             extra: { medId: m.id, medName: m.name || 'الدواء', medTime: m.dosage || '' }
           });
-        });
+        }
       });
       if (toSched.length) await LN.schedule({ notifications: toSched });
     } catch (_) {}
@@ -1968,7 +1973,7 @@
   }
 
   async function triggerSosAlert(prefixTag) {
-    if (!seniorId) return;
+    if (!seniorId) return false;
     let lat = seniorProfile && seniorProfile.home_lat;
     let lng = seniorProfile && seniorProfile.home_lng;
     if (navigator.geolocation) {
@@ -1983,22 +1988,45 @@
     const mapLink = (lat && lng) ? ` — الموقع: https://www.google.com/maps?q=${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}` : '';
     const head = prefixTag || '🚨 استغاثة عاجلة (SOS)';
     const msg = `${head} من ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'}${mapLink}`;
-    await Promise.allSettled([
-      S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'sos', severity: 'critical', status: 'open', message: msg }),
-      S.client.from('care_direct_messages').insert([
+    let alertOk = false;
+    for (let attempt = 0; attempt < 2 && !alertOk; attempt++) {
+      try {
+        const { error } = await S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'sos', severity: 'critical', status: 'open', message: msg });
+        if (!error) alertOk = true;
+      } catch (_) {}
+      if (!alertOk && attempt === 0) await new Promise((r) => setTimeout(r, 1200));
+    }
+    try {
+      await S.client.from('care_direct_messages').insert([
         { senior_id: seniorId, sender_user_id: user.id, sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ', sender_role: 'senior', channel: 'family', message_text: msg },
         { senior_id: seniorId, sender_user_id: user.id, sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ', sender_role: 'senior', channel: 'nurse', message_text: msg }
-      ])
-    ]);
+      ]);
+    } catch (_) {}
+    return alertOk;
   }
 
   $('sendSosBtn').addEventListener('click', async () => {
     const btn = $('sendSosBtn');
+    const isFr = S.getLang() === 'fr';
     btn.disabled = true;
-    await triggerSosAlert();
+    const ok = await triggerSosAlert();
     btn.disabled = false;
-    $('sosMsg').textContent = S.getLang() === 'fr' ? '✅ SOS envoyé avec votre position GPS !' : '✅ تم إرسال الاستغاثة مع موقعك إلى العائلة والممرض!';
-    $('sosMsg').classList.remove('hidden');
+    const el = $('sosMsg');
+    el.replaceChildren();
+    if (ok) {
+      el.className = 'rounded-2xl border border-emerald-300 bg-emerald-50 p-3 text-center text-xs font-black text-[#0E5A3E]';
+      el.textContent = isFr ? '✅ SOS envoyé avec votre position GPS !' : '✅ تم إرسال الاستغاثة مع موقعك إلى العائلة والممرض!';
+    } else {
+      el.className = 'rounded-2xl border-2 border-rose-500 bg-rose-50 p-3 text-center text-xs font-black text-rose-900 space-y-2';
+      const pTxt = document.createElement('p');
+      pTxt.textContent = isFr ? '⚠️ Échec d\'envoi (hors ligne) — appelez le 190 immédiatement !' : '⚠️ تعذر الإرسال (تحقق من الإنترنت) — اتصل بالطوارئ 190 فوراً!';
+      const a190 = document.createElement('a');
+      a190.href = 'tel:190';
+      a190.className = 'inline-block rounded-xl bg-rose-700 px-4 py-2 text-xs font-black text-white shadow';
+      a190.textContent = isFr ? '📞 Appeler le 190' : '📞 اتصال مباشر بـ 190';
+      el.append(pTxt, a190);
+    }
+    el.classList.remove('hidden');
   });
 
   // Note 6: Fall Detection (DeviceMotion + 25s loud countdown)
