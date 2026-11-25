@@ -911,11 +911,16 @@
         } catch (_) {}
       }
       if (toSched.length) await LN.schedule({ notifications: toSched });
-      if ($('nativeAlarmStatus')) {
-        $('nativeAlarmStatus').textContent = `✓ تمت برمجة ${toSched.length} منبّه دقيق (${meds.length} دواء)`;
-        $('nativeAlarmStatus').classList.remove('hidden');
+      if (stEl) {
+        stEl.textContent = `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
+        stEl.classList.remove('hidden');
       }
-    } catch (_) {}
+    } catch (err) {
+      if (stEl) {
+        stEl.textContent = '⚠️ خطأ منبّه الأندرويد: ' + (err && err.message ? err.message : String(err));
+        stEl.classList.remove('hidden');
+      }
+    }
   }
 
   function isMedDueNow(m) {
@@ -2214,6 +2219,14 @@
   }
 
   $('pushBtn').addEventListener('click', async () => {
+    const Cap = window.Capacitor;
+    if (Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform()) {
+      await syncNativeMedAlarms();
+      await syncNativeApptAlarms();
+      $('pushBtn').className = 'tap-btn w-full rounded-2xl border-2 border-emerald-500 bg-emerald-700 px-4 py-3 text-base font-extrabold text-white';
+      $('pushBtn').textContent = '📲 منبّهات الأندرويد مفعّلة ✓';
+      return;
+    }
     const r = await S.toggleWebPush(user);
     if (r.ok) {
       $('pushBtn').className = r.active
