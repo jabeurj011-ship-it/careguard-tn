@@ -169,48 +169,125 @@
     return d.toISOString();
   }
 
-  // Loud Synth Ringtone + Custom Audio (IndexedDB-free lightweight dataURL in localStorage <= 2MB)
+  // 3 Built-in Loud WAV Ringtones + Custom Audio + First-Gesture Audio Unlock
   let activeAudio = null;
+  let activeStopTimer = null;
+  const wavCache = {};
+
+  function unlockAudioOnce() {
+    try {
+      if (!window.__cgAudioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) window.__cgAudioCtx = new AC();
+      }
+      if (window.__cgAudioCtx && window.__cgAudioCtx.state === 'suspended') {
+        window.__cgAudioCtx.resume().catch(() => {});
+      }
+    } catch (_) {}
+  }
+  if (typeof window !== 'undefined') {
+    ['pointerdown', 'touchstart', 'click'].forEach((ev) => {
+      window.addEventListener(ev, unlockAudioOnce, { once: true, passive: true });
+    });
+  }
+
+  function buildPresetWavUrl(mode) {
+    if (wavCache[mode]) return wavCache[mode];
+    const sr = 16000;
+    const durSec = 6.0;
+    const numSamples = Math.floor(sr * durSec);
+    const buf = new ArrayBuffer(44 + numSamples * 2);
+    const v = new DataView(buf);
+    const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i)); };
+    writeStr(0, 'RIFF');
+    v.setUint32(4, 36 + numSamples * 2, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true);
+    v.setUint32(28, sr * 2, true);
+    v.setUint16(32, 2, true);
+    v.setUint16(34, 16, true);
+    writeStr(36, 'data');
+    v.setUint32(40, numSamples * 2, true);
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      let s = 0;
+      if (mode === 'urgent_alarm') {
+        // Urgent alternating high medical siren
+        const cyc = t % 0.6;
+        const f = cyc < 0.3 ? 1046.5 : 1396.9;
+        const env = (cyc % 0.3) < 0.25 ? 0.9 : 0.15;
+        s = env * (0.65 * Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(2 * Math.PI * (f * 1.5) * t));
+      } else if (mode === 'classic_bell') {
+        // Clear gentle 4-note chime repeated every 1.5s
+        const cyc = t % 1.5;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        const idx = Math.min(3, Math.floor(cyc / 0.28));
+        const localT = cyc - idx * 0.28;
+        const env = cyc < 1.25 ? Math.exp(-localT * 4.5) : 0;
+        const f = notes[idx];
+        s = env * (0.75 * Math.sin(2 * Math.PI * f * t) + 0.2 * Math.sin(2 * Math.PI * f * 2 * t));
+      } else {
+        // loud_phone: classic strong dual-tone telephone ring (2s ring, 1s pause)
+        const cyc = t % 2.2;
+        if (cyc < 1.4 && (Math.floor(cyc * 16) % 2 === 0 || cyc < 0.7)) {
+          s = 0.85 * (0.55 * Math.sin(2 * Math.PI * 740 * t) + 0.45 * Math.sin(2 * Math.PI * 987.77 * t));
+        }
+      }
+      const clamped = Math.max(-1, Math.min(1, s));
+      v.setInt16(44 + i * 2, clamped * 32767, true);
+    }
+    const url = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+    wavCache[mode] = url;
+    return url;
+  }
+
   function stopRingtone() {
+    if (activeStopTimer) { clearTimeout(activeStopTimer); activeStopTimer = null; }
     if (activeAudio) {
       try { activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
       activeAudio = null;
     }
   }
-  function playStrongRingtone() {
+  function playStrongRingtone(overrideMode) {
     stopRingtone();
+    unlockAudioOnce();
     if (navigator.vibrate) { try { navigator.vibrate([500, 200, 500, 200, 700]); } catch (_) {} }
-    const preset = localStorage.getItem(CONFIG.RINGTONE_KEY) || 'loud_phone';
+    const cleanOverride = (typeof overrideMode === 'string') ? overrideMode : '';
+    const preset = cleanOverride || localStorage.getItem(CONFIG.RINGTONE_KEY) || 'loud_phone';
     const customUrl = localStorage.getItem('cg_v2_custom_ringtone_url') || '';
-    if (preset === 'custom_file' && customUrl) {
-      try {
-        activeAudio = new Audio(customUrl);
-        activeAudio.volume = 1.0;
-        activeAudio.play().catch(() => playSynth(preset));
-        setTimeout(stopRingtone, 8000);
-        return;
-      } catch (_) {}
+    const srcUrl = (preset === 'custom_file' && customUrl) ? customUrl : buildPresetWavUrl(preset);
+    try {
+      activeAudio = new Audio(srcUrl);
+      activeAudio.volume = 1.0;
+      activeAudio.play().catch(() => playSynth(preset));
+      activeStopTimer = setTimeout(stopRingtone, 9000);
+    } catch (_) {
+      playSynth(preset);
     }
-    playSynth(preset);
   }
   function playSynth(mode) {
     try {
-      if (!window.__cgAudioCtx) window.__cgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      unlockAudioOnce();
       const ctx = window.__cgAudioCtx;
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (!ctx) return;
       const now = ctx.currentTime;
-      const bursts = mode === 'urgent_alarm' ? 6 : 5;
+      const bursts = mode === 'urgent_alarm' ? 8 : 6;
       for (let i = 0; i < bursts; i++) {
-        const t = now + i * 0.38;
+        const t = now + i * 0.42;
         const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
         o1.type = mode === 'urgent_alarm' ? 'sawtooth' : (mode === 'classic_bell' ? 'triangle' : 'square');
         o2.type = 'triangle';
-        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 987.77 : (mode === 'classic_bell' ? 880 : 740), t);
-        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1318.5 : (mode === 'classic_bell' ? 1174.6 : 987.77), t);
-        g.gain.setValueAtTime(0.85, t);
-        g.gain.exponentialRampToValueAtTime(0.02, t + 0.32);
+        o1.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1046.5 : (mode === 'classic_bell' ? 523.25 : 740), t);
+        o2.frequency.setValueAtTime(mode === 'urgent_alarm' ? 1396.9 : (mode === 'classic_bell' ? 783.99 : 987.77), t);
+        g.gain.setValueAtTime(0.9, t);
+        g.gain.exponentialRampToValueAtTime(0.02, t + 0.36);
         o1.connect(g); o2.connect(g); g.connect(ctx.destination);
-        o1.start(t); o2.start(t); o1.stop(t + 0.34); o2.stop(t + 0.34);
+        o1.start(t); o2.start(t); o1.stop(t + 0.38); o2.stop(t + 0.38);
       }
     } catch (_) {}
   }
