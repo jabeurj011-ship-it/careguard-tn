@@ -29,13 +29,7 @@
     </div>
 
     <div class="flex items-center justify-center gap-2.5 pt-0.5 text-center">
-<svg class="h-12 w-12 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <path d="M6 21L24 6l18 15" stroke="#0E5A3E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M11 17.5V35c0 1.4 1.1 2.5 2.5 2.5h21c1.4 0 2.5-1.1 2.5-2.5V17.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M33 10v4.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round"/>
-        <path d="M24 31.5s-6.5-4.1-8.5-8.2A4.8 4.8 0 0124 19.4a4.8 4.8 0 018.5 3.9c-2 4.1-8.5 8.2-8.5 8.2z" fill="#0E5A3E"/>
-        <path d="M5 40.5c7-3.8 14.5-4 22.5-1.5 6.5 2 11.5 1.8 15.5 0" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
-      </svg>
+<img src="./emblem-soinsdar.png" alt="SOINSDAR" class="h-12 w-auto shrink-0 object-contain" />
       <div class="text-start">
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none tracking-wide text-[#0E5A3E]">SOINSDAR</h1>
         <p id="hdrSub" class="mt-0.5 text-xs font-extrabold text-[#0E5A3E]/85">رعايتهم تجمعنا • v2.6-TN</p>
@@ -1886,11 +1880,21 @@
     const f = e.target.files && e.target.files[0];
     if (!f || !seniorId) return;
     const r = new FileReader();
-    r.onload = async () => {
-      const url = String(r.result || '');
-      seniorProfile.avatar_url = url;
-      renderSeniorHeader();
-      await S.client.from('senior_profiles').update({ avatar_url: url }).eq('id', seniorId);
+    r.onload = () => {
+      const img = new Image();
+      img.onload = async () => {
+        const c = document.createElement('canvas');
+        const sz = 256;
+        c.width = sz; c.height = sz;
+        const ctx = c.getContext('2d');
+        const side = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, sz, sz);
+        const url = c.toDataURL('image/jpeg', 0.72);
+        seniorProfile.avatar_url = url;
+        renderSeniorHeader();
+        await S.client.from('senior_profiles').update({ avatar_url: url }).eq('id', seniorId);
+      };
+      img.src = String(r.result || '');
     };
     r.readAsDataURL(f);
   });
@@ -2202,7 +2206,12 @@
             ? 'rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-black text-rose-800 animate-pulse'
             : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]';
           if (seniorId) {
-            try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: isChg })).catch(() => {}); } catch (_) {}
+            const dsKey = 'cg_v2_ds_at_' + seniorId;
+            const lastDs = Number(localStorage.getItem(dsKey) || 0);
+            if (Date.now() - lastDs > 30 * 60000 || (pct <= 20 && !isChg)) {
+              try { localStorage.setItem(dsKey, String(Date.now())); } catch (_) {}
+              try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: isChg })).catch(() => {}); } catch (_) {}
+            }
             if (pct <= 20 && !isChg) {
               const batKey = 'cg_v2_lowbat_at_' + seniorId;
               const lastAt = Number(localStorage.getItem(batKey) || 0);
@@ -2226,10 +2235,19 @@
     checkNightlyDailyReport();
     setInterval(() => { checkDueMeds(); checkDueAppts(); checkWaterReminder(); }, 15000);
     setInterval(() => { checkHomeSafeZone(); checkNightlyDailyReport(); }, 120000);
-    S.client.channel('cg-v2-senior-' + user.id)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nurse_visit_requests', filter: 'requester_user_id=eq.' + user.id }, () => { S.playStrongRingtone(); loadVisitBanner(); })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); if (!p.new || p.new.channel === dmChannel) loadDirectMessages(); refreshUnreadBadge(); })
-      .subscribe();
+    let rtCh = null;
+    function connectRt() {
+      if (rtCh || document.hidden) return;
+      rtCh = S.client.channel('cg-v2-senior-' + user.id)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nurse_visit_requests', filter: 'requester_user_id=eq.' + user.id }, () => { S.playStrongRingtone(); loadVisitBanner(); })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); if (!p.new || p.new.channel === dmChannel) loadDirectMessages(); refreshUnreadBadge(); })
+        .subscribe();
+    }
+    connectRt();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && rtCh) { S.client.removeChannel(rtCh); rtCh = null; }
+      else if (!document.hidden) { connectRt(); loadVisitBanner(); refreshUnreadBadge(); }
+    });
   })();
 })();
 </script>

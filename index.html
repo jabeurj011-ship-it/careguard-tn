@@ -18,13 +18,7 @@
 <header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
   <div class="mx-auto flex max-w-md items-center justify-between px-4 py-3">
     <div class="flex items-center gap-2.5">
-<svg class="h-11 w-11 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <path d="M6 21L24 6l18 15" stroke="#0E5A3E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M11 17.5V35c0 1.4 1.1 2.5 2.5 2.5h21c1.4 0 2.5-1.1 2.5-2.5V17.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M33 10v4.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round"/>
-          <path d="M24 31.5s-6.5-4.1-8.5-8.2A4.8 4.8 0 0124 19.4a4.8 4.8 0 018.5 3.9c-2 4.1-8.5 8.2-8.5 8.2z" fill="#0E5A3E"/>
-          <path d="M5 40.5c7-3.8 14.5-4 22.5-1.5 6.5 2 11.5 1.8 15.5 0" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+<img src="./emblem-soinsdar.png" alt="SOINSDAR" class="h-11 w-auto shrink-0 object-contain" />
       <div>
         <h1 class="font-serif-brand text-2xl font-extrabold leading-none text-[#0E5A3E]">SOINSDAR</h1>
         <p id="gwSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">رعايتهم تجمعنا • v2.6-TN</p>
@@ -35,10 +29,8 @@
 </header>
 
 <main class="mx-auto w-full max-w-md flex-1 space-y-4 px-4 py-5">
-  <div id="gwSloganCard" class="rounded-3xl bg-[#F4EDE0] border border-[#E6DCCB] px-4 py-3.5 text-center space-y-1 shadow-sm">
-    <p id="gwSloganBrand" class="text-lg font-black tracking-wide text-[#6E5434]">SOINSDAR</p>
-    <p id="gwSloganMain" class="text-base font-black text-[#6E5434]">رعايتهم تجمعنا</p>
-    <p id="gwSloganSub" class="text-xs font-bold text-[#6E5434]/90">من أجل حياة أكثر أماناً وراحة لكبارنا.</p>
+  <div id="gwSloganCard" class="rounded-3xl bg-white border border-[#DCECE4] px-4 py-3 text-center shadow-sm">
+    <img src="./logo-soinsdar.png" alt="SOINSDAR — بيت الرعاية والطمأنينة" class="mx-auto max-h-44 w-auto object-contain" />
   </div>
 
   <!-- Step 1: Role Chooser -->
@@ -139,15 +131,7 @@
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
     $('gwSub').textContent = (isFr ? 'La maison du bien-être • ' : 'رعايتهم تجمعنا • ') + S.CONFIG.VERSION;
     if ($('gwSloganCard')) {
-      $('gwSloganCard').className = isFr
-        ? 'rounded-3xl bg-[#EAF4F1] border border-[#C7DFCE] px-4 py-3.5 text-center space-y-1 shadow-sm'
-        : 'rounded-3xl bg-[#F4EDE0] border border-[#E6DCCB] px-4 py-3.5 text-center space-y-1 shadow-sm';
-      const tc = isFr ? 'text-[#0E5A3E]' : 'text-[#6E5434]';
-      $('gwSloganBrand').className = 'text-lg font-black tracking-wide ' + tc;
-      $('gwSloganMain').className = 'text-base font-black ' + tc;
-      $('gwSloganSub').className = 'text-xs font-bold ' + tc + '/90';
-      $('gwSloganMain').textContent = isFr ? 'La maison du bien-être' : 'رعايتهم تجمعنا';
-      $('gwSloganSub').textContent = isFr ? 'Accompagner nos aînés, rassurer leurs familles.' : 'من أجل حياة أكثر أماناً وراحة لكبارنا.';
+      $('gwSloganCard').className = 'rounded-3xl bg-white border border-[#DCECE4] px-4 py-3 text-center shadow-sm';
     }
     $('roleTitle').textContent = isFr ? 'Qui utilise SoinsDar ?' : 'من يستخدم SoinsDar؟';
     $('roleSub').textContent = isFr ? 'Choisissez votre espace indépendant' : 'اختر صفتك ليفتح لك الفضاء المستقل الخاص بك';
