@@ -1,14 +1,5 @@
-const CACHE_NAME = 'careguard-tn-v2.6';
-const SHELL_ASSETS = [
-  './',
-  './index.html',
-  './senior.html',
-  './family.html',
-  './nurse.html',
-  './styles.css',
-  './shared.js',
-  './manifest.json'
-];
+const CACHE_NAME = 'soinsdar-tn-v153';
+const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -30,7 +21,6 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-
   const CDN_HOSTS = ['cdn.tailwindcss.com', 'cdn.jsdelivr.net'];
   if (CDN_HOSTS.includes(url.hostname)) {
     event.respondWith(
@@ -47,10 +37,10 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
   if (url.origin !== self.location.origin) return;
 
-  if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('/')) {
+  // Network-first for HTML so GitHub Pages updates appear immediately when online
+  if (req.mode === 'navigate' || url.pathname.endsWith('index.html') || url.pathname.endsWith('/')) {
     event.respondWith(
       fetch(req)
         .then((res) => {
@@ -63,16 +53,35 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(caches.match(req).then((cached) => cached || fetch(req)));
+  event.respondWith(
+    caches.match(req).then((cached) => cached || fetch(req))
+  );
 });
 
+self.addEventListener('message', (event) => {
+  const data = event.data || {};
+  if (data.type === 'SHOW_NOTIFICATION' && self.registration) {
+    event.waitUntil(
+      self.registration.showNotification(String(data.title || 'SOINSDAR').replace(/CareGuard/gi, 'SOINSDAR'), {
+        body: data.body || '',
+        tag: data.tag || 'careguard-alert',
+        renotify: true,
+        requireInteraction: true
+      })
+    );
+  }
+});
+
+
 self.addEventListener('push', (event) => {
-  let payload = { title: '💊 CareGuard TN', body: 'تنبيه جديد — افتح التطبيق للمراجعة', tag: 'careguard-push' };
+  let payload = { title: '🚨 SOINSDAR', body: 'Nouvelle alerte / New alert', tag: 'soinsdar-push' };
   try {
     if (event.data) payload = Object.assign(payload, event.data.json());
   } catch (_) {
     try { if (event.data) payload.body = event.data.text(); } catch (__) {}
   }
+  payload.title = String(payload.title || 'SOINSDAR').replace(/CareGuard/gi, 'SOINSDAR');
+  payload.body = String(payload.body || '').replace(/CareGuard/gi, 'SOINSDAR');
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
@@ -91,7 +100,9 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      if (clients.length > 0) return clients[0].focus();
+      if (clients.length > 0) {
+        return clients[0].focus();
+      }
       return self.clients.openWindow('./');
     })
   );

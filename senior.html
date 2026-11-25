@@ -680,7 +680,9 @@
         try { localStorage.setItem(lsKey, data[0].checked_in_at); } catch (_) {}
         $('lastCheckInTxt').textContent = formatCheckInText(data[0].checked_in_at);
       }
-    } catch (_) {}
+    } catch (err) {
+      if (stEl) { stEl.textContent = '⚠️ خطأ في برمجة المنبه: ' + (err && err.message ? err.message : String(err)); stEl.classList.remove('hidden'); }
+    }
   }
 
   function renderSeniorHeader() {
@@ -1014,13 +1016,23 @@
   // Native Android LocalNotifications (Capacitor) for closed-app Medication Call Alarms
   let nativeAlarmReady = false;
   async function syncNativeMedAlarms() {
+    const stEl = $('nativeAlarmStatus');
     const Cap = window.Capacitor;
-    if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) return;
+    if (!Cap || typeof Cap.isNativePlatform !== 'function' || !Cap.isNativePlatform()) {
+      if (stEl) { stEl.textContent = 'ℹ️ تعمل الآن من المتصفح — منبّهات إغلاق التطبيق تعمل داخل نسخة الأندرويد (APK)'; stEl.classList.remove('hidden'); }
+      return;
+    }
     const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
-    if (!LN) return;
+    if (!LN) {
+      if (stEl) { stEl.textContent = '⚠️ إضافة الإشعارات المحلية غير مفعّلة في هذا الـ APK'; stEl.classList.remove('hidden'); }
+      return;
+    }
     try {
       const perm = await LN.requestPermissions();
-      if (!perm || perm.display !== 'granted') return;
+      if (!perm || perm.display !== 'granted') {
+        if (stEl) { stEl.textContent = '⚠️ يرجى السماح بإذن الإشعارات لتطبيق SoinsDar من إعدادات الهاتف'; stEl.classList.remove('hidden'); }
+        return;
+      }
       if (!nativeAlarmReady) {
         nativeAlarmReady = true;
         try {
@@ -1525,13 +1537,13 @@
   // Pending Care Links
   async function loadPendingLinks() {
     if (!seniorId) return;
-    const { data } = await S.client.from('senior_care_links').select('id, role_type').eq('senior_id', seniorId).eq('status', 'pending');
+    const { data } = await S.client.from('senior_care_links').select('id, role_type, requester_name').eq('senior_id', seniorId).eq('status', 'pending');
     const box = $('pendingLinksBox'), list = $('pendingLinksList');
     if (!data || !data.length) { box.classList.add('hidden'); return; }
     list.replaceChildren();
     data.forEach((lk) => {
       const row = document.createElement('div'); row.className = 'flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-xs font-black';
-      const lbl = document.createElement('span'); lbl.textContent = lk.role_type === 'nurse' ? '🩺 طلب ربط من ممرض' : '👨‍👩‍👧 طلب ربط من العائلة';
+      const lbl = document.createElement('span'); lbl.textContent = lk.role_type === 'nurse' ? ('🩺 طلب ربط من ممرض' + (lk.requester_name ? ': ' + lk.requester_name : '')) : ('👨‍👩‍👧 طلب ربط من العائلة' + (lk.requester_name ? ': ' + lk.requester_name : ''));
       const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'rounded-lg bg-[#0E5A3E] px-3 py-1 text-white'; ok.textContent = 'قبول ✓';
       ok.addEventListener('click', async () => { await S.client.from('senior_care_links').update({ status: 'approved' }).eq('id', lk.id); loadPendingLinks(); });
       row.append(lbl, ok); list.appendChild(row);
@@ -2150,6 +2162,23 @@
       return;
     }
     const takenCnt = (meds || []).filter((m) => takenMap.has(m.id)).length;
+    const medDetails = [];
+    const missedMeds = [];
+    (meds || []).forEach((m) => {
+      const hm = String(m.dosage || '').match(/(\d{1,2}):(\d{2})/);
+      if (takenMap.has(m.id)) {
+        const dt = new Date(takenMap.get(m.id));
+        const tStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let delayTxt = 'في وقته ✓';
+        if (hm) {
+          const diff = (dt.getHours() * 60 + dt.getMinutes()) - (Number(hm[1]) * 60 + Number(hm[2]));
+          if (diff > 15) delayTxt = `بتأخير ${diff} د ⏰`;
+        }
+        medDetails.push(`  - ${m.name} (${m.dosage || '-'}): أُخذ ${tStr} (${delayTxt})`);
+      } else {
+        missedMeds.push(`${m.name} (${m.dosage || '-'})`);
+      }
+    });
     const waterCnt = seniorProfile.water_date === today ? (seniorProfile.water_count || 0) : 0;
     const apptTxt = (todayAppts && todayAppts.length)
       ? todayAppts.map((a) => `${a.title || 'موعد'} (${a.status === 'attended' ? 'تم الحضور ✓' : 'مسجّل'})`).join('، ')
@@ -2157,12 +2186,17 @@
     const nurseReqTxt = (todayReqs && todayReqs.length) ? `نعم (${todayReqs.length})` : 'لا';
     const sosHit = (todayAlerts || []).some((a) => a.alert_type === 'sos');
     const leftHomeHit = (todayAlerts || []).some((a) => a.alert_type === 'left_home') || localStorage.getItem('cg_v2_left_home_today_' + today) === '1';
+    const lastChkIso = localStorage.getItem('cg_v2_last_checkin_' + seniorId) || '';
+    const lastChkTxt = lastChkIso ? new Date(lastChkIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'لا يوجد';
 
     const reportText = [
       `التقرير اليومي (${today}):`,
       `• المواعيد الطبية: ${apptTxt}`,
       `• الأدوية: ${takenCnt} / ${(meds || []).length}`,
+      ...(medDetails.length ? medDetails : []),
+      `• أدوية لم تُؤخذ: ${missedMeds.length ? missedMeds.join('، ') : 'لا يوجد ✓'}`,
       `• شرب الماء: ${waterCnt} / 8 أكواب`,
+      `• آخر طمأنة «أنا بخير»: ${lastChkTxt}`,
       `• استدعاء ممرض (للعائلة): ${nurseReqTxt}`,
       `• الاتصال بالطوارئ (SOS): ${sosHit ? 'نعم ⚠️' : 'لا'}`,
       `• الابتعاد عن المنزل المسجّل: ${leftHomeHit ? 'نعم 📍⚠️' : 'لا (داخل المنزل)'}`
