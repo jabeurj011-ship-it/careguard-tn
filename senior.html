@@ -472,14 +472,14 @@
 <div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
   <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-black text-[#0E5A3E]">🔔 إعدادات نغمة التنبيه</h3>
+      <h3 class="text-lg font-black text-[#0E5A3E]">🎵 استوديو نغمات التنبيه</h3>
       <button id="closeRingBtn" type="button" class="rounded-xl px-3 py-1 text-lg font-black text-slate-600">✕</button>
     </div>
-    <select id="ringPresetSel" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold">
-      <option value="loud_phone">1️⃣ رنين هاتف قوي ومتكرر</option>
-      <option value="urgent_alarm">2️⃣ إنذار طوارئ عاجل</option>
-      <option value="classic_bell">3️⃣ جرس دواء هادئ وواضح</option>
-      <option value="custom_file">نغمة مخصصة من الهاتف</option>
+    <div id="ringStudioList" class="max-h-60 space-y-2 overflow-y-auto pr-0.5"></div>
+    <select id="ringPresetSel" class="hidden">
+      <option value="loud_phone">1</option><option value="urgent_alarm">2</option><option value="classic_bell">3</option>
+      <option value="piano_melody">4</option><option value="morning_harp">5</option><option value="high_clarity">6</option>
+      <option value="custom_file">custom</option>
     </select>
     <label for="customRingFile" class="tap-btn block w-full cursor-pointer rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50 px-4 py-3 text-center text-xs font-black text-amber-950">
       🎵 اختر نغمة صوتية من الهاتف (MP3 / WAV / M4A)
@@ -621,6 +621,7 @@
     $('setQrSub').textContent = isFr ? 'Scannez avec un autre téléphone pour ouvrir l\'app' : 'امسح الكود بهاتف آخر لفتح التطبيق مباشرة';
     if ($('setApkLbl')) $('setApkLbl').textContent = isFr ? 'Télécharger l\'application (Android APK)' : 'تحميل التطبيق على الهاتف (APK)';
     if ($('fallDetectLbl')) $('fallDetectLbl').textContent = isFr ? '🛡️ Détection de chute automatique' : '🛡️ كشف السقوط التلقائي';
+    if (typeof syncFallBtnUI === 'function') syncFallBtnUI();
     if ($('testFallBtn')) $('testFallBtn').textContent = isFr ? '⚠️ Tester l\'alerte chute (25s)' : '⚠️ تجربة تنبيه السقوط (عدّ تنازلي 25 ثانية)';
     document.querySelectorAll('.tile-arrow').forEach((el) => { el.textContent = isFr ? '→' : '←'; });
     const opts = $('fnGenderSel').options;
@@ -1040,18 +1041,25 @@
         if (oldIds.length) await LN.cancel({ notifications: oldIds });
       }
       const toSched = [];
+      const nowMs = Date.now();
       meds.forEach((m, i) => {
         const mt = String(m.dosage || '').match(/(\d{1,2}):(\d{2})/);
         if (!mt) return;
         const h = Number(mt[1]), mn = Number(mt[2]);
         if (!Number.isFinite(h) || !Number.isFinite(mn)) return;
-        toSched.push({
-          id: 2000 + i,
-          title: '📞 حان وقت الدواء — SoinsDar',
-          body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
-          channelId: getNativeRingChannel(),
-          schedule: { on: { hour: h, minute: mn }, allowWhileIdle: true, repeats: true },
-          extra: { medId: m.id, medName: m.name || 'الدواء', medTime: m.dosage || '' }
+        const d1 = new Date();
+        d1.setHours(h, mn, 0, 0);
+        if (d1.getTime() <= nowMs + 5000) d1.setDate(d1.getDate() + 1);
+        const d2 = new Date(d1.getTime() + 24 * 3600000);
+        [d1, d2].forEach((dt, k) => {
+          toSched.push({
+            id: 2000 + i * 2 + k,
+            title: '📞 حان وقت الدواء — SoinsDar',
+            body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
+            channelId: getNativeRingChannel(),
+            schedule: { at: dt, allowWhileIdle: true },
+            extra: { medId: m.id, medName: m.name || 'الدواء', medTime: m.dosage || '' }
+          });
         });
       });
       if (toSched.length) await LN.schedule({ notifications: toSched });
@@ -1201,7 +1209,8 @@
       if (alertedMedKeys.has(key)) return false;
       const [h, mn] = String(m.dosage || '').split(':').map(Number);
       if (!Number.isFinite(h) || !Number.isFinite(mn)) return false;
-      return nowMins >= (h * 60 + mn);
+      const schedMins = h * 60 + mn;
+      return nowMins >= schedMins && nowMins <= schedMins + 45;
     });
     if (!due.length) return;
     renderMeds();
@@ -2129,7 +2138,7 @@
     }
   });
 
-  $('ringtoneBtn').addEventListener('click', () => { $('ringPresetSel').value = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone'; $('ringtoneModal').classList.remove('hidden'); });
+  $('ringtoneBtn').addEventListener('click', () => { $('ringPresetSel').value = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone'; if (S.renderRingtoneStudio) S.renderRingtoneStudio($('ringStudioList')); $('ringtoneModal').classList.remove('hidden'); });
   $('closeRingBtn').addEventListener('click', () => { S.stopRingtone(); $('ringtoneModal').classList.add('hidden'); });
   $('ringPresetSel').addEventListener('change', (e) => { localStorage.setItem(S.CONFIG.RINGTONE_KEY, e.target.value); if (e.target.value !== 'custom_file') S.playStrongRingtone(e.target.value); });
   $('testRingBtn').addEventListener('click', () => S.playStrongRingtone());
