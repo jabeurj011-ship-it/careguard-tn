@@ -692,27 +692,44 @@
         fp.textContent = isFr ? '🍽️ À jeun requis' : '🍽️ صائم قبل الموعد';
         left.appendChild(fp);
       }
-      const btns = document.createElement('div');
-      btns.className = 'flex flex-col gap-1 shrink-0';
-      const doneBtn = document.createElement('button');
-      doneBtn.type = 'button';
-      doneBtn.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-xs font-black text-white';
-      doneBtn.textContent = isFr ? '✓ Fait' : '✓ تم';
-      doneBtn.addEventListener('click', async () => {
-        await S.client.from('medical_appointments').update({ status: 'done' }).eq('id', a.id);
-        loadAppts();
-      });
+      const isApptDue = Date.now() >= (dt.getTime() - 30 * 60000);
+      const statusBadge = document.createElement('span');
+      statusBadge.className = isApptDue
+        ? 'shrink-0 rounded-full bg-amber-100 border border-amber-300 px-2.5 py-0.5 text-[10px] font-black text-amber-950'
+        : 'shrink-0 rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-[10px] font-black text-slate-600';
+      statusBadge.textContent = isApptDue ? (isFr ? '⏰ En cours' : '⏰ حان الموعد') : (isFr ? '⏳ À venir' : '⏳ قادم');
+      top.append(left, statusBadge);
+      card.appendChild(top);
+
+      const actRow = document.createElement('div');
+      actRow.className = 'flex items-center justify-between gap-3 pt-2 border-t border-[#EDE4D4]';
+      if (isApptDue) {
+        const doneBtn = document.createElement('button');
+        doneBtn.type = 'button';
+        doneBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-4 py-1.5 text-xs font-black text-white';
+        doneBtn.textContent = isFr ? '✓ Fait' : '✓ تم الحضور';
+        doneBtn.addEventListener('click', async () => {
+          await S.client.from('medical_appointments').update({ status: 'done' }).eq('id', a.id);
+          loadAppts();
+        });
+        actRow.appendChild(doneBtn);
+      } else {
+        const waitHint = document.createElement('span');
+        waitHint.className = 'text-[11px] font-bold text-[#5C6F63]';
+        waitHint.textContent = isFr ? '🔒 Validation disponible à l\'heure du RDV' : '🔒 يتفعّل زر «تم» عند حلول الموعد';
+        actRow.appendChild(waitHint);
+      }
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-800';
-      delBtn.textContent = '🗑️';
+      delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-800';
+      delBtn.textContent = isFr ? '🗑️ Supprimer' : '🗑️ حذف';
       delBtn.addEventListener('click', async () => {
+        if (!window.confirm(isFr ? 'Supprimer ce rendez-vous ?' : 'هل تريد حذف هذا الموعد؟')) return;
         await S.client.from('medical_appointments').delete().eq('id', a.id);
         loadAppts();
       });
-      btns.append(doneBtn, delBtn);
-      top.append(left, btns);
-      card.appendChild(top);
+      actRow.appendChild(delBtn);
+      card.appendChild(actRow);
       box.appendChild(card);
     });
   }
