@@ -16,12 +16,18 @@
 <body class="min-h-screen pb-24">
 
 <!-- Top Header -->
-<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+<header class="sticky top-0 z-30 bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#FAF6EE]/95 backdrop-blur border-b border-[#DCECE4]">
   <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
-    <div class="flex items-center gap-2.5 min-w-0">
-      <div id="nurseHdrAvatar" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-white shadow-sm"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg></div>
+    <div class="flex items-center gap-2 min-w-0">
+      <svg class="h-10 w-10 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M6 21L24 6l18 15" stroke="#0E5A3E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11 17.5V35c0 1.4 1.1 2.5 2.5 2.5h21c1.4 0 2.5-1.1 2.5-2.5V17.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M33 10v4.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round"/>
+        <path d="M24 31.5s-6.5-4.1-8.5-8.2A4.8 4.8 0 0124 19.4a4.8 4.8 0 018.5 3.9c-2 4.1-8.5 8.2-8.5 8.2z" fill="#0E5A3E"/>
+        <path d="M5 40.5c7-3.8 14.5-4 22.5-1.5 6.5 2 11.5 1.8 15.5 0" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+      </svg>
       <div class="min-w-0">
-        <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء الممرض</h1>
+        <h1 id="hdrTitle" class="font-serif-brand text-base sm:text-lg font-extrabold leading-tight text-[#0E5A3E]">فضاء الممرض</h1>
         <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SOINSDAR • رعايتهم تجمعنا</p>
       </div>
     </div>
@@ -39,7 +45,7 @@
   <div id="blockWarnBox" class="hidden rounded-2xl border-2 border-rose-400 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900"></div>
 
   <!-- TAB 1: VISIT REQUESTS (UBER + DIRECT + GOOGLE MAPS) -->
-  <section id="secRequests" class="space-y-3">
+  <section id="secRequests" class="hidden space-y-3">
     <div class="flex items-center justify-between">
       <div>
         <h2 id="reqHeading" class="text-lg font-black text-[#0E5A3E]">🩺 طلبات الزيارة</h2>
@@ -58,8 +64,10 @@
     <div id="reqList" class="space-y-2.5"></div>
   </section>
 
-  <!-- TAB 2: LINKED PATIENTS -->
-  <section id="secPatients" class="hidden space-y-3.5">
+  <!-- TAB 1 (HOME): NURSE SUMMARY CARD + PATIENT DATA TABLE -->
+  <section id="secPatients" class="space-y-3.5">
+    <div id="nurseHomeProfileCard" class="rounded-[24px] border border-[#DFEAE3] bg-white p-4 shadow-sm"></div>
+    <div id="patientsTableWrap" class="hidden cg-card p-3.5 space-y-2 overflow-x-auto"></div>
     <div class="cg-card p-4 space-y-2.5">
       <p id="linkTitle" class="text-sm font-black text-[#0E5A3E]">🔗 ربط مسنّ عبر الرمز (CG-...)</p>
       <div class="flex gap-2">
@@ -158,13 +166,13 @@
 <!-- Bottom Navigation (Nurse Only) -->
 <nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
   <div class="mx-auto grid max-w-xl grid-cols-3 py-2 text-center text-xs font-black">
-    <button id="navRequests" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]">
+    <button id="navPatients" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>
+      <span id="navPatLbl">الرئيسية</span>
+    </button>
+    <button id="navRequests" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg>
       <span id="navReqLbl">الطلبات</span>
-    </button>
-    <button id="navPatients" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      <span id="navPatLbl">المرضى</span>
     </button>
     <button id="navProfile" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -313,7 +321,9 @@
     $('reqHeading').textContent = isFr ? '🩺 Demandes de visite' : '🩺 طلبات الزيارة';
     $('reqSub').textContent = isFr ? 'Acceptez vite et suivez Google Maps' : 'اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps';
     $('navReqLbl').textContent = isFr ? 'Demandes' : 'الطلبات';
-    $('navPatLbl').textContent = isFr ? 'Patients' : 'المرضى';
+    $('navPatLbl').textContent = isFr ? 'Accueil' : 'الرئيسية';
+    if ($('linkTitle')) $('linkTitle').textContent = isFr ? '🔗 Lier un patient par code (CG-...)' : '🔗 ربط مسنّ عبر الرمز (CG-...)';
+    if ($('linkSubmitBtn')) $('linkSubmitBtn').textContent = isFr ? 'Lier' : 'ربط';
     $('navProfLbl').textContent = isFr ? 'Mon profil' : 'ملفي';
     $('saveProfileBtn').textContent = isFr ? 'Enregistrer le profil' : 'حفظ ملف الممرض';
     $('switchRoleBtn').textContent = isFr ? '🔄 Changer de rôle' : '🔄 تغيير الدور';
@@ -602,6 +612,48 @@
     if (ok) setSubTab('accepted');
   }
 
+  function renderNurseHomeCard() {
+    const card = $('nurseHomeProfileCard');
+    if (!card) return;
+    const isFr = S.getLang() === 'fr';
+    const mp = myProfile || {};
+    card.replaceChildren();
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-3.5';
+    const av = document.createElement('div');
+    av.className = 'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#DCECE4] bg-[#0E5A3E] text-2xl font-black text-white shadow-sm';
+    if (mp.avatar_url) {
+      const img = document.createElement('img'); img.src = mp.avatar_url; img.className = 'h-full w-full object-cover';
+      av.appendChild(img);
+    } else {
+      av.textContent = '🩺';
+    }
+    const info = document.createElement('div');
+    info.className = 'min-w-0 flex-1 space-y-1';
+    const nm = document.createElement('h2');
+    nm.className = 'truncate text-lg font-black text-[#163024]';
+    nm.textContent = mp.full_name || (isFr ? 'Infirmier / Infirmière' : 'الممرض / الممرضة');
+    const credMap = { INF_MAJOR: isFr ? 'Infirmier Major' : 'ممرض رئيسي', INF_PRINCIPAL: isFr ? 'Infirmier Principal' : 'ممرض أول', IDE: isFr ? 'IDE' : 'ممرض مجاز', AIDE: isFr ? 'Aide-soignant' : 'عون تمريض' };
+    const meta = document.createElement('p');
+    meta.className = 'text-xs font-bold text-[#5C6F63]';
+    const gov = mp.region ? S.formatGovLabel(mp.region) : (isFr ? 'Tunisie' : 'تونس');
+    const avail = mp.is_available === false ? (isFr ? '🔴 Indisponible' : '🔴 غير متاح') : (isFr ? '🟢 Disponible' : '🟢 متاح الآن');
+    meta.textContent = `${credMap[mp.credential_level] || (isFr ? 'Infirmier' : 'ممرض')} • ${gov} • ${avail}`;
+    const ph = document.createElement('p');
+    ph.className = 'text-xs font-extrabold text-[#0E5A3E]';
+    ph.dir = 'ltr';
+    ph.textContent = mp.phone ? '📞 ' + mp.phone : '';
+    info.append(nm, meta);
+    if (mp.phone) info.appendChild(ph);
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'tap-btn shrink-0 rounded-xl border border-[#DCECE4] bg-[#EFF7F1] px-2.5 py-1.5 text-[11px] font-black text-[#0E5A3E]';
+    editBtn.textContent = isFr ? 'Profil' : 'ملفي';
+    editBtn.addEventListener('click', () => switchMainTab('profile'));
+    row.append(av, info, editBtn);
+    card.appendChild(row);
+  }
+
   async function loadPatients() {
     const box = $('patientsList');
     const isFr = S.getLang() === 'fr';
@@ -612,6 +664,9 @@
     await loadMyBlockedPatients();
     const remIds = getRemovedLinkIds();
     const visibleLinks = (links || []).filter((lk) => !remIds.has(lk.id) && !(lk.senior_id && myBlockedSeniorIds.has(lk.senior_id)));
+    renderNurseHomeCard();
+    const tblWrap = $('patientsTableWrap');
+    if (tblWrap) tblWrap.replaceChildren();
     box.replaceChildren();
     renderBlockedPatientsBox();
     if (!visibleLinks.length) {
@@ -625,9 +680,10 @@
     const enriched = await Promise.all(visibleLinks.map(async (lk) => {
       if (lk.status !== 'approved') return { lk, approved: false };
       const sp = lk.senior_profiles || { id: lk.senior_id, display_name: 'المسنّ' };
-      const [{ data: meds }, { data: logs }] = await Promise.all([
+      const [{ data: meds }, { data: logs }, { data: alerts }] = await Promise.all([
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
-        S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart)
+        S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
+        S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(5)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
       const takenTimeMap = new Map();
@@ -636,8 +692,31 @@
           takenTimeMap.set(l.medication_id, new Date(l.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         }
       });
-      return { lk, approved: true, sp, meds: meds || [], takenSet, takenTimeMap };
+      return { lk, approved: true, sp, meds: meds || [], takenSet, takenTimeMap, alerts: alerts || [] };
     }));
+
+    const approvedItems = enriched.filter((x) => x.approved);
+    if (tblWrap && approvedItems.length) {
+      tblWrap.classList.remove('hidden');
+      const thTitle = document.createElement('p');
+      thTitle.className = 'text-sm font-black text-[#0E5A3E]';
+      thTitle.textContent = isFr ? '📋 Tableau récapitulatif des patients' : '📋 جدول بيانات المرضى';
+      const tbl = document.createElement('table');
+      tbl.className = 'w-full text-start text-xs border-collapse';
+      const thead = document.createElement('thead');
+      thead.innerHTML = `<tr class="border-b border-[#E6DCCB] text-[11px] font-black text-[#5C6F63]"><th class="py-1.5 pe-2 text-start">${isFr ? 'Patient' : 'المريض'}</th><th class="py-1.5 px-1 text-center">${isFr ? 'Groupe' : 'الفصيلة'}</th><th class="py-1.5 px-1 text-center">${isFr ? 'Méds' : 'الأدوية'}</th><th class="py-1.5 ps-1 text-center">${isFr ? 'Alertes' : 'التنبيهات'}</th></tr>`;
+      const tbody = document.createElement('tbody');
+      approvedItems.forEach(({ sp, meds, takenSet, alerts }) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-[#F2EAE0] last:border-0 font-bold text-[#163024]';
+        tr.innerHTML = `<td class="py-2 pe-2 font-black">${sp.display_name || '-'}</td><td class="py-2 px-1 text-center text-rose-700">${sp.blood_type || '-'}</td><td class="py-2 px-1 text-center text-[#0E5A3E]">${takenSet.size}/${meds.length}</td><td class="py-2 ps-1 text-center">${alerts.length ? '<span class="rounded-full bg-rose-100 px-2 py-0.5 text-rose-800">' + alerts.length + '</span>' : '✅'}</td>`;
+        tbody.appendChild(tr);
+      });
+      tbl.append(thead, tbody);
+      tblWrap.append(thTitle, tbl);
+    } else if (tblWrap) {
+      tblWrap.classList.add('hidden');
+    }
 
     for (const item of enriched) {
       const card = document.createElement('div');
@@ -647,7 +726,7 @@
         box.appendChild(card);
         continue;
       }
-      const { sp, meds, takenSet, takenTimeMap } = item;
+      const { sp, meds, takenSet, takenTimeMap, alerts } = item;
       const title = document.createElement('p');
       title.className = 'text-base font-black text-[#163024]';
       title.textContent = sp.display_name || 'المسنّ';
@@ -673,6 +752,25 @@
       addInfoRow('🩺', isFr ? 'Maladies' : 'الأمراض المزمنة', sp.conditions, 'bg-emerald-50 text-[#0E5A3E] border border-emerald-200');
       addInfoRow('📍', isFr ? 'Adresse' : 'العنوان', sp.home_address, 'bg-slate-50 text-slate-700 border border-slate-200');
       if (medGrid.childNodes.length) card.appendChild(medGrid);
+      if (alerts && alerts.length) {
+        alerts.forEach((al) => {
+          const alBox = document.createElement('div');
+          alBox.className = 'flex items-center justify-between gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-xs font-black text-rose-900';
+          const alTxt = document.createElement('span');
+          alTxt.className = 'min-w-0 flex-1 break-words';
+          alTxt.textContent = al.message || al.alert_type;
+          const alBtn = document.createElement('button');
+          alBtn.type = 'button';
+          alBtn.className = 'shrink-0 rounded-lg bg-rose-700 px-2.5 py-1 text-[10px] font-black text-white';
+          alBtn.textContent = isFr ? 'Vu ✓' : 'تمت المتابعة ✓';
+          alBtn.addEventListener('click', async () => {
+            await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
+            loadPatients();
+          });
+          alBox.append(alTxt, alBtn);
+          card.appendChild(alBox);
+        });
+      }
 
       // Collapsible Patient Medications Accordion
       const mDet = document.createElement('details');
@@ -810,7 +908,7 @@
   async function loadChat() {
     if (!chatSeniorId) return;
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['nurse', 'family']).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'nurse').gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
     const note = document.createElement('p');
@@ -1091,7 +1189,8 @@
       navigator.geolocation.getCurrentPosition((p) => { liveLat = p.coords.latitude; liveLng = p.coords.longitude; renderRequests(); }, () => {}, { timeout: 5000 });
     }
     await loadNurseProfile();
-    await loadRequests();
+    switchMainTab('patients');
+    loadRequests();
     S.client.channel('cg-v2-nurse-' + user.id)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'nurse_visit_requests' }, async (payload) => {
         await loadRequests();
@@ -1110,7 +1209,8 @@
           }
         }
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, () => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => {
+        if (p.new && p.new.channel !== 'nurse') return;
         if (!$('chatModal').classList.contains('hidden')) loadChat();
       })
       .subscribe();

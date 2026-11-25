@@ -16,10 +16,16 @@
 <body class="min-h-screen pb-24">
 
 <!-- Top Header -->
-<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+<header class="sticky top-0 z-30 bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#FAF6EE]/95 backdrop-blur border-b border-[#DCECE4]">
   <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
     <div class="flex items-center gap-2.5 min-w-0">
-      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base text-white shadow-sm">👨‍👩‍👧</div>
+      <svg class="h-10 w-10 shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M6 21L24 6l18 15" stroke="#0E5A3E" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11 17.5V35c0 1.4 1.1 2.5 2.5 2.5h21c1.4 0 2.5-1.1 2.5-2.5V17.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M33 10v4.5" stroke="#0E5A3E" stroke-width="3" stroke-linecap="round"/>
+        <path d="M24 31.5s-6.5-4.1-8.5-8.2A4.8 4.8 0 0124 19.4a4.8 4.8 0 018.5 3.9c-2 4.1-8.5 8.2-8.5 8.2z" fill="#0E5A3E"/>
+        <path d="M5 40.5c7-3.8 14.5-4 22.5-1.5 6.5 2 11.5 1.8 15.5 0" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+      </svg>
       <div class="min-w-0">
         <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
         <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SOINSDAR • رعايتهم تجمعنا</p>
@@ -35,6 +41,7 @@
 
 <main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
   <div id="liveCheckInToast" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-[#0E5A3E] shadow-sm"></div>
+  <div id="leftHomeBanner" class="hidden space-y-2"></div>
 
   <!-- TAB 1: MY LINKED SENIORS -->
   <section id="secHome" class="space-y-3.5">
@@ -215,7 +222,7 @@
         S.client.from('medications').select('id, name, dosage').eq('senior_id', sp.id),
         S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', sp.id).gte('logged_at', todayStart),
         S.client.from('alerts').select('id, message, alert_type, created_at').eq('senior_id', sp.id).eq('status', 'open').order('created_at', { ascending: false }).limit(15),
-        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).in('channel', ['family', 'nurse']).gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(1),
+        S.client.from('care_direct_messages').select('id, sender_user_id, sender_name, message_text, created_at, read_at').eq('senior_id', sp.id).eq('channel', 'family').gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(1),
         S.client.from('medical_appointments').select('id, appt_type, title, location, appt_at, fasting_required').eq('senior_id', sp.id).eq('status', 'upcoming').gte('appt_at', new Date(Date.now() - 2 * 3600000).toISOString()).order('appt_at', { ascending: true }).limit(10)
       ]);
       const takenSet = new Set((logs || []).filter((l) => l.status === 'taken').map((l) => l.medication_id));
@@ -246,8 +253,11 @@
     const isFr = S.getLang() === 'fr';
     const box = $('seniorsList');
     const alBox = $('alertsList');
+    const lhBox = $('leftHomeBanner');
     box.replaceChildren();
     alBox.replaceChildren();
+    if (lhBox) lhBox.replaceChildren();
+    let leftHomeCount = 0;
 
     let totalAlerts = 0;
     if (!linkedCards.length) {
@@ -268,22 +278,63 @@
       const { sp, lastChk, batPct, meds, takenSet, takenTimeMap, water, alerts, appts, lastDm } = item;
       totalAlerts += alerts.length;
 
-      // Alerts tab items
+      // Alerts tab items + Persistent Home-Departure Banner
       alerts.forEach((al) => {
+        const isDaily = al.alert_type === 'daily_report';
+        const isLeftHome = al.alert_type === 'left_home';
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-black text-rose-950';
-        const txt = document.createElement('span');
-        txt.textContent = `🚨 ${sp.display_name || ''}: ${al.message || al.alert_type}`;
+        row.className = isDaily
+          ? 'flex flex-col gap-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-3.5 text-xs font-bold text-[#163024]'
+          : 'flex items-center justify-between gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-black text-rose-950';
+        const txt = document.createElement('div');
+        txt.className = 'min-w-0 flex-1 whitespace-pre-line leading-relaxed';
+        txt.textContent = isDaily
+          ? `📊 ${sp.display_name || ''} — ${al.message || ''}`
+          : `${isLeftHome ? '📍🚨' : '🚨'} ${sp.display_name || ''}: ${al.message || al.alert_type}`;
         const okBtn = document.createElement('button');
         okBtn.type = 'button';
-        okBtn.className = 'shrink-0 rounded-xl bg-rose-700 px-3 py-1.5 text-[11px] font-black text-white';
-        okBtn.textContent = isFr ? 'Vu ✓' : 'تمت الرؤية ✓';
+        okBtn.className = isDaily
+          ? 'self-end rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-[11px] font-black text-white'
+          : 'shrink-0 rounded-xl bg-rose-700 px-3 py-1.5 text-[11px] font-black text-white';
+        okBtn.textContent = isLeftHome
+          ? (isFr ? 'Vu / Nous sommes informés ✓' : 'تمت الرؤية / علمنا بذلك ✓')
+          : (isFr ? 'Vu ✓' : 'تمت الرؤية ✓');
         okBtn.addEventListener('click', async () => {
           await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
           loadFamilyData();
         });
         row.append(txt, okBtn);
         alBox.appendChild(row);
+
+        if (isLeftHome && lhBox) {
+          leftHomeCount++;
+          const banner = document.createElement('div');
+          banner.className = 'rounded-3xl border-2 border-rose-500 bg-rose-50 p-4 shadow-md space-y-2.5';
+          const bTxt = document.createElement('p');
+          bTxt.className = 'text-xs font-black text-rose-950 leading-relaxed';
+          bTxt.textContent = `📍🚨 ${sp.display_name || ''}: ${al.message || ''}`;
+          const bActions = document.createElement('div');
+          bActions.className = 'flex flex-wrap items-center justify-between gap-2';
+          const mapMatch = String(al.message || '').match(/https:\/\/maps\.google\.com\/\?q=[^\s]+/);
+          if (mapMatch) {
+            const mLink = document.createElement('a');
+            mLink.href = mapMatch[0]; mLink.target = '_blank'; mLink.rel = 'noopener noreferrer';
+            mLink.className = 'rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-[11px] font-black text-rose-900';
+            mLink.textContent = isFr ? '🗺️ Voir position' : '🗺️ فتح الموقع على الخريطة';
+            bActions.appendChild(mLink);
+          }
+          const ackBtn = document.createElement('button');
+          ackBtn.type = 'button';
+          ackBtn.className = 'tap-btn rounded-xl bg-rose-700 px-4 py-2 text-xs font-black text-white shadow';
+          ackBtn.textContent = isFr ? '✓ Vu / Nous sommes informés' : '✓ علمنا بذلك (إخفاء التنبيه)';
+          ackBtn.addEventListener('click', async () => {
+            await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
+            loadFamilyData();
+          });
+          bActions.appendChild(ackBtn);
+          banner.append(bTxt, bActions);
+          lhBox.appendChild(banner);
+        }
       });
 
       const card = document.createElement('div');
@@ -407,6 +458,7 @@
     });
 
     $('alertsCnt').textContent = String(totalAlerts);
+    if (lhBox) lhBox.classList.toggle('hidden', leftHomeCount === 0);
     if (!totalAlerts) {
       const ok = document.createElement('div');
       ok.className = 'cg-card p-6 text-center text-xs font-bold text-[#0E5A3E]';
@@ -417,16 +469,16 @@
 
   async function openChat(sid, name) {
     chatSeniorId = sid;
-    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Soins (Proche + Infirmier) : ' : '💬 محادثة الرعاية (المسنّ + الممرض): ') + (name || '');
+    $('chatTitle').textContent = (S.getLang() === 'fr' ? '💬 Famille & Senior : ' : '💬 محادثة العائلة والمسنّ: ') + (name || '');
     $('chatModal').classList.remove('hidden');
-    await S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', sid).in('channel', ['family', 'nurse']).neq('sender_user_id', user.id).is('read_at', null);
+    await S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', sid).eq('channel', 'family').neq('sender_user_id', user.id).is('read_at', null);
     await loadChat();
   }
 
   async function loadChat() {
     if (!chatSeniorId) return;
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).in('channel', ['family', 'nurse']).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
+    const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'family').gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
     box.replaceChildren();
     const note = document.createElement('p');
@@ -635,7 +687,8 @@
         loadFamilyData();
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => {
-        if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone();
+        if (!p.new || p.new.channel !== 'family') return;
+        if (p.new.sender_user_id !== user.id) S.playStrongRingtone();
         loadFamilyData();
         if (!$('chatModal').classList.contains('hidden')) loadChat();
       })
