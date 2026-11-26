@@ -1137,7 +1137,6 @@
       if (error || !updRows || !updRows.length) {
         ({ error } = await S.client.from('profiles').upsert({
           id: user.id,
-          role: 'nurse',
           avatar_url: dataUrl
         }, { onConflict: 'id' }));
       }
