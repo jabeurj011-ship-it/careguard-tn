@@ -662,6 +662,62 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       }
       return;
     }
+    const compQ = sp
+      ? S.client.from('nurse_visit_requests').select('id, accepted_by_user_id, nurse_user_id, accepted_by_name, nurse_name, nurse_outcome').or(`senior_id.eq.${sp.id},requester_user_id.eq.${user.id}`).eq('status', 'completed').order('created_at', { ascending: false }).limit(1)
+      : S.client.from('nurse_visit_requests').select('id, accepted_by_user_id, nurse_user_id, accepted_by_name, nurse_name, nurse_outcome').eq('requester_user_id', user.id).eq('status', 'completed').order('created_at', { ascending: false }).limit(1);
+    const { data: compRows } = await compQ;
+    if (compRows && compRows[0] && (compRows[0].accepted_by_user_id || compRows[0].nurse_user_id)) {
+      const lr = compRows[0];
+      const nUid = lr.accepted_by_user_id || lr.nurse_user_id;
+      const { data: exRev } = await S.client.from('nurse_reviews').select('id').eq('visit_request_id', lr.id).maybeSingle();
+      if (!exRev) {
+        st.replaceChildren();
+        st.classList.remove('hidden');
+        const box = document.createElement('div');
+        box.className = 'rounded-2xl border-2 border-amber-400 bg-amber-50 p-3.5 space-y-2.5 text-right';
+        const h = document.createElement('p');
+        h.className = 'text-xs font-black text-amber-950';
+        h.textContent = `⚠️ يجب تقييم الخدمة السابقة (${lr.accepted_by_name || lr.nurse_name || 'الممرض'}) قبل طلب خدمة جديدة:`;
+        let fRating = 5;
+        const stars = document.createElement('div'); stars.className = 'flex justify-center gap-2';
+        const sBtns = [];
+        const syncS = () => sBtns.forEach((b, i) => { b.textContent = i < fRating ? '★' : '☆'; b.className = 'text-2xl ' + (i < fRating ? 'text-amber-500' : 'text-slate-300'); });
+        for (let i = 1; i <= 5; i++) {
+          const sb = document.createElement('button'); sb.type = 'button';
+          sb.addEventListener('click', () => { fRating = i; syncS(); });
+          sBtns.push(sb); stars.appendChild(sb);
+        }
+        syncS();
+        const cmt = document.createElement('input');
+        cmt.type = 'text'; cmt.placeholder = 'ملاحظة أو تقييم مختصر (اختياري)...';
+        cmt.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold';
+        const sub = document.createElement('button');
+        sub.type = 'button'; sub.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] py-2 text-xs font-black text-white';
+        sub.textContent = '⭐ إرسال التقييم وفتح الطلب الجديد';
+        sub.addEventListener('click', async () => {
+          sub.disabled = true; sub.textContent = '⏳ جاري الحفظ...';
+          try {
+            await S.client.from('nurse_visit_requests').update({ senior_outcome: 'completed' }).eq('id', lr.id);
+            const { error: revErr } = await S.client.from('nurse_reviews').upsert({
+              visit_request_id: lr.id,
+              nurse_user_id: nUid,
+              reviewer_user_id: user.id,
+              reviewer_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
+              rating: fRating,
+              is_complaint: fRating <= 2,
+              comment: cmt.value.trim() || null
+            }, { onConflict: 'visit_request_id' });
+            if (revErr) throw revErr;
+            st.textContent = '✅ تم حفظ التقييم! يمكنك الآن إرسال طلبك الجديد.';
+          } catch (err) {
+            sub.disabled = false; sub.textContent = '⚠️ ' + (err.message || 'خطأ');
+          }
+        });
+        box.append(h, stars, cmt, sub);
+        st.appendChild(box);
+        return;
+      }
+    }
     const sLat = sp ? (sp.home_lat || null) : null;
     const sLng = sp ? (sp.home_lng || null) : null;
     const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';

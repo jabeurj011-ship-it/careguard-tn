@@ -1545,6 +1545,28 @@
       }
       return;
     }
+    const { data: compRows } = await S.client
+      .from('nurse_visit_requests')
+      .select('id, accepted_by_user_id, nurse_user_id')
+      .or(seniorId ? `senior_id.eq.${seniorId},requester_user_id.eq.${user.id}` : `requester_user_id.eq.${user.id}`)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (compRows && compRows[0] && (compRows[0].accepted_by_user_id || compRows[0].nurse_user_id)) {
+      const { data: exRev } = await S.client
+        .from('nurse_reviews')
+        .select('id')
+        .eq('visit_request_id', compRows[0].id)
+        .maybeSingle();
+      if (!exRev) {
+        st.textContent = '⚠️ يجب تقييم الخدمة السابقة أولاً قبل طلب خدمة تمريض جديدة.';
+        try { localStorage.removeItem('cg_v2_skip_rev_' + compRows[0].id); } catch (_) {}
+        await loadVisitBanner(compRows[0].id);
+        const pb = $('visitStatusBox');
+        if (pb) pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
     const sLat = (seniorProfile && seniorProfile.home_lat) || null;
     const sLng = (seniorProfile && seniorProfile.home_lng) || null;
     const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';

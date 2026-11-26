@@ -412,6 +412,7 @@
     const isSusp = !!(suspendedUntil && new Date(suspendedUntil).getTime() > Date.now());
 
     const accReqs = cachedReqs.filter((r) => r.status === 'accepted' && !r.nurse_outcome && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
+    const unratedComp = cachedReqs.find((r) => r.status === 'completed' && (r.patient_rating === null || r.patient_rating === undefined) && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
     const newReqs = isSusp ? [] : cachedReqs.filter((r) => {
       if (r.requester_user_id && (blockedBySet.has(r.requester_user_id) || myBlockedReqUids.has(r.requester_user_id))) return false;
       if (r.senior_id && myBlockedSeniorIds.has(r.senior_id)) return false;
@@ -446,6 +447,65 @@
       b.className = 'cg-card p-5 text-center text-xs font-black text-rose-900';
       b.textContent = isFr ? '⛔ Compte temporairement suspendu.' : '⛔ حسابك معلّق مؤقتاً ولا يمكنك استقبال طلبات جديدة.';
       listEl.appendChild(b);
+      return;
+    }
+
+    if (activeSubTab === 'new' && unratedComp) {
+      const gate = document.createElement('div');
+      gate.className = 'rounded-3xl border-2 border-amber-400 bg-amber-50 p-4 space-y-3';
+      const gp = document.createElement('p');
+      gp.className = 'text-xs font-black text-amber-950 leading-relaxed';
+      gp.textContent = isFr
+        ? `⭐ Évaluez d'abord votre dernière visite (${unratedComp.requester_name || 'Patient'}) avant d'accepter une nouvelle demande.`
+        : `⭐ يجب تقييم الزيارة السابقة (${unratedComp.requester_name || 'المستفيد'} — ${unratedComp.care_reason || ''}) قبل استلام أي طلب جديد.`;
+      let pRating = 5;
+      const stars = document.createElement('div'); stars.className = 'flex justify-center gap-2';
+      const sBtns = [];
+      const syncS = () => sBtns.forEach((b, i) => { b.textContent = i < pRating ? '★' : '☆'; b.className = 'text-3xl ' + (i < pRating ? 'text-amber-500' : 'text-slate-300'); });
+      for (let i = 1; i <= 5; i++) {
+        const sb = document.createElement('button'); sb.type = 'button';
+        sb.addEventListener('click', () => { pRating = i; syncS(); });
+        sBtns.push(sb); stars.appendChild(sb);
+      }
+      syncS();
+      const noteInp = document.createElement('input');
+      noteInp.type = 'text';
+      noteInp.placeholder = isFr ? 'Remarque sur le patient/famille (optionnel)...' : 'ملاحظة حول المستفيد أو جدية الطلب (اختياري)...';
+      noteInp.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold';
+      const blkLbl = document.createElement('label');
+      blkLbl.className = 'flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-900';
+      const blkChk = document.createElement('input'); blkChk.type = 'checkbox'; blkChk.className = 'h-4 w-4 accent-rose-600';
+      blkLbl.append(blkChk, document.createTextNode(isFr ? '🚫 Bloquer cet utilisateur (abusif)' : '🚫 حظر هذا المستفيد مستقبلاً (طلب عبثي / غير جاد)'));
+      const subBtn = document.createElement('button');
+      subBtn.type = 'button';
+      subBtn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-xs font-black text-white';
+      subBtn.textContent = isFr ? '⭐ Enregistrer l\'évaluation' : '⭐ حفظ التقييم وفتح الطلبات الجديدة';
+      subBtn.addEventListener('click', async () => {
+        subBtn.disabled = true;
+        subBtn.textContent = isFr ? '⏳ Enregistrement...' : '⏳ جاري الحفظ...';
+        try {
+          const { error: uErr } = await S.client.from('nurse_visit_requests').update({
+            patient_rating: pRating,
+            patient_review_note: noteInp.value.trim() || null,
+            patient_rated_at: new Date().toISOString()
+          }).eq('id', unratedComp.id);
+          if (uErr) throw uErr;
+          if (blkChk.checked && unratedComp.requester_user_id) {
+            await S.client.from('nurse_blocked_requesters').upsert({
+              nurse_user_id: user.id,
+              requester_user_id: unratedComp.requester_user_id,
+              senior_id: unratedComp.senior_id || null,
+              reason: noteInp.value.trim() || 'blocked_after_visit'
+            }, { onConflict: 'nurse_user_id,requester_user_id' });
+          }
+          await loadRequests();
+        } catch (err) {
+          subBtn.disabled = false;
+          subBtn.textContent = '⚠️ ' + (err.message || 'خطأ');
+        }
+      });
+      gate.append(gp, stars, noteInp, blkLbl, subBtn);
+      listEl.appendChild(gate);
       return;
     }
 
@@ -586,6 +646,12 @@
   }
 
   async function acceptReq(r) {
+    const unrated = cachedReqs.find((x) => x.status === 'completed' && (x.patient_rating === null || x.patient_rating === undefined) && (x.accepted_by_user_id === user.id || x.nurse_user_id === user.id));
+    if (unrated) {
+      alert(S.getLang() === 'fr' ? 'Veuillez évaluer votre visite précédente avant d\'en accepter une nouvelle.' : 'يرجى تقييم زيارتك السابقة أولاً قبل قبول طلب جديد.');
+      renderRequests();
+      return;
+    }
     S.stopRingtone();
     const isFr = S.getLang() === 'fr';
     const myName = (myProfile && myProfile.full_name) || (user.user_metadata && user.user_metadata.full_name) || 'ممرض';

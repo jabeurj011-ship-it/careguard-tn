@@ -253,9 +253,12 @@
 
   renderText();
   // Auto-redirect if already logged in with a saved role (unless ?choose=1)
-  S.getSessionUser().then((u) => {
-    if (u && String(u.email || '').toLowerCase() === 'jabeurj011@gmail.com' && $('adminGateWrap')) {
-      $('adminGateWrap').classList.remove('hidden');
+  S.getSessionUser().then(async (u) => {
+    if (u && $('adminGateWrap')) {
+      try {
+        const { data: isAdm } = await S.client.rpc('is_cg_admin');
+        if (isAdm) $('adminGateWrap').classList.remove('hidden');
+      } catch (_) {}
     }
     if (!new URLSearchParams(window.location.search).get('choose') && u && pickedRole) {
       window.location.href = S.rolePageUrl(pickedRole);
