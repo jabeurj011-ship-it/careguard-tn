@@ -422,8 +422,8 @@
         const myG = getMyGovernorate();
         const rG = getReqGovernorate(r);
         const dm = distMeters(r);
-        const within25km = (dm !== null && dm <= 25000);
-        if (myG && rG && myG !== rG && !within25km) return false;
+        if (myG && rG && myG !== rG) return false;
+        if (dm !== null && dm > 5000) return false;
         return true;
       }
       return false;

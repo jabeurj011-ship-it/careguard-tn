@@ -79,7 +79,6 @@
   'use strict';
   const S = window.CG_SHARED;
   const $ = S.$;
-  const ADMIN_EMAIL = 'jabeurj011@gmail.com';
   let user = null;
   let activeTab = 'nurses';
   let dataState = { seniors: [], families: [], nurses: [], reqs: [], reviews: [], alerts: [] };
@@ -369,9 +368,15 @@
   (async function init() {
     user = await S.getSessionUser();
     const email = user && user.email ? String(user.email).toLowerCase() : '';
-    if (!user || email !== ADMIN_EMAIL) {
+    if (!user) {
       $('admGuardBox').classList.remove('hidden');
-      $('admGuardEmail').textContent = email ? `الحساب الحالي: ${email}` : 'يرجى تسجيل الدخول بحساب الإدارة أولاً من البوابة.';
+      $('admGuardEmail').textContent = 'يرجى تسجيل الدخول بحساب الإدارة أولاً من البوابة.';
+      return;
+    }
+    const { data: isAdm, error: admErr } = await S.client.rpc('is_cg_admin');
+    if (admErr || !isAdm) {
+      $('admGuardBox').classList.remove('hidden');
+      $('admGuardEmail').textContent = email ? `الحساب الحالي غير مخوّل للإدارة: ${email}` : 'هذا الحساب غير مخوّل للوصول إلى لوحة الإدارة.';
       return;
     }
     $('admContentWrap').classList.remove('hidden');
