@@ -186,6 +186,10 @@ jobs:
                       mc = mc.replace('super.onCreate(savedInstanceState);', 'registerPlugin(SoinsDarAlarmPlugin.class);\n        super.onCreate(savedInstanceState);', 1)
                   else:
                       mc = mc.replace('public class MainActivity extends BridgeActivity {', 'public class MainActivity extends BridgeActivity {\n    @Override\n    public void onCreate(android.os.Bundle savedInstanceState) {\n        registerPlugin(SoinsDarAlarmPlugin.class);\n        super.onCreate(savedInstanceState);\n    }', 1)
+                  if 'BridgeWebChromeClient' not in mc:
+                      mc = mc.replace('import com.getcapacitor.BridgeActivity;', 'import android.webkit.PermissionRequest;\nimport com.getcapacitor.BridgeActivity;\nimport com.getcapacitor.BridgeWebChromeClient;', 1)
+                      hook = '        super.onCreate(savedInstanceState);\n        if (this.bridge != null && this.bridge.getWebView() != null) {\n            this.bridge.getWebView().setWebChromeClient(new BridgeWebChromeClient(this.bridge) {\n                @Override\n                public void onPermissionRequest(final PermissionRequest request) {\n                    runOnUiThread(() -> request.grant(request.getResources()));\n                }\n            });\n        }'
+                      mc = mc.replace('        super.onCreate(savedInstanceState);', hook, 1)
                   main_act.write_text(mc, encoding='utf-8')
 
           mf = Path('android/app/src/main/AndroidManifest.xml')
