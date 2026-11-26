@@ -147,7 +147,11 @@
   }
 
   function normGov(val) {
-    return String(val || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const raw = String(val || '').trim();
+    const base = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (!base) return '';
+    const g = TN_GOVERNORATES.find((x) => x.id.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === base || x.ar === raw);
+    return g ? g.id.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : base;
   }
 
   function formatGovLabel(val) {
