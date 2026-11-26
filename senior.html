@@ -2102,6 +2102,15 @@
   });
 
   $('saveProfBtn').addEventListener('click', async () => {
+    if (!seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng) {
+      const isFr = S.getLang() === 'fr';
+      if ($('homeGpsTxt')) {
+        $('homeGpsTxt').textContent = isFr ? '⚠️ Position GPS obligatoire !' : '⚠️ تحديد موقع المنزل (GPS) إجباري قبل الحفظ!';
+        $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
+      }
+      if ($('setHomeGpsBtn')) $('setHomeGpsBtn').click();
+      return;
+    }
     const patch = {
       display_name: $('pName').value.trim(),
       senior_phone: $('pPhone').value.trim(),
