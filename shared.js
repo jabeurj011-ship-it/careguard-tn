@@ -523,8 +523,11 @@
         active = true;
         btn.className = 'tap-btn rounded-xl bg-rose-600 px-3 py-2 text-sm font-black text-white animate-pulse';
         btn.textContent = '⏹️';
-      } catch (_) {
-        alert(isFr ? 'Autorisez le microphone.' : 'يرجى السماح بالوصول إلى الميكروفون.');
+      } catch (err) {
+        const msg = (err && err.name === 'NotAllowedError')
+          ? (isFr ? 'Autorisez le microphone dans les paramètres.' : 'يرجى السماح بالوصول إلى الميكروفون من إعدادات الهاتف/المتصفح.')
+          : ((isFr ? 'Micro indisponible: ' : 'تعذر تشغيل الميكروفون: ') + ((err && err.message) || (err && err.name) || ''));
+        alert(msg);
       }
     });
   }
