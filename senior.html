@@ -303,6 +303,7 @@
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
       </div>
       <div class="grid grid-cols-2 gap-2">
+        <button id="srGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#C7DFCE] bg-[#EFF7F1] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">❓ طريقة استعمال التطبيق (دليل المسنّ)</button>
         <button id="srFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
         <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
       </div>
@@ -2431,6 +2432,7 @@
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); renderAppts(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  if ($('srGuideBtn')) $('srGuideBtn').addEventListener('click', () => S.showOnboardingModal && S.showOnboardingModal('senior', user && user.id, true));
   if ($('srFeedbackBtn')) $('srFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'senior', (seniorProfile && seniorProfile.display_name) || 'المسنّ'));
   $('deleteAccountBtn').addEventListener('click', async () => {
     const isFr = S.getLang() === 'fr';
@@ -2460,6 +2462,7 @@
     applyTexts();
     user = await S.requireAuth(['senior']);
     if (!user) return;
+    if (S.showOnboardingModal) S.showOnboardingModal('senior', user.id);
     await ensureSenior();
     if (seniorId && seniorProfile && (!seniorProfile.home_lat || !seniorProfile.home_lng)) {
       let seededGps = false;

@@ -654,6 +654,112 @@
     document.body.appendChild(wrap);
   }
 
+  function showOnboardingModal(role, userId, forceOpen) {
+    const uid = userId || 'anon';
+    const key = 'cg_v2_onboarded_' + String(role || 'senior') + '_' + uid;
+    if (!forceOpen) {
+      try {
+        if (localStorage.getItem(key) === '1') return;
+      } catch (_) {}
+    }
+    if (document.getElementById('cgOnboardModal')) return;
+
+    const isFr = getLang() === 'fr';
+    const content = {
+      senior: {
+        title: isFr ? '👋 Bienvenue sur SoinsDar !' : '👋 مرحباً بك في تطبيق SoinsDar',
+        sub: isFr ? 'Voici comment utiliser votre espace en quelques étapes simples :' : 'دليلك السريع لاستخدام التطبيق خطوة بخطوة:',
+        steps: isFr ? [
+          ['👤 Profil & Données santé', 'Appuyez sur « Profil » ou « Modifier mes informations » pour enregistrer le nom, téléphone, groupe sanguin, allergies et la position GPS du domicile.'],
+          ['💊 Médicaments', 'Ouvrez l\'onglet Méds pour ajouter vos médicaments et heures (ou photographiez votre ordonnance). Le réveil sonne même écran fermé.'],
+          ['📅 Rendez-vous', 'Enregistrez vos visites médicales et analyses dans RDV avec le nom du médecin et le lieu.'],
+          ['🚨 Sécurité & Famille', 'Appuyez chaque jour sur « Je vais bien », utilisez SOS en cas d\'urgence et partagez votre code (CG-...) avec votre famille.'],
+          ['🩺 Infirmier & Messages', 'Demandez un infirmier à domicile, discutez avec vos proches et choisissez votre sonnerie dans Paramètres.']
+        ] : [
+          ['👤 تسجيل بيانات المسنّ والملف الصحي', 'اضغط «بياناتي» أو «تحديث معلومات المسنّ والصورة» لإدخال الاسم، رقم الهاتف، الطوارئ، فصيلة الدم، الحساسية وموقع المنزل (GPS).'],
+          ['💊 تسجيل الأدوية والمنبّه', 'افتح تبويب «الأدوية» وأضف اسم الدواء ووقته (أو صوّر الوصفة الطبية لقراءتها تلقائياً)؛ وسيرنّ المنبّه في موعده حتى عند إغلاق الهاتف.'],
+          ['📅 المواعيد الطبية', 'سجّل مواعيد الطبيب والتحاليل في تبويب «المواعيد» مع إدخال اسم الطبيب والمكان لتصلك التذكيرات.'],
+          ['💚 الطمأنة والطوارئ', 'اضغط يومياً على «أنا بخير» لطمأنة عائلتك، وشارك رمزك (CG-...) معهم، واستخدم زر النجدة (SOS) عند الطوارئ.'],
+          ['🩺 طلب ممرض والرسائل', 'يمكنك طلب ممرض للبيت ومراسلة العائلة أو الممرض واختيار نغمتك المفضّلة من الإعدادات.']
+        ]
+      },
+      family: {
+        title: isFr ? '👋 Bienvenue dans l\'Espace Famille !' : '👋 مرحباً بك في فضاء العائلة',
+        sub: isFr ? 'Suivez la santé de votre proche facilement :' : 'كيف تتابع قريبك وتطمئن عليه:',
+        steps: isFr ? [
+          ['🔗 Lier votre proche', 'Entrez le code du senior (CG-...) en haut et choisissez votre lien de parenté pour suivre ses médicaments, sa batterie et son état.'],
+          ['🚨 Alertes & Sortie', 'Consultez les alertes actives (médicaments manqués, sortie du domicile avec carte Maps).'],
+          ['🩺 Demander un infirmier', 'Envoyez une demande au premier infirmier disponible ou choisissez dans l\'annuaire, puis évaluez la visite.']
+        ] : [
+          ['🔗 ربط المسنّ بالرمز', 'أدخل رمز قريبك (CG-...) في أعلى الصفحة واختر صلة القرابة لمتابعة أدويته وبطارية هاتفه وتأكيداته اليومية.'],
+          ['🚨 التنبيهات والخروج من المنزل', 'راقب التنبيهات والأدوية الفائتة أو الخروج عن محيط المنزل مع رابط الموقع على الخريطة.'],
+          ['🩺 طلب ممرض', 'اطلب أقرب ممرض متاح أو اختر من الدليل، ولا تنسَ تقييم الخدمة بعد انتهائها.']
+        ]
+      },
+      nurse: {
+        title: isFr ? '👋 Bienvenue dans l\'Espace Infirmier !' : '👋 مرحباً بك في فضاء الممرض',
+        sub: isFr ? 'Voici comment démarrer sur SoinsDar :' : 'كيف تبدأ العمل واستقبال الطلبات:',
+        steps: isFr ? [
+          ['⚙️ Compléter votre profil', 'Ouvrez « Mon profil », ajoutez votre photo, spécialité, gouvernorat, position GPS et téléphone pour apparaître dans l\'annuaire.'],
+          ['🩺 Accepter les demandes', 'Dans « Demandes », vous voyez les visites ouvertes dans votre gouvernorat (rayon 5 km). Acceptez et suivez Google Maps.'],
+          ['✅ Clôturer & Évaluer', 'À la fin de la visite, cliquez sur « Réalisée » puis évaluez le patient pour débloquer les nouvelles demandes.'],
+          ['🔗 Suivi régulier', 'Vous pouvez lier un patient régulier via son code (CG-...) depuis l\'Accueil.']
+        ] : [
+          ['⚙️ إكمال الملف المهني', 'افتح تبويب «ملفي» وأضف صورتك الشخصية، ولايتك، وموقعك (GPS) ورقم هاتفك لتظهر في دليل الممرضين.'],
+          ['🩺 استقبال الطلبات القريبة', 'في تبويب «الطلبات» تظهر طلبات ولايتك في محيط 5 كم؛ اقبل الطلب واتبع المسار عبر Google Maps.'],
+          ['✅ إنهاء الزيارة والتقييم', 'بعد إتمام الزيارة اضغط «تم التنفيذ» ثم قيّم المستفيد لتُفتح لك الطلبات الجديدة.'],
+          ['🔗 ربط المتابعة الدورية', 'يمكنك ربط مريض دائم عبر رمزه (CG-...) من تبويب «الرئيسية» لمتابعة أدويته وتنبيهاته.']
+        ]
+      }
+    };
+    const cfg = content[role] || content.senior;
+
+    const wrap = document.createElement('div');
+    wrap.id = 'cgOnboardModal';
+    wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm';
+
+    const card = document.createElement('div');
+    card.className = 'w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-5 shadow-2xl space-y-3.5';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'text-center space-y-1';
+    const h3 = document.createElement('h3');
+    h3.className = 'text-lg font-black text-[#0E5A3E]';
+    h3.textContent = cfg.title;
+    const sub = document.createElement('p');
+    sub.className = 'text-xs font-bold text-[#5C6F63]';
+    sub.textContent = cfg.sub;
+    hdr.append(h3, sub);
+
+    const list = document.createElement('div');
+    list.className = 'space-y-2.5';
+    cfg.steps.forEach(([t, d]) => {
+      const item = document.createElement('div');
+      item.className = 'rounded-2xl border border-[#E6DCCB] bg-[#FAF6EE] p-3 space-y-1';
+      const it = document.createElement('p');
+      it.className = 'text-xs font-black text-[#0E5A3E]';
+      it.textContent = t;
+      const idesc = document.createElement('p');
+      idesc.className = 'text-xs font-bold leading-relaxed text-[#163024]';
+      idesc.textContent = d;
+      item.append(it, idesc);
+      list.appendChild(item);
+    });
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-md';
+    btn.textContent = isFr ? '✓ J\'ai compris l\'application' : '✓ فهمت التطبيق';
+    btn.addEventListener('click', () => {
+      try { localStorage.setItem(key, '1'); } catch (_) {}
+      wrap.remove();
+    });
+
+    card.append(hdr, list, btn);
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+  }
+
   window.CG_SHARED = {
     CONFIG,
     $,
@@ -684,6 +790,7 @@
     detectTnGovernorate,
     normGov,
     formatGovLabel,
-    openFeedbackModal
+    openFeedbackModal,
+    showOnboardingModal
   };
 })();

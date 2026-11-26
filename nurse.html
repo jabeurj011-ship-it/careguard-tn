@@ -152,6 +152,7 @@
 
     <div class="grid grid-cols-2 gap-2.5">
       <div class="grid grid-cols-2 gap-2.5">
+      <button id="nrGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#C7DFCE] bg-[#EFF7F1] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">❓ طريقة استعمال التطبيق (دليل الممرض)</button>
       <button id="nrFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
       <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
     </div>
@@ -1359,6 +1360,7 @@
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); if (!$('secPatients').classList.contains('hidden')) loadPatients(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  if ($('nrGuideBtn')) $('nrGuideBtn').addEventListener('click', () => S.showOnboardingModal && S.showOnboardingModal('nurse', user && user.id, true));
   if ($('nrFeedbackBtn')) $('nrFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'nurse', (myProfile && myProfile.full_name) || 'ممرض'));
 
   $('pushBtn').addEventListener('click', async () => {
@@ -1399,6 +1401,7 @@
     applyTexts();
     user = await S.requireAuth(['nurse', 'center']);
     if (!user) return;
+    if (S.showOnboardingModal) S.showOnboardingModal('nurse', user.id);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((p) => { liveLat = p.coords.latitude; liveLng = p.coords.longitude; renderRequests(); }, () => {}, { timeout: 5000 });
     }
