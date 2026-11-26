@@ -228,6 +228,7 @@
   const $ = S.$;
   let user = null;
   let myProfile = null;
+  let myAvatarUrl = "";
   let activeSubTab = 'new';
   let cachedReqs = [];
   let blockedBySet = new Set();
@@ -719,8 +720,9 @@
     row.className = 'flex items-center gap-3.5';
     const av = document.createElement('div');
     av.className = 'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#DCECE4] bg-[#0E5A3E] text-2xl font-black text-white shadow-sm';
-    if (mp.avatar_url) {
-      const img = document.createElement('img'); img.src = mp.avatar_url; img.className = 'h-full w-full object-cover';
+    const avUrl = mp.avatar_url || myAvatarUrl || (user && localStorage.getItem('cg_nurse_av_' + user.id)) || '';
+    if (avUrl) {
+      const img = document.createElement('img'); img.src = avUrl; img.className = 'h-full w-full object-cover';
       av.appendChild(img);
     } else {
       av.textContent = '🩺';
@@ -1064,6 +1066,8 @@
     const { data: np } = await S.client.from('nurse_profiles').select('*').eq('user_id', user.id).maybeSingle();
     const { data: prof } = await S.client.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle();
     if (prof && prof.avatar_url) {
+      myAvatarUrl = prof.avatar_url;
+      try { localStorage.setItem('cg_nurse_av_' + user.id, prof.avatar_url); } catch (_) {}
       ['nurseHdrAvatar', 'profAvatarPreview'].forEach((id) => {
         const el = $(id); if (!el) return;
         el.replaceChildren();
@@ -1228,6 +1232,8 @@
         }, { onConflict: 'id' }));
       }
       if (error) throw error;
+      myAvatarUrl = dataUrl;
+      try { localStorage.setItem('cg_nurse_av_' + user.id, dataUrl); } catch (_) {}
       if (myProfile) myProfile.avatar_url = dataUrl;
       else myProfile = { avatar_url: dataUrl };
       ['nurseHdrAvatar', 'profAvatarPreview'].forEach((id) => {
