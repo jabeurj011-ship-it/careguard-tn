@@ -1138,7 +1138,6 @@
         ({ error } = await S.client.from('profiles').upsert({
           id: user.id,
           role: 'nurse',
-          full_name: ($('npFullName').value || '').trim() || (myProfile && myProfile.full_name) || 'ممرض',
           avatar_url: dataUrl
         }, { onConflict: 'id' }));
       }
