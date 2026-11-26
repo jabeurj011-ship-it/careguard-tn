@@ -118,7 +118,7 @@
   </p>
 </main>
 
-<script src="./shared.js?v=2.6"></script>
+<script src="./shared.js?v=2.7"></script>
 <script>
 (function () {
   'use strict';
@@ -168,7 +168,8 @@
     pickedRole = role;
     S.setRole(role);
     renderText();
-    const user = await S.getSessionUser();
+    let user = null;
+    try { user = await S.getSessionUser(); } catch (_) {}
     if (user) {
       window.location.href = S.rolePageUrl(role);
       return;
@@ -188,6 +189,46 @@
     S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr');
     renderText();
   });
+
+  function ensureInitialGps() {
+    return new Promise((resolve) => {
+      try {
+        const cached = JSON.parse(localStorage.getItem('cg_v2_init_gps') || 'null');
+        if (cached && Number.isFinite(Number(cached.lat)) && Number.isFinite(Number(cached.lng))) {
+          resolve(cached);
+          return;
+        }
+      } catch (_) {}
+      if (!navigator.geolocation) {
+        showErr(S.getLang() === 'fr'
+          ? '⚠️ La géolocalisation (GPS) est obligatoire lors de la première inscription.'
+          : '⚠️ تحديد الموقع الجغرافي (GPS) إجباري في أول تسجيل لربطك بالخدمات القريبة منك.');
+        resolve(null);
+        return;
+      }
+      showErr(S.getLang() === 'fr' ? '⏳ Localisation GPS en cours...' : '⏳ جاري تحديد الموقع الجغرافي (GPS)...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          $('authMsg').classList.add('hidden');
+          const obj = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            gov: S.detectTnGovernorate(pos.coords.latitude, pos.coords.longitude) || '',
+            at: Date.now()
+          };
+          try { localStorage.setItem('cg_v2_init_gps', JSON.stringify(obj)); } catch (_) {}
+          resolve(obj);
+        },
+        () => {
+          showErr(S.getLang() === 'fr'
+            ? '⚠️ Activez et autorisez la position GPS : elle est obligatoire pour la première inscription.'
+            : '⚠️ يرجى تفعيل والسماح بتحديد الموقع (GPS)؛ فهو إجباري في أول تسجيل.');
+          resolve(null);
+        },
+        { enableHighAccuracy: false, timeout: 6000, maximumAge: 120000 }
+      );
+    });
+  }
 
   const isCapNative = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 
@@ -213,6 +254,8 @@
 
   $('googleBtn').addEventListener('click', async () => {
     if (!S.client) return;
+    const gpsOk = await ensureInitialGps();
+    if (!gpsOk) return;
     if (isCapNative && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
       const { data, error } = await S.client.auth.signInWithOAuth({
         provider: 'google',
@@ -236,6 +279,8 @@
 
   $('signInBtn').addEventListener('click', async () => {
     const email = $('emailInput').value.trim(), password = $('passInput').value;
+    const gpsOk = await ensureInitialGps();
+    if (!gpsOk) return;
     if (!email || password.length < 6) return showErr(S.getLang() === 'fr' ? 'E-mail et mot de passe (6+ car.) requis.' : 'أدخل البريد الإلكتروني وكلمة مرور (6 أحرف على الأقل).');
     const { error } = await S.client.auth.signInWithPassword({ email, password });
     if (error) return showErr(error.message);
@@ -244,6 +289,8 @@
 
   $('signUpBtn').addEventListener('click', async () => {
     const email = $('emailInput').value.trim(), password = $('passInput').value, name = $('emailName').value.trim();
+    const gpsOk = await ensureInitialGps();
+    if (!gpsOk) return;
     if (!email || password.length < 6) return showErr(S.getLang() === 'fr' ? 'E-mail et mot de passe (6+ car.) requis.' : 'أدخل البريد الإلكتروني وكلمة مرور (6 أحرف على الأقل).');
     const { data, error } = await S.client.auth.signUp({ email, password, options: { data: { display_name: name || email.split('@')[0] } } });
     if (error) return showErr(error.message);
