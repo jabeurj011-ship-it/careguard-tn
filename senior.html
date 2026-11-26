@@ -927,6 +927,7 @@
         }
       });
       const NativeAlarm = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+      let usedDedicatedAppt = false;
       if (NativeAlarm && typeof NativeAlarm.scheduleAlarms === 'function') {
         const nativeAppts = toSched.map((n) => ({
           id: n.id,
@@ -938,8 +939,9 @@
           kind: 'appt'
         })).filter((x) => x.triggerAtMs > Date.now() + 1000);
         await withNativeTimeout(NativeAlarm.scheduleAlarms({ group: 'appt', alarms: nativeAppts }), 4000, 'native_appt_schedule');
+        usedDedicatedAppt = true;
       }
-      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'appt_schedule');
+      if (!usedDedicatedAppt && toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'appt_schedule');
     } catch (_) {}
   }
 
@@ -1121,10 +1123,10 @@
         const d1 = new Date();
         d1.setHours(h, mn, 0, 0);
         if (d1.getTime() <= nowMs + 5000) d1.setDate(d1.getDate() + 1);
-        for (let k = 0; k < 7; k++) {
+        for (let k = 0; k < 14; k++) {
           const dt = new Date(d1.getTime() + k * 24 * 3600000);
           toSched.push({
-            id: 2000 + i * 7 + k,
+            id: 2000 + i * 14 + k,
             title: '📞 حان وقت الدواء — SoinsDar',
             body: `${m.name || 'الدواء'} (${m.dosage || ''})`,
             channelId: getNativeRingChannel(),
@@ -1141,7 +1143,6 @@
           }
         } catch (_) {}
       }
-      const NativeAlarm = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
       let usedDedicatedAlarm = false;
       if (NativeAlarm && typeof NativeAlarm.scheduleAlarms === 'function') {
         const nativeMeds = toSched.map((n) => ({
@@ -1156,7 +1157,7 @@
         await withNativeTimeout(NativeAlarm.scheduleAlarms({ group: 'med', alarms: nativeMeds }), 4000, 'native_med_schedule');
         usedDedicatedAlarm = true;
       }
-      if (LN && toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule').catch(() => {});
+      if (LN && !usedDedicatedAlarm && toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule').catch(() => {});
       if (stEl) {
         stEl.textContent = usedDedicatedAlarm
           ? `✓ منبّه SoinsDar الخاص مفعّل: تمت برمجة ${toSched.length} منبّه (${meds.length} دواء)`
