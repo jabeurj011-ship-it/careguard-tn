@@ -191,6 +191,19 @@
     });
   }
 
+  const RINGTONE_STUDIO = [
+    { id: 'loud_phone', icon: '📞', ar: 'رنين هاتف كلاسيكي قوي', fr: 'Sonnerie téléphone classique', descAr: 'رنين واضح ومسموع من بعيد', descFr: 'Sonnerie forte et claire' },
+    { id: 'urgent_alarm', icon: '🚨', ar: 'إنذار طوارئ طبي', fr: 'Alarme médicale urgente', descAr: 'نغمة تنبيه عاجلة وعالية', descFr: 'Alerte urgente haute fréquence' },
+    { id: 'classic_bell', icon: '🔔', ar: 'جرس دواء هادئ', fr: 'Carillon médicament doux', descAr: 'نغمة جرس لطيفة ومريحة', descFr: 'Mélodie douce et apaisante' },
+    { id: 'piano_melody', icon: '🎹', ar: 'معزوفة بيانو دافئة', fr: 'Mélodie piano chaleureuse', descAr: 'نغمات بيانو واضحة وراقية', descFr: 'Notes de piano harmonieuses' },
+    { id: 'morning_harp', icon: '🕊️', ar: 'رنّة صباحية لطيفة', fr: 'Harpe matinale douce', descAr: 'أوتار هادئة لتنبيه الصباح', descFr: 'Accords doux pour le matin' },
+    { id: 'high_clarity', icon: '📢', ar: 'منبّه عالي الوضوح', fr: 'Alerte haute clarté', descAr: 'مناسب لضعاف السمع', descFr: 'Idéal pour malentendants' },
+    { id: 'warm_chime', icon: '🎶', ar: 'أجراس شرقية دافئة', fr: 'Carillon oriental chaleureux', descAr: 'نغمة أجراس دافئة ومميّزة', descFr: 'Carillon chaleureux et distinct' },
+    { id: 'gentle_flute', icon: '🪈', ar: 'ناي هادئ ومريح', fr: 'Flûte douce et apaisante', descAr: 'لحن ناي لطيف غير مزعج', descFr: 'Mélodie douce de flûte' },
+    { id: 'digital_beep', icon: '⌚', ar: 'منبّه رقمي متدرّج', fr: 'Bip numérique progressif', descAr: 'رنّات رقمية واضحة ومتكرّرة', descFr: 'Bips numériques nets' },
+    { id: 'crystal_pulse', icon: '✨', ar: 'نبض كريستالي واضح', fr: 'Impulsion cristalline claire', descAr: 'نغمة متألّقة سهلة السماع', descFr: 'Accord cristallin facile à entendre' }
+  ];
+
   function buildPresetWavUrl(mode) {
     if (wavCache[mode]) return wavCache[mode];
     const sr = 16000;
@@ -217,13 +230,11 @@
       const t = i / sr;
       let s = 0;
       if (mode === 'urgent_alarm') {
-        // Urgent alternating high medical siren
         const cyc = t % 0.6;
         const f = cyc < 0.3 ? 1046.5 : 1396.9;
         const env = (cyc % 0.3) < 0.25 ? 0.9 : 0.15;
         s = env * (0.65 * Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(2 * Math.PI * (f * 1.5) * t));
       } else if (mode === 'classic_bell') {
-        // Clear gentle 4-note chime repeated every 1.5s
         const cyc = t % 1.5;
         const notes = [523.25, 659.25, 783.99, 1046.5];
         const idx = Math.min(3, Math.floor(cyc / 0.28));
@@ -231,8 +242,56 @@
         const env = cyc < 1.25 ? Math.exp(-localT * 4.5) : 0;
         const f = notes[idx];
         s = env * (0.75 * Math.sin(2 * Math.PI * f * t) + 0.2 * Math.sin(2 * Math.PI * f * 2 * t));
+      } else if (mode === 'piano_melody') {
+        const cyc = t % 2.4;
+        const notes = [523.25, 587.33, 659.25, 783.99, 659.25, 1046.5];
+        const idx = Math.min(5, Math.floor(cyc / 0.36));
+        const localT = cyc - idx * 0.36;
+        const env = cyc < 2.2 ? Math.exp(-localT * 3.8) : 0;
+        const f = notes[idx];
+        s = env * (0.65 * Math.sin(2 * Math.PI * f * t) + 0.25 * Math.sin(2 * Math.PI * f * 2 * t) + 0.1 * Math.sin(2 * Math.PI * f * 3 * t));
+      } else if (mode === 'morning_harp') {
+        const cyc = t % 2.0;
+        const notes = [440, 554.37, 659.25, 880, 1108.73];
+        const idx = Math.min(4, Math.floor(cyc / 0.22));
+        const localT = cyc - idx * 0.22;
+        const env = cyc < 1.7 ? Math.exp(-localT * 3.0) : 0;
+        const f = notes[idx];
+        s = env * (0.7 * Math.sin(2 * Math.PI * f * t) + 0.2 * Math.sin(2 * Math.PI * f * 2 * t));
+      } else if (mode === 'high_clarity') {
+        const cyc = t % 1.2;
+        const pulse = (cyc < 0.22) || (cyc >= 0.32 && cyc < 0.54) || (cyc >= 0.64 && cyc < 0.86);
+        if (pulse) s = 0.9 * (0.6 * Math.sin(2 * Math.PI * 1174.66 * t) + 0.4 * Math.sin(2 * Math.PI * 1760 * t));
+      } else if (mode === 'warm_chime') {
+        const cyc = t % 2.4;
+        const notes = [587.33, 739.99, 880, 1108.73, 1174.66];
+        const idx = Math.min(4, Math.floor(cyc / 0.34));
+        const localT = cyc - idx * 0.34;
+        const env = cyc < 2.1 ? Math.exp(-localT * 2.8) : 0;
+        const f = notes[idx];
+        s = env * (0.65 * Math.sin(2 * Math.PI * f * t) + 0.25 * Math.sin(2 * Math.PI * f * 2 * t) + 0.1 * Math.sin(2 * Math.PI * f * 0.5 * t));
+      } else if (mode === 'gentle_flute') {
+        const cyc = t % 2.6;
+        const notes = [523.25, 659.25, 587.33, 783.99];
+        const idx = Math.min(3, Math.floor(cyc / 0.55));
+        const localT = cyc - idx * 0.55;
+        const env = cyc < 2.2 ? Math.sin(Math.min(1, localT / 0.55) * Math.PI) * 0.85 : 0;
+        const vib = 1 + 0.008 * Math.sin(2 * Math.PI * 5.5 * t);
+        const f = notes[idx] * vib;
+        s = env * (0.8 * Math.sin(2 * Math.PI * f * t) + 0.15 * Math.sin(2 * Math.PI * f * 2 * t));
+      } else if (mode === 'digital_beep') {
+        const cyc = t % 1.4;
+        const on = (cyc < 0.14) || (cyc >= 0.22 && cyc < 0.36) || (cyc >= 0.44 && cyc < 0.58) || (cyc >= 0.66 && cyc < 0.82);
+        if (on) s = 0.85 * Math.sin(2 * Math.PI * 1567.98 * t);
+      } else if (mode === 'crystal_pulse') {
+        const cyc = t % 1.8;
+        const notes = [659.25, 880, 1046.5, 1318.51];
+        const idx = Math.min(3, Math.floor(cyc / 0.28));
+        const localT = cyc - idx * 0.28;
+        const env = cyc < 1.55 ? Math.exp(-localT * 3.6) : 0;
+        const f = notes[idx];
+        s = env * (0.65 * Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(2 * Math.PI * f * 2 * t));
       } else {
-        // loud_phone: classic strong dual-tone telephone ring (2s ring, 1s pause)
         const cyc = t % 2.2;
         if (cyc < 1.4 && (Math.floor(cyc * 16) % 2 === 0 || cyc < 0.7)) {
           s = 0.85 * (0.55 * Math.sin(2 * Math.PI * 740 * t) + 0.45 * Math.sin(2 * Math.PI * 987.77 * t));
@@ -244,6 +303,53 @@
     const url = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
     wavCache[mode] = url;
     return url;
+  }
+
+  function renderRingtoneStudio(containerEl, onPicked) {
+    if (!containerEl) return;
+    const isFr = getLang() === 'fr';
+    const cur = localStorage.getItem(CONFIG.RINGTONE_KEY) || 'loud_phone';
+    containerEl.replaceChildren();
+    RINGTONE_STUDIO.forEach((r) => {
+      const isActive = cur === r.id;
+      const row = document.createElement('div');
+      row.className = isActive
+        ? 'flex items-center justify-between gap-2 rounded-2xl border-2 border-[#0E5A3E] bg-[#EFF7F1] p-2.5'
+        : 'flex items-center justify-between gap-2 rounded-2xl border border-[#E6DCCB] bg-white p-2.5';
+      const info = document.createElement('div');
+      info.className = 'min-w-0 flex-1';
+      const ttl = document.createElement('p');
+      ttl.className = 'text-xs font-black text-[#163024] truncate';
+      ttl.textContent = `${r.icon} ${isFr ? r.fr : r.ar}`;
+      const sub = document.createElement('p');
+      sub.className = 'text-[10px] font-bold text-[#5C6F63] truncate';
+      sub.textContent = isFr ? r.descFr : r.descAr;
+      info.append(ttl, sub);
+
+      const btns = document.createElement('div');
+      btns.className = 'flex items-center gap-1.5 shrink-0';
+      const playB = document.createElement('button');
+      playB.type = 'button';
+      playB.className = 'tap-btn rounded-xl border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-[11px] font-black text-amber-950';
+      playB.textContent = '▶️';
+      playB.addEventListener('click', () => playStrongRingtone(r.id));
+
+      const pickB = document.createElement('button');
+      pickB.type = 'button';
+      pickB.className = isActive
+        ? 'tap-btn rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-[11px] font-black text-white'
+        : 'tap-btn rounded-xl border border-[#0E5A3E]/30 bg-white px-2.5 py-1.5 text-[11px] font-black text-[#0E5A3E]';
+      pickB.textContent = isActive ? (isFr ? '✓ Choisi' : '✓ مختارة') : (isFr ? 'Choisir' : 'اختيار');
+      pickB.addEventListener('click', () => {
+        localStorage.setItem(CONFIG.RINGTONE_KEY, r.id);
+        playStrongRingtone(r.id);
+        renderRingtoneStudio(containerEl, onPicked);
+        if (onPicked) onPicked(r.id);
+      });
+      btns.append(playB, pickB);
+      row.append(info, btns);
+      containerEl.appendChild(row);
+    });
   }
 
   function stopRingtone() {
@@ -457,6 +563,8 @@
     getLocalDateStr,
     getLocalDayStartIso,
     playStrongRingtone,
+    renderRingtoneStudio,
+    RINGTONE_STUDIO,
     stopRingtone,
     speakText,
     toggleWebPush,

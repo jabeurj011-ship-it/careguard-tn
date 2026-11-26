@@ -35,7 +35,13 @@
 
 <main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
   <div id="liveCheckInToast" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-[#0E5A3E] shadow-sm"></div>
-  <div id="leftHomeBanner" class="hidden space-y-2"></div>
+  <details id="leftHomeBanner" class="hidden rounded-3xl border-2 border-rose-500 bg-rose-50 p-3.5 shadow-md">
+    <summary id="leftHomeSummary" class="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-rose-950">
+      <span id="leftHomeSumText">📍🚨 تنبيهات الخروج من المنزل</span>
+      <span id="leftHomeSumHint" class="shrink-0 rounded-lg bg-rose-100 px-2 py-0.5 text-[11px] font-black text-rose-800">اضغط للعرض ▾</span>
+    </summary>
+    <div id="leftHomeList" class="mt-3 space-y-2.5"></div>
+  </details>
 
   <!-- TAB 1: MY LINKED SENIORS -->
   <section id="secHome" class="space-y-3.5">
@@ -44,9 +50,9 @@
         <p id="linkTitle" class="text-sm font-black text-[#0E5A3E]">🔗 ربط المسنّ عبر الرمز (CG-...)</p>
         <button id="refreshBtn" type="button" class="rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-1 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
       </div>
-      <div class="flex gap-2">
-        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black uppercase" />
-        <select id="linkRelationSel" class="rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-2 text-xs font-black text-[#163024]">
+      <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="min-w-0 flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black uppercase" />
+        <select id="linkRelationSel" class="shrink-0 rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-2 text-xs font-black text-[#163024]">
           <option value="ابن">ابن</option>
           <option value="ابنة">ابنة</option>
           <option value="أخ">أخ</option>
@@ -55,7 +61,7 @@
           <option value="حفيد/ة">حفيد/ة</option>
           <option value="قريب">قريب آخر</option>
         </select>
-        <button id="linkSubmitBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">ربط</button>
+        <button id="linkSubmitBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">ربط</button>
       </div>
       <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
     </div>
@@ -299,14 +305,23 @@
     const box = $('seniorsList');
     const alBox = $('alertsList');
     const lhBox = $('leftHomeBanner');
+    const lhList = $('leftHomeList');
+    const fmtAlertTs = (ts) => {
+      if (!ts) return '';
+      try {
+        const d = new Date(ts);
+        return d.toLocaleString(isFr ? 'fr-TN' : 'ar-TN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      } catch (_) { return ''; }
+    };
     box.replaceChildren();
     alBox.replaceChildren();
     const resList = $('resolvedAlertsList');
     const resDet = $('resolvedAlertsDet');
     if (resList) resList.replaceChildren();
     let totalResolved = 0;
-    if (lhBox) lhBox.replaceChildren();
+    if (lhList) lhList.replaceChildren();
     let leftHomeCount = 0;
+    const leftHomeIds = [];
 
     let totalAlerts = 0;
     if (!linkedCards.length) {
@@ -338,9 +353,11 @@
         const txt = document.createElement('div');
         txt.className = 'min-w-0 flex-1 whitespace-pre-line leading-relaxed';
         const fmt = formatAlertDisplay(al, sp.display_name, isFr);
+        const tsStr = fmtAlertTs(al.created_at);
+        const tsTag = tsStr ? `🕒 ${tsStr}\n` : '';
         txt.textContent = isDaily
-          ? `📊 ${sp.display_name || ''} — ${fmt.text}`
-          : `${isLeftHome ? '📍🚨' : '🚨'} ${fmt.text}`;
+          ? `${tsTag}📊 ${sp.display_name || ''} — ${fmt.text}`
+          : `${tsTag}${isLeftHome ? '📍🚨' : '🚨'} ${fmt.text}`;
         const okBtn = document.createElement('button');
         okBtn.type = 'button';
         okBtn.className = isDaily
@@ -356,10 +373,17 @@
         row.append(txt, okBtn);
         alBox.appendChild(row);
 
-        if (isLeftHome && lhBox) {
+        if (isLeftHome && lhList) {
           leftHomeCount++;
+          leftHomeIds.push(al.id);
           const banner = document.createElement('div');
-          banner.className = 'rounded-3xl border-2 border-rose-500 bg-rose-50 p-4 shadow-md space-y-2.5';
+          banner.className = 'rounded-2xl border border-rose-300 bg-white p-3 shadow-sm space-y-2';
+          const bTop = document.createElement('div');
+          bTop.className = 'flex items-center justify-between gap-2';
+          const bTime = document.createElement('span');
+          bTime.className = 'rounded-lg bg-rose-100 px-2 py-0.5 text-[11px] font-black text-rose-900';
+          bTime.textContent = tsStr ? `🕒 ${tsStr}` : (isFr ? 'Maintenant' : 'الآن');
+          bTop.appendChild(bTime);
           const bTxt = document.createElement('p');
           bTxt.className = 'text-xs font-black text-rose-950 leading-relaxed';
           bTxt.textContent = `📍🚨 ${formatAlertDisplay(al, sp.display_name, isFr).text}`;
@@ -369,21 +393,21 @@
           if (mapMatch) {
             const mLink = document.createElement('a');
             mLink.href = mapMatch[0]; mLink.target = '_blank'; mLink.rel = 'noopener noreferrer';
-            mLink.className = 'rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-[11px] font-black text-rose-900';
+            mLink.className = 'rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-900';
             mLink.textContent = isFr ? '🗺️ Voir position' : '🗺️ فتح الموقع على الخريطة';
             bActions.appendChild(mLink);
           }
           const ackBtn = document.createElement('button');
           ackBtn.type = 'button';
-          ackBtn.className = 'tap-btn rounded-xl bg-rose-700 px-4 py-2 text-xs font-black text-white shadow';
+          ackBtn.className = 'tap-btn rounded-xl bg-rose-700 px-3.5 py-1.5 text-[11px] font-black text-white shadow';
           ackBtn.textContent = isFr ? '✓ Vu / Nous sommes informés' : '✓ علمنا بذلك (إخفاء التنبيه)';
           ackBtn.addEventListener('click', async () => {
             await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);
             loadFamilyData();
           });
           bActions.appendChild(ackBtn);
-          banner.append(bTxt, bActions);
-          lhBox.appendChild(banner);
+          banner.append(bTop, bTxt, bActions);
+          lhList.appendChild(banner);
         }
       });
 
@@ -523,7 +547,28 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
 
     $('alertsCnt').textContent = String(totalAlerts);
     if (resDet) { resDet.classList.toggle('hidden', totalResolved === 0); if ($('resolvedAlertsSum') && $('resolvedAlertsSum').firstElementChild) $('resolvedAlertsSum').firstElementChild.textContent = (isFr ? '📋 Historique des rapports et alertes (' : '📋 سجل التقارير والتنبيهات السابقة (') + totalResolved + ')'; }
-    if (lhBox) lhBox.classList.toggle('hidden', leftHomeCount === 0);
+    if (lhBox) {
+      lhBox.classList.toggle('hidden', leftHomeCount === 0);
+      if ($('leftHomeSumText')) {
+        $('leftHomeSumText').textContent = (isFr ? '📍🚨 Alertes sortie du domicile (' : '📍🚨 تنبيهات الخروج من المنزل (') + leftHomeCount + ')';
+      }
+      if ($('leftHomeSumHint')) {
+        $('leftHomeSumHint').textContent = isFr ? 'Afficher ▾' : 'اضغط للعرض ▾';
+      }
+      if (leftHomeCount > 1 && lhList) {
+        const ackAllBtn = document.createElement('button');
+        ackAllBtn.type = 'button';
+        ackAllBtn.className = 'w-full rounded-xl bg-rose-800 px-3 py-2 text-xs font-black text-white shadow';
+        ackAllBtn.textContent = isFr
+          ? `✓ Tout marquer comme vu (${leftHomeCount})`
+          : `✓ علمنا بجميع التنبيهات وإخفاؤها (${leftHomeCount})`;
+        ackAllBtn.addEventListener('click', async () => {
+          await S.client.from('alerts').update({ status: 'resolved' }).in('id', leftHomeIds);
+          loadFamilyData();
+        });
+        lhList.prepend(ackAllBtn);
+      }
+    }
     if (!totalAlerts) {
       const ok = document.createElement('div');
       ok.className = 'cg-card p-6 text-center text-xs font-bold text-[#0E5A3E]';
