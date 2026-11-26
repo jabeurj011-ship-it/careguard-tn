@@ -414,7 +414,8 @@
     const isFr = S.getLang() === 'fr';
     const listEl = $('reqList');
     const myGender = (myProfile && myProfile.gender) || 'male';
-    const isSusp = !!(suspendedUntil && new Date(suspendedUntil).getTime() > Date.now());
+    const isBanned = !!(myProfile && myProfile.is_banned);
+    const isSusp = isBanned || !!(suspendedUntil && new Date(suspendedUntil).getTime() > Date.now()) || !!(myProfile && myProfile.suspended_until && new Date(myProfile.suspended_until).getTime() > Date.now());
 
     const accReqs = cachedReqs.filter((r) => r.status === 'accepted' && !r.nurse_outcome && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
     const unratedComp = cachedReqs.find((r) => r.status === 'completed' && (r.patient_rating === null || r.patient_rating === undefined) && (r.accepted_by_user_id === user.id || r.nurse_user_id === user.id));
@@ -1104,6 +1105,16 @@
         }
       } catch (_) {}
     }
+    const bannedNow = !!(np.is_banned || (np.suspended_until && new Date(np.suspended_until).getTime() > Date.now()));
+    if ($('linkCodeInput')) $('linkCodeInput').disabled = bannedNow;
+    if ($('linkSubmitBtn')) $('linkSubmitBtn').disabled = bannedNow;
+    if (bannedNow && $('linkMsg')) {
+      $('linkMsg').className = 'text-xs font-extrabold text-rose-800';
+      $('linkMsg').textContent = np.is_banned
+        ? '⛔ حسابك محظور من الإدارة — خاصية ربط المسنّين معطّلة.'
+        : '⛔ حسابك معلّق مؤقتاً — خاصية ربط المسنّين متوقفة.';
+      $('linkMsg').classList.remove('hidden');
+    }
     renderNurseHomeCard();
   }
 
@@ -1268,6 +1279,17 @@
     const code = ($('linkCodeInput').value || '').trim().toUpperCase();
     const msg = $('linkMsg');
     if (!code) return;
+    try {
+      const { data: freshNp } = await S.client.from('nurse_profiles').select('is_banned, suspended_until').eq('user_id', user.id).maybeSingle();
+      if (freshNp && (freshNp.is_banned || (freshNp.suspended_until && new Date(freshNp.suspended_until).getTime() > Date.now()))) {
+        msg.className = 'text-xs font-extrabold text-rose-800';
+        msg.textContent = freshNp.is_banned
+          ? (isFr ? '⛔ Compte banni — liaison désactivée.' : '⛔ حسابك محظور — لا يمكنك إرسال طلب ربط.')
+          : (isFr ? '⛔ Compte suspendu — liaison désactivée.' : '⛔ حسابك معلّق مؤقتاً — لا يمكنك إرسال طلب ربط.');
+        msg.classList.remove('hidden');
+        return;
+      }
+    } catch (_) {}
     const myName = (myProfile && myProfile.full_name) || (user && user.user_metadata && user.user_metadata.full_name) || (isFr ? 'Infirmier' : 'ممرض');
     const { error } = await S.client.rpc('request_link_by_code', {
       p_code: code,

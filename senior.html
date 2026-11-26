@@ -1661,7 +1661,14 @@
   // Pending Care Links
   async function loadPendingLinks() {
     if (!seniorId) return;
-    const { data } = await S.client.from('senior_care_links').select('id, role_type, requester_name').eq('senior_id', seniorId).eq('status', 'pending');
+    const { data: rawLinks } = await S.client.from('senior_care_links').select('id, role_type, requester_name, requester_user_id').eq('senior_id', seniorId).eq('status', 'pending');
+    let data = rawLinks || [];
+    const nurseUids = data.filter((l) => l.role_type === 'nurse' && l.requester_user_id).map((l) => l.requester_user_id);
+    if (nurseUids.length) {
+      const { data: npRows } = await S.client.from('nurse_profiles').select('user_id, is_banned, suspended_until').in('user_id', nurseUids);
+      const blockedSet = new Set((npRows || []).filter((n) => n.is_banned || (n.suspended_until && new Date(n.suspended_until).getTime() > Date.now())).map((n) => n.user_id));
+      data = data.filter((l) => !(l.role_type === 'nurse' && blockedSet.has(l.requester_user_id)));
+    }
     const box = $('pendingLinksBox'), list = $('pendingLinksList');
     if (!data || !data.length) { box.classList.add('hidden'); return; }
     list.replaceChildren();
