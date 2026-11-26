@@ -400,7 +400,7 @@
       .select('*')
       .or(`nurse_user_id.eq.${user.id},request_mode.eq.open,accepted_by_user_id.eq.${user.id}`)
       .order('created_at', { ascending: false })
-      .limit(40);
+      .limit(100);
     cachedReqs = data || [];
     renderRequests();
   }
@@ -1224,7 +1224,22 @@
   $('subTabNew').addEventListener('click', () => setSubTab('new'));
   $('subTabAcc').addEventListener('click', () => setSubTab('accepted'));
   $('subTabHist').addEventListener('click', () => setSubTab('history'));
-  $('refreshReqBtn').addEventListener('click', loadRequests);
+  $('refreshReqBtn').addEventListener('click', async () => {
+    const btn = $('refreshReqBtn');
+    const lbl = btn ? btn.querySelector('span') : null;
+    const svg = btn ? btn.querySelector('svg') : null;
+    const isFr = S.getLang() === 'fr';
+    if (btn) btn.disabled = true;
+    if (svg) svg.classList.add('animate-spin');
+    if (lbl) lbl.textContent = isFr ? 'Actualisation...' : 'جاري التحديث...';
+    try { await loadRequests(); } catch (_) {}
+    if (svg) svg.classList.remove('animate-spin');
+    if (lbl) lbl.textContent = isFr ? 'À jour ✓' : 'تم التحديث ✓';
+    setTimeout(() => {
+      if (lbl) lbl.textContent = isFr ? 'Actualiser' : 'تحديث';
+      if (btn) btn.disabled = false;
+    }, 1200);
+  });
   $('closeChatBtn').addEventListener('click', () => $('chatModal').classList.add('hidden'));
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); if (!$('secPatients').classList.contains('hidden')) loadPatients(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
