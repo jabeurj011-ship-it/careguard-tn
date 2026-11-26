@@ -252,7 +252,7 @@
         <input id="apptDateIn" type="date" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" dir="ltr" />
         <input id="apptTimeIn" type="time" value="09:00" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black" dir="ltr" />
       </div>
-      <input id="apptLocIn" type="text" placeholder="المكان / المصحة / المخبر (اختياري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <input id="apptLocIn" type="text" placeholder="المكان / المصحة / المخبر (إلزامي)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
       <label class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-950">
         <input id="apptFastingChk" type="checkbox" class="h-4 w-4 accent-amber-600" />
         <span id="apptFastingLbl">🍽️ يتطلب صياماً قبل الموعد (تحليل على الريق)</span>
@@ -301,6 +301,10 @@
       <div class="grid grid-cols-2 gap-2 pt-1">
         <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-3 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="srFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
+        <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
       </div>
       <button id="deleteAccountBtn" type="button" class="tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800">🗑️ حذف بياناتي وحسابي نهائياً</button>
     </div>
@@ -1384,11 +1388,19 @@
         ]) : [{ data: null }, { data: null }];
         const nName = (np && np.full_name) || r.accepted_by_name || r.nurse_name || 'الممرض';
         const phone = (np && np.phone) || '';
+        const callNurseUrl = S.safeTelHref ? S.safeTelHref(phone) : (phone ? ('tel:' + phone) : '');
         box.replaceChildren();
         box.className = 'rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-4 shadow-md space-y-3';
         const hdr = document.createElement('div'); hdr.className = 'flex items-center justify-between';
         const t = document.createElement('p'); t.className = 'text-sm font-black text-[#0E5A3E]';
         t.textContent = isFr ? '✅ Infirmier en route !' : '✅ تم قبول طلبك! الممرض في طريقه إليك';
+        const callBtnEl = callNurseUrl ? (() => {
+          const ca = document.createElement('a');
+          ca.href = callNurseUrl;
+          ca.className = 'tap-btn inline-flex items-center gap-1 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white shadow-sm';
+          ca.textContent = (isFr ? '📞 Appeler ' : '📞 اتصال: ') + nName;
+          return ca;
+        })() : null;
         const done = document.createElement('button'); done.type = 'button';
         done.className = 'rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-black text-[#0E5A3E]';
         done.textContent = isFr ? '✓ Arrivé' : '✓ تم الوصول';
@@ -1771,17 +1783,22 @@
     if (!pendingRxDataUrl) return;
     st.textContent = isFr ? '⏳ Lecture de la photo en cours...' : '⏳ جاري قراءة الصورة واستخراج الأدوية...';
     try {
-      const compressed = await compressRxImage(pendingRxDataUrl, 900);
+      const compressed = await compressRxImage(pendingRxDataUrl, 720);
       const b64 = compressed.split(',')[1] || '';
       const mime = (compressed.match(/^data:([^;]+);/) || [])[1] || 'image/jpeg';
-      const { data, error } = await S.client.functions.invoke('gemini-proxy', {
+      const invokeOcr = () => S.client.functions.invoke('gemini-proxy', {
         body: {
           prompt: 'List each medication and dose on a separate line formatted exactly as: Name Dose | HH:MM (use 08:00 if time is not shown, no bullets or extra text).',
           imageBase64: b64,
           mimeType: mime
         }
       });
-      if (error) throw new Error(error.message || 'AI error');
+      let { data, error } = await invokeOcr();
+      if (error || !(data && data.text)) {
+        await new Promise((res) => setTimeout(res, 1100));
+        ({ data, error } = await invokeOcr());
+      }
+      if (error) throw new Error(isFr ? 'Service temporairement indisponible — réessayez' : 'تعذرت قراءة الوصفة مؤقتاً — أعد المحاولة');
       const ans = (data && typeof data.text === 'string') ? data.text.trim() : '';
       if (!ans) throw new Error(isFr ? 'Aucun médicament détecté.' : 'لم يتم العثور على أدوية واضحة في الصورة.');
       const lines = ans.split(/\n+/).map((x) => x.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean).slice(0, 15);
@@ -1823,7 +1840,7 @@
         $('newMedName').value = n0 || '';
         if (/^\d{2}:\d{2}$/.test(t0)) $('newMedTime').value = t0;
       }
-      $('rxExtractedWrap').classList.remove('hidden');
+      $('rxPhotoPreviewWrap').classList.add('hidden'); $('rxExtractedWrap').classList.remove('hidden'); $('rxExtractedWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       st.textContent = isFr ? `✓ ${lines.length} médicament(s) détecté(s) !` : `✓ تم استخراج ${lines.length} دواء بنجاح!`;
     } catch (err) {
       st.textContent = '⚠️ ' + (err.message || (isFr ? 'Erreur de lecture' : 'تعذرت قراءة الصورة'));
@@ -1880,7 +1897,18 @@
     }
     const apptType = $('apptTypeSel').value;
     const typeMeta = APPT_META[apptType] || APPT_META.doctor;
-    const title = ($('apptTitleIn').value || '').trim() || (isFr ? typeMeta.fr : typeMeta.ar);
+    const title = ($('apptTitleIn').value || '').trim();
+    const locVal = ($('apptLocIn').value || '').trim();
+    if (!title || !locVal) {
+      if (msgEl) {
+        msgEl.className = 'rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
+        msgEl.textContent = isFr
+          ? '⚠️ Saisissez le nom du médecin/examen ET le lieu (obligatoires).'
+          : '⚠️ يرجى إدخال اسم الطبيب/الفحص والمكان/المصحة قبل الحفظ.';
+        msgEl.classList.remove('hidden');
+      }
+      return;
+    }
     const dtStr = $('apptDateIn').value;
     const tmStr = $('apptTimeIn').value || '09:00';
     if (!dtStr) return alert(isFr ? 'Choisissez la date du rendez-vous.' : 'يرجى اختيار تاريخ الموعد.');
@@ -2387,6 +2415,7 @@
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); renderAppts(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  if ($('srFeedbackBtn')) $('srFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'senior', (seniorProfile && seniorProfile.display_name) || 'المسنّ'));
   $('deleteAccountBtn').addEventListener('click', async () => {
     const isFr = S.getLang() === 'fr';
     const ok1 = window.confirm(isFr

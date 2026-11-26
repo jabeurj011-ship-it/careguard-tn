@@ -113,7 +113,11 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2.5">
-      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+      <div class="grid grid-cols-2 gap-2.5">
+      <button id="famFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
+      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
+    </div>
+    <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
       <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
     </div>
   </section>
@@ -637,6 +641,12 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
 
   async function sendNurseReq(mode, nurseUid, nurseName) {
     const st = $('fnStatus');
+    const isFr = S.getLang() === 'fr';
+    st.className = 'rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]';
+    st.textContent = isFr ? '⏳ Envoi de la demande...' : '⏳ جاري إرسال الطلب...';
+    st.classList.remove('hidden');
+    st.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    try {
     const firstSenior = linkedCards.find((x) => x.kind === 'approved');
     const sp = firstSenior ? firstSenior.sp : null;
     const chkQ = sp
@@ -718,8 +728,10 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
         return;
       }
     }
-    const sLat = sp ? (sp.home_lat || null) : null;
-    const sLng = sp ? (sp.home_lng || null) : null;
+    let initGps = null;
+    try { initGps = JSON.parse(localStorage.getItem('cg_v2_init_gps') || 'null'); } catch (_) {}
+    const sLat = (sp && sp.home_lat) ? sp.home_lat : (initGps && initGps.lat ? Number(initGps.lat) : null);
+    const sLng = (sp && sp.home_lng) ? sp.home_lng : (initGps && initGps.lng ? Number(initGps.lng) : null);
     const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';
     const basePayload = {
       senior_id: sp ? sp.id : null,
@@ -740,7 +752,12 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       ({ error } = await S.client.from('nurse_visit_requests').insert(basePayload));
     }
     st.classList.remove('hidden');
-    st.textContent = error ? ('⚠️ ' + error.message) : '✅ تم إرسال طلب الزيارة بنجاح!';
+    st.textContent = error ? ('⚠️ ' + error.message) : (isFr ? '✅ Demande envoyée avec succès !' : '✅ تم إرسال طلب الزيارة بنجاح!');
+    } catch (err) {
+      st.className = 'rounded-2xl border border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
+      st.textContent = '⚠️ ' + ((err && err.message) || (isFr ? 'Erreur lors de l\'envoi' : 'تعذر إرسال الطلب'));
+      st.classList.remove('hidden');
+    }
   }
 
   // Wiring
@@ -754,6 +771,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderFamilyCards(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  if ($('famFeedbackBtn')) $('famFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'family', (user && user.user_metadata && user.user_metadata.full_name) || 'العائلة'));
 
   $('linkSubmitBtn').addEventListener('click', async () => {
     const isFr = S.getLang() === 'fr';

@@ -151,7 +151,11 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2.5">
-      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+      <div class="grid grid-cols-2 gap-2.5">
+      <button id="nrFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
+      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
+    </div>
+    <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
       <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
     </div>
   </section>
@@ -1086,6 +1090,15 @@
       $('gpsStatus').textContent = `✓ ${Number(np.base_lat).toFixed(3)}, ${Number(np.base_lng).toFixed(3)}`;
       $('gpsStatus').dataset.lat = String(np.base_lat);
       $('gpsStatus').dataset.lng = String(np.base_lng);
+    } else {
+      try {
+        const g = JSON.parse(localStorage.getItem('cg_v2_init_gps') || 'null');
+        if (g && g.lat && g.lng) {
+          $('gpsStatus').textContent = `✓ ${Number(g.lat).toFixed(3)}, ${Number(g.lng).toFixed(3)}`;
+          $('gpsStatus').dataset.lat = String(g.lat);
+          $('gpsStatus').dataset.lng = String(g.lng);
+        }
+      } catch (_) {}
     }
   }
 
@@ -1103,6 +1116,13 @@
         return;
       }
       normPhone = cleaned;
+    }
+    if (!$('gpsStatus').dataset.lat || !$('gpsStatus').dataset.lng) {
+      msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
+      msgEl.textContent = isFr ? '⚠️ Position GPS obligatoire pour enregistrer le profil.' : '⚠️ تحديد الموقع (GPS) إجباري لحفظ ملف الممرض.';
+      msgEl.classList.remove('hidden');
+      if ($('setGpsBtn')) $('setGpsBtn').click();
+      return;
     }
     if (!$('npTermsAgree').checked) {
       msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
@@ -1310,6 +1330,7 @@
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderRequests(); if (!$('secPatients').classList.contains('hidden')) loadPatients(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
   $('signOutBtn').addEventListener('click', S.signOut);
+  if ($('nrFeedbackBtn')) $('nrFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'nurse', (myProfile && myProfile.full_name) || 'ممرض'));
 
   $('pushBtn').addEventListener('click', async () => {
     const r = await S.toggleWebPush(user);

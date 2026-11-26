@@ -432,6 +432,19 @@
   async function toggleWebPush(user) {
     const isFr = getLang() === 'fr';
     if (!sbClient || !user) return { ok: false, active: false };
+    const Cap = window.Capacitor;
+    if (Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform()) {
+      try {
+        const NA = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+        const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
+        if (LN && typeof LN.requestPermissions === 'function') await LN.requestPermissions();
+        if (NA && typeof NA.openAlarmPermissions === 'function') await NA.openAlarmPermissions();
+        alert(isFr ? '✅ Alertes en arrière-plan activées sur Android.' : '✅ تم تفعيل تنبيهات الخلفية على تطبيق الأندرويد.');
+        return { ok: true, active: true, native: true };
+      } catch (_) {
+        return { ok: false, active: false };
+      }
+    }
     if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
       alert(isFr ? 'Push non supporté sur ce navigateur.' : 'إشعارات الخلفية غير مدعومة في هذا المتصفح.');
       return { ok: false, active: false };
@@ -488,6 +501,12 @@
         return;
       }
       try {
+        const Cap = window.Capacitor;
+        const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+        if (NA && typeof NA.requestMicPermission === 'function') {
+          const mp = await NA.requestMicPermission();
+          if (mp && mp.granted === false) throw new Error('mic_denied');
+        }
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
         rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
@@ -577,6 +596,7 @@
     TN_GOVERNORATES,
     detectTnGovernorate,
     normGov,
-    formatGovLabel
+    formatGovLabel,
+    openFeedbackModal
   };
 })();

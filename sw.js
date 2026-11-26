@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soinsdar-tn-v153';
+const CACHE_NAME = 'soinsdar-tn-v155';
 const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -81,7 +81,7 @@ self.addEventListener('push', (event) => {
     try { if (event.data) payload.body = event.data.text(); } catch (__) {}
   }
   payload.title = String(payload.title || 'SOINSDAR').replace(/CareGuard/gi, 'SOINSDAR');
-  payload.body = String(payload.body || '').replace(/CareGuard/gi, 'SOINSDAR');
+  payload.body = String(payload.body || '').replace(/CareGuard/gi, 'SOINSDAR').replace(/Missed medication:/gi, 'دواء فائت:');
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
