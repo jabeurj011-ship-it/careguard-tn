@@ -880,6 +880,12 @@
     if (k === 'classic_bell' || k === 'piano_melody' || k === 'morning_harp') return 'careguard_bell_v3';
     return 'careguard_med_call_v3';
   }
+  function getNativeSoundName() {
+    const k = localStorage.getItem(S.CONFIG.RINGTONE_KEY) || 'loud_phone';
+    if (k === 'urgent_alarm') return 'careguard_urgent';
+    if (k === 'classic_bell' || k === 'piano_melody' || k === 'morning_harp') return 'careguard_bell';
+    return 'careguard_ringtone';
+  }
 
   async function syncNativeApptAlarms() {
     const Cap = window.Capacitor;
@@ -909,6 +915,19 @@
           toSched.push({ id: 3001 + idx * 2, title: `⏰ موعدك بعد ساعتين — SoinsDar`, body: `${m.icon} ${a.title}${a.fasting_required ? ' (صائم)' : ''}`, channelId: getNativeRingChannel(), schedule: { at: new Date(r2), allowWhileIdle: true } });
         }
       });
+      const NativeAlarm = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+      if (NativeAlarm && typeof NativeAlarm.scheduleAlarms === 'function') {
+        const nativeAppts = toSched.map((n) => ({
+          id: n.id,
+          group: 'appt',
+          triggerAtMs: n.schedule && n.schedule.at ? new Date(n.schedule.at).getTime() : 0,
+          title: n.title || 'موعد طبي — SoinsDar',
+          body: n.body || '',
+          sound: getNativeSoundName(),
+          kind: 'appt'
+        })).filter((x) => x.triggerAtMs > Date.now() + 1000);
+        await withNativeTimeout(NativeAlarm.scheduleAlarms({ group: 'appt', alarms: nativeAppts }), 4000, 'native_appt_schedule');
+      }
       if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'appt_schedule');
     } catch (_) {}
   }
@@ -1102,9 +1121,26 @@
           }
         } catch (_) {}
       }
+      const NativeAlarm = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+      let usedDedicatedAlarm = false;
+      if (NativeAlarm && typeof NativeAlarm.scheduleAlarms === 'function') {
+        const nativeMeds = toSched.map((n) => ({
+          id: n.id,
+          group: 'med',
+          triggerAtMs: n.schedule && n.schedule.at ? new Date(n.schedule.at).getTime() : 0,
+          title: (n.extra && n.extra.medName) ? `💊 ${n.extra.medName}` : (n.title || 'حان وقت الدواء'),
+          body: (n.extra && n.extra.medTime) ? `الموعد: ${n.extra.medTime}` : (n.body || ''),
+          sound: getNativeSoundName(),
+          kind: 'med'
+        })).filter((x) => x.triggerAtMs > Date.now() + 1000);
+        await withNativeTimeout(NativeAlarm.scheduleAlarms({ group: 'med', alarms: nativeMeds }), 4000, 'native_med_schedule');
+        usedDedicatedAlarm = true;
+      }
       if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule');
       if (stEl) {
-        stEl.textContent = `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
+        stEl.textContent = usedDedicatedAlarm
+          ? `✓ منبّه SoinsDar الخاص مفعّل: تمت برمجة ${toSched.length} منبّه (${meds.length} دواء)`
+          : `✓ تمت برمجة ${toSched.length} منبّه دواء دقيق (${meds.length} دواء)`;
         stEl.classList.remove('hidden');
       }
     } catch (err) {
@@ -1118,6 +1154,19 @@
   $('testNativeCallAlarmBtn').addEventListener('click', async () => {
     const Cap = window.Capacitor;
     const isNative = !!(Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform());
+    const NativeAlarm = isNative && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+    if (NativeAlarm && typeof NativeAlarm.testAlarm === 'function') {
+      try {
+        await withNativeTimeout(NativeAlarm.testAlarm({
+          delayMs: 5000,
+          title: '💊 تجربة الدواء (Doliprane 1000)',
+          body: 'منبّه SoinsDar الخاص — اضغط إيقاف أو غفوة',
+          sound: getNativeSoundName()
+        }), 4000, 'testAlarm');
+        alert('✓ تم ضبط منبّه SoinsDar الخاص! أغلق الشاشة الآن وخلال 5 ثوانٍ سيشتغل المنبّه بصوت متواصل وشاشة كاملة.');
+        return;
+      } catch (_) {}
+    }
     const LN = isNative && Cap.Plugins && Cap.Plugins.LocalNotifications;
     if (LN) {
       try {
