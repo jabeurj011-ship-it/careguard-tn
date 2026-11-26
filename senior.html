@@ -2385,36 +2385,90 @@
     if (!user) return;
     await ensureSenior();
     await Promise.all([loadMeds(), loadAppts(), loadPendingLinks(), loadVisitBanner(), refreshUnreadBadge()]);
+    const handleBatterySample = async (pctRaw, isChg) => {
+      const pct = Math.max(0, Math.min(100, Math.round(Number(pctRaw))));
+      if (!Number.isFinite(pct)) return;
+      $('heroBatPill').textContent = `${isChg ? '⚡' : '🔋'} ${pct}%`;
+      if ($('heroBatBar')) $('heroBatBar').style.width = `${Math.max(5, Math.min(100, pct))}%`;
+      $('heroBatPill').className = (pct <= 20 && !isChg)
+        ? 'rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-black text-rose-800 animate-pulse'
+        : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]';
+      if (!seniorId) return;
+
+      const dsKey = 'cg_v2_ds_at_' + seniorId;
+      const lastDs = Number(localStorage.getItem(dsKey) || 0);
+      const stKey = 'cg_v2_lowbat_state_' + seniorId;
+      let prevState = 'none';
+      try { prevState = localStorage.getItem(stKey) || 'none'; } catch (_) {}
+
+      const needLow20 = !isChg && pct <= 20 && prevState === 'none';
+      const needLow10 = !isChg && pct <= 10 && prevState !== '10';
+
+      if (Date.now() - lastDs > 30 * 60000 || needLow20 || needLow10) {
+        try { localStorage.setItem(dsKey, String(Date.now())); } catch (_) {}
+        try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: isChg })).catch(() => {}); } catch (_) {}
+      }
+
+      if (isChg || pct >= 25) {
+        if (prevState !== 'none') {
+          try { localStorage.setItem(stKey, 'none'); } catch (_) {}
+        }
+        return;
+      }
+
+      if (needLow10 || needLow20) {
+        const nextState = pct <= 10 ? '10' : '20';
+        try { localStorage.setItem(stKey, nextState); } catch (_) {}
+        const batMsg = S.getLang() === 'fr'
+          ? `🔋 Batterie faible (${pct}%) pour ${(seniorProfile && seniorProfile.display_name) || 'Senior'} — pensez à charger le téléphone`
+          : `🔋 بطارية هاتف ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'} منخفضة (${pct}%) — يرجى شحن الهاتف`;
+        try {
+          Promise.resolve(S.client.from('alerts').insert({
+            senior_id: seniorId,
+            alert_type: 'low_battery',
+            severity: pct <= 10 ? 'critical' : 'warning',
+            status: 'open',
+            message: batMsg
+          })).catch(() => {});
+        } catch (_) {}
+        const Cap = window.Capacitor;
+        const LN = Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.LocalNotifications;
+        if (LN) {
+          try {
+            LN.schedule({
+              notifications: [{
+                id: 2888,
+                title: S.getLang() === 'fr' ? `🔋 Batterie faible (${pct}%)` : `🔋 البطارية منخفضة (${pct}%)`,
+                body: S.getLang() === 'fr' ? 'Pensez à brancher le chargeur.' : 'يُفضّل وضع الهاتف في الشاحن الآن.',
+                schedule: { at: new Date(Date.now() + 1000) }
+              }]
+            }).catch(() => {});
+          } catch (_) {}
+        }
+      }
+    };
+
+    const pollNativeBatteryOnce = async () => {
+      try {
+        const Cap = window.Capacitor;
+        const NA = Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+        if (NA && typeof NA.getBatteryInfo === 'function') {
+          const info = await NA.getBatteryInfo();
+          if (info && typeof info.level === 'number' && info.level >= 0) {
+            await handleBatterySample(info.level, !!info.charging);
+          }
+        }
+      } catch (_) {}
+    };
+
+    pollNativeBatteryOnce();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') pollNativeBatteryOnce();
+    });
+
     if ('getBattery' in navigator) {
       navigator.getBattery().then((b) => {
-        const sync = () => {
-          const pct = Math.round(b.level * 100);
-          const isChg = !!b.charging;
-          $('heroBatPill').textContent = `${isChg ? '⚡' : '🔋'} ${pct}%`;
-          if ($('heroBatBar')) $('heroBatBar').style.width = `${Math.max(5, Math.min(100, pct))}%`;
-          $('heroBatPill').className = (pct <= 20 && !isChg)
-            ? 'rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-black text-rose-800 animate-pulse'
-            : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]';
-          if (seniorId) {
-            const dsKey = 'cg_v2_ds_at_' + seniorId;
-            const lastDs = Number(localStorage.getItem(dsKey) || 0);
-            if (Date.now() - lastDs > 30 * 60000 || (pct <= 20 && !isChg)) {
-              try { localStorage.setItem(dsKey, String(Date.now())); } catch (_) {}
-              try { Promise.resolve(S.client.from('device_status').insert({ senior_id: seniorId, battery_percent: pct, is_charging: isChg })).catch(() => {}); } catch (_) {}
-            }
-            if (pct <= 20 && !isChg) {
-              const batKey = 'cg_v2_lowbat_at_' + seniorId;
-              const lastAt = Number(localStorage.getItem(batKey) || 0);
-              if (Date.now() - lastAt > 2 * 3600000) {
-                try { localStorage.setItem(batKey, String(Date.now())); } catch (_) {}
-                const batMsg = S.getLang() === 'fr'
-                  ? `🔋 Batterie faible (${pct}%) pour ${(seniorProfile && seniorProfile.display_name) || 'Senior'} — pensez à charger le téléphone`
-                  : `🔋 بطارية هاتف ${(seniorProfile && seniorProfile.display_name) || 'المسنّ'} منخفضة (${pct}%) — يرجى شحن الهاتف`;
-                try { Promise.resolve(S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'low_battery', severity: 'warning', status: 'open', message: batMsg })).catch(() => {}); } catch (_) {}
-              }
-            }
-          }
-        };
+        const sync = () => handleBatterySample(b.level * 100, !!b.charging);
         sync();
         b.addEventListener('levelchange', sync);
         b.addEventListener('chargingchange', sync);
