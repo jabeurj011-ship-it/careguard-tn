@@ -1055,16 +1055,25 @@
       if (stEl) stEl.textContent = 'ℹ️ تعمل الآن من المتصفح — منبّهات إغلاق التطبيق تعمل داخل نسخة الأندرويد (APK)';
       return;
     }
+    const NativeAlarm = Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
     const LN = Cap.Plugins && Cap.Plugins.LocalNotifications;
-    if (!LN) {
-      if (stEl) stEl.textContent = '⚠️ إضافة الإشعارات المحلية غير مفعّلة في هذا الـ APK';
+    if (!NativeAlarm && !LN) {
+      if (stEl) stEl.textContent = '⚠️ إضافة المنبّهات غير مفعّلة في هذا الـ APK';
       return;
     }
     try {
-      const perm = await withNativeTimeout(LN.requestPermissions(), 4000, 'requestPermissions');
-      if (!perm || perm.display !== 'granted') {
-        if (stEl) stEl.textContent = '⚠️ يرجى السماح بإذن الإشعارات لتطبيق SoinsDar من إعدادات الهاتف';
-        return;
+      if (NativeAlarm && typeof NativeAlarm.openAlarmPermissions === 'function') {
+        try {
+          const pInfo = await withNativeTimeout(NativeAlarm.checkPermissions(), 2000, 'chkPerm');
+          if (pInfo && (!pInfo.batteryIgnored || !pInfo.exactAlarm)) {
+            await withNativeTimeout(NativeAlarm.openAlarmPermissions(), 2500, 'openPerm');
+          }
+        } catch (_) {}
+      }
+      if (LN) {
+        try {
+          await withNativeTimeout(LN.requestPermissions(), 3500, 'requestPermissions');
+        } catch (_) {}
       }
       if (!nativeAlarmReady) {
         nativeAlarmReady = true;
@@ -1097,7 +1106,7 @@
           setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${nm}` : `حان وقت الدواء: ${nm}`), 800);
         });
       }
-      const pend = await LN.getPending();
+      const pend = LN ? await LN.getPending() : null;
       if (pend && pend.notifications && pend.notifications.length) {
         const oldIds = pend.notifications.filter((n) => n.id >= 2000 && n.id < 3000).map((n) => ({ id: n.id }));
         if (oldIds.length) await LN.cancel({ notifications: oldIds });
@@ -1124,7 +1133,7 @@
           });
         }
       });
-      if (typeof LN.checkExactNotificationSetting === 'function') {
+      if (LN && typeof LN.checkExactNotificationSetting === 'function') {
         try {
           const exSet = await LN.checkExactNotificationSetting();
           if (exSet && exSet.exact_alarm !== 'granted' && typeof LN.changeExactNotificationSetting === 'function') {
@@ -1147,7 +1156,7 @@
         await withNativeTimeout(NativeAlarm.scheduleAlarms({ group: 'med', alarms: nativeMeds }), 4000, 'native_med_schedule');
         usedDedicatedAlarm = true;
       }
-      if (toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule');
+      if (LN && toSched.length) await withNativeTimeout(LN.schedule({ notifications: toSched }), 4000, 'med_schedule').catch(() => {});
       if (stEl) {
         stEl.textContent = usedDedicatedAlarm
           ? `✓ منبّه SoinsDar الخاص مفعّل: تمت برمجة ${toSched.length} منبّه (${meds.length} دواء)`
@@ -2406,6 +2415,26 @@
     user = await S.requireAuth(['senior']);
     if (!user) return;
     await ensureSenior();
+    if (seniorId && seniorProfile && (!seniorProfile.home_lat || !seniorProfile.home_lng)) {
+      let seededGps = false;
+      try {
+        const g = JSON.parse(localStorage.getItem('cg_v2_init_gps') || 'null');
+        if (g && g.lat && g.lng) {
+          seniorProfile.home_lat = Number(g.lat);
+          seniorProfile.home_lng = Number(g.lng);
+          await S.client.from('senior_profiles').update({ home_lat: seniorProfile.home_lat, home_lng: seniorProfile.home_lng }).eq('id', seniorId);
+          seededGps = true;
+        }
+      } catch (_) {}
+      if (!seededGps && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          seniorProfile.home_lat = pos.coords.latitude;
+          seniorProfile.home_lng = pos.coords.longitude;
+          try { localStorage.setItem('cg_v2_init_gps', JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, at: Date.now() })); } catch (_) {}
+          await S.client.from('senior_profiles').update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude }).eq('id', seniorId);
+        }, () => { openProfileModal(); }, { enableHighAccuracy: true, timeout: 10000 });
+      }
+    }
     await Promise.all([loadMeds(), loadAppts(), loadPendingLinks(), loadVisitBanner(), refreshUnreadBadge()]);
     const handleBatterySample = async (pctRaw, isChg) => {
       const pct = Math.max(0, Math.min(100, Math.round(Number(pctRaw))));
