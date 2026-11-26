@@ -1798,7 +1798,16 @@
         await new Promise((res) => setTimeout(res, 500));
         ({ data, error } = await invokeOcr());
       }
-      if (error) throw new Error(isFr ? 'Service temporairement indisponible — réessayez' : 'تعذرت قراءة الوصفة مؤقتاً — أعد المحاولة');
+      if (error) {
+        let detail = error.message || '';
+        try {
+          if (error.context && typeof error.context.json === 'function') {
+            const j = await error.context.json();
+            if (j && j.error) detail = j.error;
+          }
+        } catch (_) {}
+        throw new Error(detail || (isFr ? 'Service temporairement indisponible — réessayez' : 'تعذرت قراءة الوصفة مؤقتاً — أعد المحاولة'));
+      }
       const ans = (data && typeof data.text === 'string') ? data.text.trim() : '';
       if (!ans) throw new Error(isFr ? 'Aucun médicament détecté.' : 'لم يتم العثور على أدوية واضحة في الصورة.');
       const lines = ans.split(/\n+/).map((x) => x.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean).slice(0, 15);
