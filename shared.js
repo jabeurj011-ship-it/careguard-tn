@@ -567,6 +567,90 @@
 
   applyDocDir();
 
+  function openFeedbackModal(user, role, displayName) {
+    const isFr = getLang() === 'fr';
+    const ex = document.getElementById('cgFeedbackModal');
+    if (ex) ex.remove();
+    const wrap = document.createElement('div');
+    wrap.id = 'cgFeedbackModal';
+    wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-4';
+    const card = document.createElement('div');
+    card.className = 'w-full max-w-md rounded-3xl border border-[#E6DCCB] bg-[#FFFDF9] p-5 shadow-2xl space-y-3';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between';
+    const h3 = document.createElement('h3');
+    h3.className = 'text-base font-black text-[#0E5A3E]';
+    h3.textContent = isFr ? '📩 Contacter SoinsDar / Signaler' : '📩 مراسلة الإدارة / إبلاغ أو اقتراح';
+    const cls = document.createElement('button');
+    cls.type = 'button';
+    cls.className = 'rounded-xl px-2.5 py-1 text-lg font-black text-slate-600';
+    cls.textContent = '✕';
+    cls.addEventListener('click', () => wrap.remove());
+    hdr.append(h3, cls);
+
+    const sel = document.createElement('select');
+    sel.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-xs font-black text-[#163024]';
+    [
+      ['suggestion', isFr ? '💡 Suggestion / Amélioration' : '💡 اقتراح أو فكرة لتطوير التطبيق'],
+      ['violation', isFr ? '🚨 Signaler un abus / infraction' : '🚨 الإبلاغ عن مخالفة أو سوء استخدام'],
+      ['bug', isFr ? '🛠️ Signaler un problème technique' : '🛠️ الإبلاغ عن عطل تقني'],
+      ['support', isFr ? '💬 Message à l\'administration' : '💬 رسالة مباشرة لإدارة التطبيق']
+    ].forEach(([val, lbl]) => {
+      const o = document.createElement('option');
+      o.value = val; o.textContent = lbl;
+      sel.appendChild(o);
+    });
+
+    const ta = document.createElement('textarea');
+    ta.rows = 4;
+    ta.placeholder = isFr ? 'Écrivez votre message ou signalement ici...' : 'اكتب رسالتك أو تفاصيل البلاغ أو الاقتراح هنا...';
+    ta.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white p-3 text-xs font-bold text-[#163024]';
+
+    const st = document.createElement('p');
+    st.className = 'hidden text-center text-xs font-extrabold';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white';
+    btn.textContent = isFr ? '📤 Envoyer à l\'administration' : '📤 إرسال إلى إدارة التطبيق';
+    btn.addEventListener('click', async () => {
+      const msg = ta.value.trim();
+      if (!msg) {
+        st.className = 'text-center text-xs font-extrabold text-rose-800';
+        st.textContent = isFr ? '⚠️ Écrivez un message d\'abord.' : '⚠️ يرجى كتابة نص الرسالة أولاً.';
+        st.classList.remove('hidden');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = isFr ? '⏳ Envoi...' : '⏳ جاري الإرسال...';
+      try {
+        if (!sbClient || !user) throw new Error('no_auth');
+        const { error } = await sbClient.from('app_feedback').insert({
+          user_id: user.id,
+          user_role: role || 'user',
+          user_name: displayName || (user.user_metadata && user.user_metadata.full_name) || user.email || 'مستخدم',
+          category: sel.value,
+          message: msg
+        });
+        if (error) throw error;
+        st.className = 'text-center text-xs font-extrabold text-[#0E5A3E]';
+        st.textContent = isFr ? '✅ Message envoyé à l\'équipe SoinsDar !' : '✅ تم إرسال رسالتك إلى إدارة التطبيق بنجاح!';
+        st.classList.remove('hidden');
+        setTimeout(() => wrap.remove(), 1800);
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = isFr ? '📤 Envoyer à l\'administration' : '📤 إرسال إلى إدارة التطبيق';
+        st.className = 'text-center text-xs font-extrabold text-rose-800';
+        st.textContent = '⚠️ ' + ((e && e.message) || (isFr ? 'Erreur d\'envoi' : 'تعذر الإرسال'));
+        st.classList.remove('hidden');
+      }
+    });
+
+    card.append(hdr, sel, ta, st, btn);
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+  }
+
   window.CG_SHARED = {
     CONFIG,
     $,
