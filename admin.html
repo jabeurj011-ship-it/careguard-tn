@@ -94,15 +94,15 @@
   function fmtDate(iso) {
     if (!iso) return '—';
     try {
-      return new Date(iso).toLocaleString('ar-TN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      return new Date(iso).toLocaleString('ar-TN', { year: 'numeric', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
     } catch (_) { return String(iso); }
   }
 
   async function loadAll() {
     $('admList').textContent = '⏳ جاري تحميل البيانات...';
     const [sRes, fRes, nRes, rRes, revRes, alRes, fbRes] = await Promise.all([
-      S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, home_address, created_at').order('created_at', { ascending: false }).limit(200),
-      S.client.from('senior_care_links').select('id, senior_id, requester_user_id, requester_name, role_type, status, created_at, senior_profiles(display_name)').eq('role_type', 'family').order('created_at', { ascending: false }).limit(200),
+      S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, home_address, home_lat, home_lng, created_at').order('created_at', { ascending: false }).limit(200),
+      S.client.from('senior_care_links').select('id, senior_id, requester_user_id, requester_name, role_type, status, created_at, senior_profiles(display_name, home_address, home_lat, home_lng)').eq('role_type', 'family').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_profiles').select('*').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_visit_requests').select('*').order('created_at', { ascending: false }).limit(120),
       S.client.from('nurse_reviews').select('*').order('created_at', { ascending: false }).limit(100),
@@ -150,9 +150,13 @@
         bdg.className = isBan ? 'rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-black text-white' : (isSusp ? 'rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-white' : (isVer ? 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]' : 'rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-black text-slate-700'));
         bdg.textContent = isBan ? 'محظور' : (isSusp ? 'معلّق' : (isVer ? '✓ موثّق' : 'قيد المراجعة'));
         top.append(nm, bdg);
+        const nrGovRaw = n.region || ((n.base_lat && n.base_lng) ? S.detectTnGovernorate(n.base_lat, n.base_lng) : '');
+        const nrGov = nrGovRaw ? S.formatGovLabel(nrGovRaw) : '—';
+        const nrAddr = n.city_zip || n.city || '—';
         const meta = document.createElement('p');
-        meta.className = 'text-xs font-bold text-[#5C6F63]';
-        meta.textContent = `📍 ${S.formatGovLabel(n.region) || '—'} ${n.city_zip ? '(' + n.city_zip + ')' : ''} • 📞 ${n.phone || '—'}`;
+        meta.className = 'text-xs font-bold text-[#5C6F63] leading-relaxed';
+        meta.textContent = `🏛️ الولاية: ${nrGov} • 📍 العنوان: ${nrAddr} • 📞 ${n.phone || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(n.created_at)}`;
+        meta.classList.add('whitespace-pre-line');
         const row = document.createElement('div');
         row.className = 'flex flex-wrap gap-1.5 pt-1';
 
@@ -275,7 +279,10 @@
         p1.textContent = `👴 ${sp.display_name || 'مسنّ'}`;
         const p2 = document.createElement('p');
         p2.className = 'text-[11px] font-bold text-[#5C6F63] break-words';
-        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'} • ${sp.home_address || '—'} • ${fmtDate(sp.created_at)}`;
+        const srGovRaw = (sp.home_lat && sp.home_lng) ? S.detectTnGovernorate(sp.home_lat, sp.home_lng) : '';
+        const srGov = srGovRaw ? S.formatGovLabel(srGovRaw) : '—';
+        p2.classList.add('whitespace-pre-line', 'leading-relaxed');
+        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'}\n🏛️ الولاية: ${srGov} • 📍 العنوان: ${sp.home_address || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(sp.created_at)}`;
         d.append(p1, p2);
         const bDel = document.createElement('button');
         bDel.type = 'button';
@@ -308,8 +315,12 @@
         p1.textContent = `👨‍👩‍👧 ${f.requester_name || 'قريب / عائلة'}`;
         const p2 = document.createElement('p');
         p2.className = 'text-[11px] font-bold text-[#5C6F63]';
-        const senName = (f.senior_profiles && f.senior_profiles.display_name) || '—';
-        p2.textContent = `مرتبط بـ: ${senName} • الحالة: ${f.status} • ${fmtDate(f.created_at)}`;
+        const spf = f.senior_profiles || {};
+        const senName = spf.display_name || '—';
+        const fmGovRaw = (spf.home_lat && spf.home_lng) ? S.detectTnGovernorate(spf.home_lat, spf.home_lng) : '';
+        const fmGov = fmGovRaw ? S.formatGovLabel(fmGovRaw) : '—';
+        p2.classList.add('whitespace-pre-line', 'leading-relaxed');
+        p2.textContent = `مرتبط بـ: ${senName} • الحالة: ${f.status}\n🏛️ الولاية: ${fmGov} • 📍 العنوان: ${spf.home_address || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(f.created_at)}`;
         d.append(p1, p2);
         const bDel = document.createElement('button');
         bDel.type = 'button';
