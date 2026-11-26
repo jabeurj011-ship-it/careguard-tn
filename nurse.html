@@ -92,8 +92,8 @@
             <div id="profAvatarPreview" class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] text-base font-black text-white">🩺</div>
             <span id="profPhotoLbl" class="text-xs font-extrabold text-[#163024]">📷 صورة الممرض الشخصية</span>
           </div>
-          <label for="avatarFileInput" id="profPhotoBtnLbl" class="tap-btn shrink-0 cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
-          <input id="avatarFileInput" type="file" accept="image/*" class="hidden" />
+          <button type="button" id="profPhotoBtnLbl" class="tap-btn shrink-0 cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</button>
+          <input id="avatarFileInput" type="file" accept="image/*" class="sr-only" />
         </div>
         <p id="profPhotoStatus" class="hidden text-center text-[11px] font-extrabold"></p>
       </div>
@@ -1004,6 +1004,7 @@
     }
     if (!np) return;
     myProfile = np;
+    if (prof && prof.avatar_url) myProfile.avatar_url = prof.avatar_url;
     $('npFullName').value = np.full_name || '';
     if (np.credential) $('npCredential').value = np.credential;
     if (np.gender) $('npGender').value = np.gender;
@@ -1086,7 +1087,7 @@
       msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2.5 text-center text-xs font-black text-rose-900';
       msgEl.textContent = '⚠️ ' + error.message;
     } else {
-      myProfile = payload;
+      myProfile = Object.assign({}, myProfile || {}, payload);
       saveBtn.textContent = isFr ? '✅ Profil enregistré !' : '✅ تم الحفظ بنجاح!';
       msgEl.className = 'rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-3 py-2.5 text-center text-xs font-black text-[#0E5A3E]';
       msgEl.textContent = isFr ? '✅ Vos modifications ont bien été enregistrées !' : '✅ تم حفظ جميع بياناتك بنجاح وظهورك في الدليل مفعّل!';
@@ -1117,6 +1118,11 @@
     });
   }
 
+  $('profPhotoBtnLbl').addEventListener('click', () => {
+    const inp = $('avatarFileInput');
+    if (inp) inp.click();
+  });
+
   $('avatarFileInput').addEventListener('change', async (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f || !user) return;
@@ -1127,11 +1133,18 @@
     st.textContent = isFr ? '⏳ Mise à jour de la photo...' : '⏳ جاري ضغط وحفظ الصورة...';
     try {
       const dataUrl = await compressAvatar(f);
-      let { error } = await S.client.from('profiles').update({ avatar_url: dataUrl }).eq('id', user.id);
-      if (error) {
-        ({ error } = await S.client.from('profiles').upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: 'id' }));
+      let { data: updRows, error } = await S.client.from('profiles').update({ avatar_url: dataUrl }).eq('id', user.id).select('id');
+      if (error || !updRows || !updRows.length) {
+        ({ error } = await S.client.from('profiles').upsert({
+          id: user.id,
+          role: 'nurse',
+          full_name: ($('npFullName').value || '').trim() || (myProfile && myProfile.full_name) || 'ممرض',
+          avatar_url: dataUrl
+        }, { onConflict: 'id' }));
       }
       if (error) throw error;
+      if (myProfile) myProfile.avatar_url = dataUrl;
+      else myProfile = { avatar_url: dataUrl };
       ['nurseHdrAvatar', 'profAvatarPreview'].forEach((id) => {
         const el = $(id); if (!el) return;
         el.replaceChildren();
@@ -1139,6 +1152,7 @@
         img.src = dataUrl; img.className = 'h-full w-full object-cover';
         el.appendChild(img);
       });
+      renderNurseHomeCard();
       st.className = 'text-center text-[11px] font-extrabold text-[#0E5A3E]';
       st.textContent = isFr ? '✅ Photo enregistrée avec succès !' : '✅ تم حفظ صورتك الشخصية بنجاح!';
     } catch (err) {
