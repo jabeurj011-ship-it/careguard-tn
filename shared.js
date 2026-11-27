@@ -935,54 +935,66 @@
     });
   }
 
-  async function showActiveAnnouncement(role) {
+  async function showActiveAnnouncement(role, userId) {
     if (!sbClient || !role) return;
     try {
+      const uid = userId || 'anon';
       const { data, error } = await sbClient
         .from('app_announcements')
         .select('id, title, message, target_role, created_at')
         .eq('is_active', true)
         .in('target_role', ['all', role])
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(10);
       if (error || !data || !data.length) return;
-      const ann = data[0];
-      const seenKey = 'cg_v2_seen_ann_' + ann.id;
-      try { if (localStorage.getItem(seenKey) === '1') return; } catch (_) {}
-      if ($('cgAnnModal')) return;
+      const unseen = data.filter((ann) => {
+        try { return localStorage.getItem(`cg_v2_seen_ann_${uid}_${ann.id}`) !== '1'; } catch (_) { return true; }
+      });
+      if (!unseen.length || $('cgAnnModal')) return;
 
       const isFr = getLang() === 'fr';
-      const wrap = document.createElement('div');
-      wrap.id = 'cgAnnModal';
-      wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4';
-      const card = document.createElement('div');
-      card.className = 'w-full max-w-md rounded-[28px] border-2 border-[#0EA5E9]/40 bg-white p-5 shadow-2xl space-y-3.5 text-center';
-      const iconWrap = document.createElement('div');
-      iconWrap.className = 'mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F4FD] text-[#0A4D68]';
-      iconWrap.innerHTML = '<svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
-      const badge = document.createElement('p');
-      badge.className = 'inline-block rounded-full bg-[#E8F4FD] px-3 py-1 text-[11px] font-black text-[#0A4D68]';
-      badge.textContent = isFr ? 'Annonce SoinsDar' : 'إعلان من إدارة SoinsDar';
-      const ttl = document.createElement('h3');
-      ttl.className = 'text-lg font-black text-[#0B2538]';
-      ttl.textContent = ann.title || '';
-      const body = document.createElement('p');
-      body.className = 'rounded-2xl bg-[#F2F8FF] p-3.5 text-sm font-bold text-[#0B2538] leading-relaxed whitespace-pre-line text-start';
-      body.textContent = ann.message || '';
-      const tm = document.createElement('p');
-      tm.className = 'text-[11px] font-bold text-[#4A657A]';
-      tm.textContent = formatChatTimestamp(ann.created_at);
-      const okBtn = document.createElement('button');
-      okBtn.type = 'button';
-      okBtn.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white shadow-sm';
-      okBtn.textContent = isFr ? 'Compris' : 'حسناً، فهمت';
-      okBtn.addEventListener('click', () => {
-        try { localStorage.setItem(seenKey, '1'); } catch (_) {}
-        wrap.remove();
-      });
-      card.append(iconWrap, badge, ttl, body, tm, okBtn);
-      wrap.appendChild(card);
-      document.body.appendChild(wrap);
+      let idx = 0;
+      const renderAnnAt = (i) => {
+        const ann = unseen[i];
+        if (!ann) return;
+        const old = $('cgAnnModal');
+        if (old) old.remove();
+        const seenKey = `cg_v2_seen_ann_${uid}_${ann.id}`;
+        const wrap = document.createElement('div');
+        wrap.id = 'cgAnnModal';
+        wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4';
+        const card = document.createElement('div');
+        card.className = 'w-full max-w-md rounded-[28px] border-2 border-[#0EA5E9]/40 bg-white p-5 shadow-2xl space-y-3.5 text-center';
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F4FD] text-[#0A4D68]';
+        iconWrap.innerHTML = '<svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
+        const badge = document.createElement('p');
+        badge.className = 'inline-block rounded-full bg-[#E8F4FD] px-3 py-1 text-[11px] font-black text-[#0A4D68]';
+        const cntTxt = unseen.length > 1 ? ` (${i + 1}/${unseen.length})` : '';
+        badge.textContent = (isFr ? 'Annonce SoinsDar' : 'إعلان من إدارة SoinsDar') + cntTxt;
+        const ttl = document.createElement('h3');
+        ttl.className = 'text-lg font-black text-[#0B2538]';
+        ttl.textContent = ann.title || '';
+        const body = document.createElement('p');
+        body.className = 'rounded-2xl bg-[#F2F8FF] p-3.5 text-sm font-bold text-[#0B2538] leading-relaxed whitespace-pre-line text-start';
+        body.textContent = ann.message || '';
+        const tm = document.createElement('p');
+        tm.className = 'text-[11px] font-bold text-[#4A657A]';
+        tm.textContent = formatChatTimestamp(ann.created_at);
+        const okBtn = document.createElement('button');
+        okBtn.type = 'button';
+        okBtn.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white shadow-sm';
+        okBtn.textContent = (i + 1 < unseen.length) ? (isFr ? 'Suivant' : 'التالي') : (isFr ? 'Compris' : 'حسناً، فهمت');
+        okBtn.addEventListener('click', () => {
+          try { localStorage.setItem(seenKey, '1'); } catch (_) {}
+          wrap.remove();
+          if (i + 1 < unseen.length) renderAnnAt(i + 1);
+        });
+        card.append(iconWrap, badge, ttl, body, tm, okBtn);
+        wrap.appendChild(card);
+        document.body.appendChild(wrap);
+      };
+      renderAnnAt(idx);
     } catch (_) {}
   }
 

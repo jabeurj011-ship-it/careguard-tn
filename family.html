@@ -924,7 +924,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       .subscribe();
     }
     S.initNativeFcm(user.id, 'family');
-    S.showActiveAnnouncement('family');
+    S.showActiveAnnouncement('family', user.id);
     connectFamRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && famRt) { S.client.removeChannel(famRt); famRt = null; }

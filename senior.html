@@ -1742,9 +1742,25 @@
   async function loadMyReqs() {
     syncMrTabs();
     const box = $('mrList');
+    const cKey = 'cg_v2_mr_cache_' + (user ? user.id : '');
+    if (!mrLoadedOnce) {
+      try {
+        const raw = JSON.parse(localStorage.getItem(cKey) || 'null');
+        if (raw && Array.isArray(raw.rows)) {
+          cachedMrRows = raw.rows;
+          cachedMrRevMap = new Map(raw.revs || []);
+          mrLoadedOnce = true;
+        }
+      } catch (_) {}
+    }
     if (mrLoadedOnce) renderMyReqs();
     else { box.textContent = '⏳ جاري التحميل...'; }
-    const { data: rows } = await S.client.from('nurse_visit_requests').select('*').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(30);
+    const { data: rows } = await S.client
+      .from('nurse_visit_requests')
+      .select('id, status, care_reason, accepted_by_name, nurse_name, created_at, accepted_at, completed_at')
+      .eq('requester_user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
     cachedMrRows = rows || [];
     const compIds = cachedMrRows.filter((r) => r.status === 'completed').map((r) => r.id);
     const revMap = new Map();
@@ -1754,6 +1770,7 @@
     }
     cachedMrRevMap = revMap;
     mrLoadedOnce = true;
+    try { localStorage.setItem(cKey, JSON.stringify({ rows: cachedMrRows, revs: Array.from(revMap.entries()) })); } catch (_) {}
     renderMyReqs();
   }
 
@@ -2821,7 +2838,7 @@
         .subscribe();
     }
     S.initNativeFcm(user.id, 'senior');
-    S.showActiveAnnouncement('senior');
+    S.showActiveAnnouncement('senior', user.id);
     connectRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && rtCh) { S.client.removeChannel(rtCh); rtCh = null; }

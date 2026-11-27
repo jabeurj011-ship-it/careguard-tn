@@ -1601,7 +1601,7 @@
       .subscribe();
     }
     S.initNativeFcm(user.id, 'nurse');
-    S.showActiveAnnouncement('nurse');
+    S.showActiveAnnouncement('nurse', user.id);
     connectNurseRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && nurseRt) { S.client.removeChannel(nurseRt); nurseRt = null; }
