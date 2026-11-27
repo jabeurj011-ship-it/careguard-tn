@@ -1327,6 +1327,22 @@
     const now = new Date();
     const today = S.getLocalDateStr(now);
     const nowMins = now.getHours() * 60 + now.getMinutes();
+    const preDue = meds.filter((m) => {
+      if (takenMap.has(m.id)) return false;
+      const pKey = `${m.id}|${today}|${m.dosage}`;
+      if (preAlertedMedKeys.has(pKey) || alertedMedKeys.has(pKey)) return false;
+      const [h, mn] = String(m.dosage || '').split(':').map(Number);
+      if (!Number.isFinite(h) || !Number.isFinite(mn)) return false;
+      const diff = (h * 60 + mn) - nowMins;
+      return diff >= 1 && diff <= 5;
+    });
+    if (preDue.length) {
+      preDue.forEach((m) => preAlertedMedKeys.add(`${m.id}|${today}|${m.dosage}`));
+      const pNames = preDue.map((m) => m.name).join(' + ');
+      S.speakText(S.getLang() === 'fr'
+        ? `Rappel : dans 5 minutes, il sera temps de prendre ${pNames}.`
+        : `تذكير تحضيري: بعد خمس دقائق يحين موعد دواء ${pNames}.`);
+    }
     const due = meds.filter((m) => {
       if (takenMap.has(m.id)) return false;
       const key = `${m.id}|${today}|${m.dosage}`;
