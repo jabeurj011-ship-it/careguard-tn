@@ -2431,12 +2431,30 @@
       home_lat: seniorProfile ? seniorProfile.home_lat : null,
       home_lng: seniorProfile ? seniorProfile.home_lng : null
     };
-    const { error: updErr } = await S.client.from('senior_profiles').update(patch).eq('id', seniorId);
+    if (!seniorId && typeof ensureSenior === 'function') {
+      try { await ensureSenior(); } catch (_) {}
+    }
+    let updErr = null;
+    if (seniorId) {
+      const res = await S.client.from('senior_profiles').update(patch).eq('id', seniorId).select('*').maybeSingle();
+      updErr = res.error;
+      if (!updErr && res.data) seniorProfile = res.data;
+    } else if (user) {
+      const reg = 'CG-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const insPayload = Object.assign({ user_id: user.id, registration_number: reg }, patch);
+      const res = await S.client.from('senior_profiles').insert(insPayload).select('*').single();
+      updErr = res.error;
+      if (!updErr && res.data) {
+        seniorProfile = res.data;
+        seniorId = res.data.id;
+      }
+    }
     if (updErr) {
       showProfErr('⚠️ ' + (updErr.message || 'تعذر حفظ البيانات'));
       return;
     }
-    Object.assign(seniorProfile, patch);
+    if (!seniorProfile) seniorProfile = Object.assign({}, patch);
+    else Object.assign(seniorProfile, patch);
     renderSeniorHeader();
     $('profileModal').classList.add('hidden');
   });
