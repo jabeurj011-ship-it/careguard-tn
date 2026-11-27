@@ -157,7 +157,7 @@
       const item = document.createElement('div');
       item.className = 'rounded-xl bg-[#F2F8FF] px-3 py-2 text-xs';
       const kl = document.createElement('p'); kl.className = 'font-black text-[#4A657A] text-[10px]'; kl.textContent = k;
-      const vl = document.createElement('p'); vl.className = 'font-black text-[#0B2538] break-words'; vl.textContent = val;
+      const vl = document.createElement('p'); vl.className = 'font-black text-[#0B2538] break-words'; if (/الهاتف|طوارئ|هاتف|GPS/.test(k)) { vl.dir = 'ltr'; vl.classList.add('text-right'); } vl.textContent = val;
       item.append(kl, vl);
       list.appendChild(item);
     });
