@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoinsDar — فضاء المسنّ</title>
-  <meta name="theme-color" content="#0E5A3E" />
+  <meta name="theme-color" content="#0A4D68" />
   <link rel="manifest" href="./manifest.json" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
@@ -13,26 +13,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-28">
 
 <!-- Top Curved Mint Header -->
-<header class="relative overflow-hidden bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#FAF6EE] border-b border-[#DCECE4] pb-8">
-  <div class="pointer-events-none absolute -top-12 -left-12 h-40 w-40 rounded-full bg-[#0E5A3E]/10 blur-2xl"></div>
+<header class="relative overflow-hidden bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#F2F8FF] border-b border-[#B6D8F2] pb-8">
+  <div class="pointer-events-none absolute -top-12 -left-12 h-40 w-40 rounded-full bg-[#0A4D68]/10 blur-2xl"></div>
   <div class="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-emerald-400/15 blur-2xl"></div>
   <div class="relative mx-auto max-w-xl px-3.5 pt-3 space-y-2.5">
     <div class="flex items-center justify-between gap-1.5">
       <div class="flex items-center gap-1.5">
-        <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#C7DFCE] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
-        <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#C7DFCE] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
+        <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#B6D8F2] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
+        <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#B6D8F2] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
       </div>
-      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#0E5A3E]/30 bg-white/95 px-3 py-1 text-[11px] font-black text-[#0E5A3E] shadow-sm">FR</button>
+      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#0A4D68]/30 bg-white/95 px-3 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm">FR</button>
     </div>
 
     <div class="flex items-center justify-center gap-2.5 pt-0.5 text-center">
 <img src="./emblem-soinsdar.png" alt="SOINSDAR" class="h-12 w-auto shrink-0 object-contain" />
       <div class="text-start">
-        <h1 class="font-serif-brand text-2xl font-extrabold leading-none tracking-wide text-[#0E5A3E]">SOINSDAR</h1>
-        <p id="hdrSub" class="mt-0.5 text-xs font-extrabold text-[#0E5A3E]/85">رعايتهم تجمعنا • v2.6-TN</p>
+        <h1 class="font-serif-brand text-2xl font-extrabold leading-none tracking-wide text-[#0A4D68]">SOINSDAR</h1>
+        <p id="hdrSub" class="mt-0.5 text-xs font-extrabold text-[#0A4D68]/85">رعايتهم تجمعنا • v2.6-TN</p>
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@
 <main class="mx-auto max-w-xl space-y-3.5 px-4 -mt-5 relative z-10">
 
   <!-- Accepted Nurse Arrival / 5-Star Review Banner -->
-  <div id="visitStatusBox" class="hidden rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-4 shadow-md space-y-3"></div>
+  <div id="visitStatusBox" class="hidden rounded-3xl border-2 border-[#B6D8F2] bg-[#FFFFFF] p-4 shadow-md space-y-3"></div>
 
   <!-- Pending Family / Nurse Link Requests -->
   <div id="pendingLinksBox" class="hidden rounded-3xl border-2 border-amber-300 bg-amber-50 p-4 space-y-2">
@@ -52,25 +52,25 @@
   <!-- TAB 1: SENIOR HOME -->
   <section id="secHome" class="space-y-3.5">
     <!-- Modern Rounded-Square Portrait Hero Card -->
-    <div class="rounded-[28px] border border-[#DFEAE3] bg-white p-4 shadow-[0_10px_28px_-12px_rgba(14,90,62,0.18)] flex items-start gap-3.5">
+    <div class="rounded-[28px] border border-[#CFE3F5] bg-white p-4 shadow-[0_10px_28px_-12px_rgba(14,90,62,0.18)] flex items-start gap-3.5">
       <div class="relative shrink-0">
-        <div id="heroAvatar" class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#E6F2EC] bg-[#DCE6DA] text-3xl font-black text-[#0E5A3E] shadow-sm">م</div>
-        <span class="absolute -bottom-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#0E5A3E] text-white shadow">
+        <div id="heroAvatar" class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-[#E6F2EC] bg-[#DCE6DA] text-3xl font-black text-[#0A4D68] shadow-sm">م</div>
+        <span class="absolute -bottom-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#0A4D68] text-white shadow">
           <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0112 6.5 5.5 5.5 0 0121.5 12C19 16.5 12 21 12 21z"/></svg>
         </span>
       </div>
       <div class="min-w-0 flex-1 space-y-1.5">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-            <p id="greetPrefix" class="text-[11px] font-bold text-[#5C6F63]">مرحباً،</p>
-            <h2 id="heroName" class="font-serif-brand truncate text-xl font-extrabold text-[#163024]">المسنّ</h2>
+            <p id="greetPrefix" class="text-[11px] font-bold text-[#4A657A]">مرحباً،</p>
+            <h2 id="heroName" class="font-serif-brand truncate text-xl font-extrabold text-[#0B2538]">المسنّ</h2>
           </div>
-          <button type="button" onclick="document.getElementById('openProfileBtn').click()" aria-label="تعديل" class="shrink-0 rounded-xl border border-[#E6DCCB] bg-[#FAF6EE] p-1.5 text-[#0E5A3E]">
+          <button type="button" onclick="document.getElementById('openProfileBtn').click()" aria-label="تعديل" class="shrink-0 rounded-xl border border-[#CFE3F5] bg-[#F2F8FF] p-1.5 text-[#0A4D68]">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </button>
         </div>
         <div id="heroMedRows" class="space-y-1">
-          <span id="heroMedPill" class="inline-block rounded-full bg-[#FAF6EE] border border-[#E6DCCB] px-2.5 py-0.5 text-[11px] font-extrabold text-[#163024]">🛡️ البطاقة الطبية</span>
+          <span id="heroMedPill" class="inline-block rounded-full bg-[#F2F8FF] border border-[#CFE3F5] px-2.5 py-0.5 text-[11px] font-extrabold text-[#0B2538]">🛡️ البطاقة الطبية</span>
         </div>
       </div>
     </div>
@@ -78,26 +78,26 @@
     <!-- Battery & Status Progress Bar -->
     <div class="rounded-2xl border border-[#E2ECE6] bg-white px-3.5 py-2.5 shadow-sm flex items-center justify-between gap-2.5">
       <div class="flex items-center gap-2 shrink-0">
-        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-[#0E5A3E]">
+        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-[#0A4D68]">
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3-7 4 14 3-7h4"/></svg>
         </span>
-        <span id="statusBarLbl" class="text-xs font-extrabold text-[#163024]">حالة الهاتف والبطارية</span>
+        <span id="statusBarLbl" class="text-xs font-extrabold text-[#0B2538]">حالة الهاتف والبطارية</span>
       </div>
       <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-emerald-100">
-        <div id="heroBatBar" class="h-full rounded-full bg-[#0E5A3E] transition-all" style="width: 80%"></div>
+        <div id="heroBatBar" class="h-full rounded-full bg-[#0A4D68] transition-all" style="width: 80%"></div>
       </div>
-      <span id="heroBatPill" class="shrink-0 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]">🔋 --%</span>
+      <span id="heroBatPill" class="shrink-0 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0A4D68]">🔋 --%</span>
     </div>
 
     <!-- Big Check-In CTA Button -->
-    <button id="checkInBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-full bg-gradient-to-r from-[#0E5A3E] to-[#157551] px-5 py-3.5 text-lg font-black text-white shadow-lg">
+    <button id="checkInBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-full bg-gradient-to-r from-[#0A4D68] to-[#157551] px-5 py-3.5 text-lg font-black text-white shadow-lg">
       <span class="flex items-center gap-2.5"><span>🤍</span><span id="checkInLbl">أنا بخير</span></span>
       <span class="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-sm">‹</span>
     </button>
 
     <div class="flex flex-wrap items-center justify-center gap-2 text-xs font-extrabold">
-      <span id="lastCheckInTxt" class="text-[#5C6F63]"></span>
-      <button id="copyCodeBtn" type="button" class="rounded-full border border-[#DFD5C5] bg-white px-3 py-1 text-[#0E5A3E] shadow-sm" dir="ltr">🔑 <span id="myCodeTxt">CG------</span></button>
+      <span id="lastCheckInTxt" class="text-[#4A657A]"></span>
+      <button id="copyCodeBtn" type="button" class="rounded-full border border-[#CFE3F5] bg-white px-3 py-1 text-[#0A4D68] shadow-sm" dir="ltr">🔑 <span id="myCodeTxt">CG------</span></button>
     </div>
     <div id="checkInFeedback" class="hidden rounded-3xl border-2 border-emerald-500 bg-emerald-600 px-5 py-4 text-center text-base font-black text-white shadow-lg"></div>
 
@@ -106,7 +106,7 @@
       <div class="min-w-0 flex-1">
         <p id="homeDueMedTxt" class="text-sm font-black text-amber-950 break-words"></p>
       </div>
-      <button id="homeDueTakeBtn" type="button" class="tap-btn shrink-0 rounded-2xl bg-[#0E5A3E] px-3.5 py-2 text-xs font-black text-white shadow">✓ أخذته</button>
+      <button id="homeDueTakeBtn" type="button" class="tap-btn shrink-0 rounded-2xl bg-[#0A4D68] px-3.5 py-2 text-xs font-black text-white shadow">✓ أخذته</button>
     </div>
 
     <!-- Smart 2-Hour Water Reminder Banner -->
@@ -120,15 +120,15 @@
     <!-- 2x2 Modern Soft-Pastel Cards (Unboxed Colored Icons + Bottom-Corner Arrows) -->
     <div class="grid grid-cols-2 gap-3">
       <button id="tileMeds" type="button" class="tap-btn flex flex-col justify-between rounded-[24px] border border-[#CFE8D8] bg-[#EEF9F3] p-4 text-start shadow-sm min-h-[136px]">
-        <div class="text-[#0E5A3E]">
+        <div class="text-[#0A4D68]">
           <svg class="h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.1"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 20.5L20.5 10.5a4.95 4.95 0 00-7-7L3.5 13.5a4.95 4.95 0 007 7zM8.5 8.5l7 7"/></svg>
         </div>
         <div class="flex items-end justify-between gap-1.5 pt-2">
           <div class="min-w-0">
-            <h3 id="tileMedsLbl" class="text-base font-black text-[#163024]">الأدوية</h3>
-            <p id="tileMedsSub" class="text-xs font-extrabold text-[#0E5A3E]">0 / 0 جرعة</p>
+            <h3 id="tileMedsLbl" class="text-base font-black text-[#0B2538]">الأدوية</h3>
+            <p id="tileMedsSub" class="text-xs font-extrabold text-[#0A4D68]">0 / 0 جرعة</p>
           </div>
-          <span class="tile-arrow flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#D7EFE0] text-xs font-black text-[#0E5A3E]">←</span>
+          <span class="tile-arrow flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#D7EFE0] text-xs font-black text-[#0A4D68]">←</span>
         </div>
       </button>
 
@@ -151,8 +151,8 @@
         </div>
         <div class="flex items-end justify-between gap-1.5 pt-2">
           <div class="min-w-0">
-            <h3 id="tileNurseLbl" class="text-base font-black text-[#0E5A3E]">طلب ممرض</h3>
-            <p id="tileNurseSub" class="text-xs font-extrabold text-[#3C5044]">أقرب ممرض متاح</p>
+            <h3 id="tileNurseLbl" class="text-base font-black text-[#0A4D68]">طلب ممرض</h3>
+            <p id="tileNurseSub" class="text-xs font-extrabold text-[#334E63]">أقرب ممرض متاح</p>
           </div>
           <span class="tile-arrow flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-200/70 text-xs font-black text-teal-900">←</span>
         </div>
@@ -165,7 +165,7 @@
         </div>
         <div class="flex items-end justify-between gap-1.5 pt-2">
           <div class="min-w-0">
-            <h3 id="tileMsgsLbl" class="text-base font-black text-[#163024]">الرسائل</h3>
+            <h3 id="tileMsgsLbl" class="text-base font-black text-[#0B2538]">الرسائل</h3>
             <p id="tileMsgsSub" class="text-xs font-bold text-sky-900">العائلة والممرض</p>
           </div>
           <span class="tile-arrow flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-200/80 text-xs font-black text-sky-900">←</span>
@@ -192,10 +192,10 @@
   <!-- TAB 2: MEDICATIONS -->
   <section id="secMeds" class="hidden space-y-3.5">
     <div class="cg-card p-4 space-y-2.5">
-      <h2 id="medsHeading" class="text-lg font-black text-[#0E5A3E]">💊 جدول الأدوية اليومي</h2>
+      <h2 id="medsHeading" class="text-lg font-black text-[#0A4D68]">💊 جدول الأدوية اليومي</h2>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <input id="newMedName" type="text" placeholder="اسم الدواء والجرعة (مثال: Doliprane 1000)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
-        <select id="newMedFreq" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-sm font-bold">
+        <input id="newMedName" type="text" placeholder="اسم الدواء والجرعة (مثال: Doliprane 1000)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold" />
+        <select id="newMedFreq" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-sm font-bold">
           <option value="1">مرة واحدة يومياً (08:00)</option>
           <option value="2">مرتان يومياً (08:00 و 20:00)</option>
           <option value="3">3 مرات يومياً (08:00، 14:00، 20:00)</option>
@@ -203,17 +203,17 @@
         </select>
       </div>
       <div class="flex gap-2">
-        <input id="newMedTime" type="time" value="08:00" class="rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black" />
-        <button id="addMedBtn" type="button" class="tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-4 py-2 text-sm font-black text-white">+ إضافة دواء</button>
+        <input id="newMedTime" type="time" value="08:00" class="rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-black" />
+        <button id="addMedBtn" type="button" class="tap-btn flex-1 rounded-xl bg-[#0A4D68] px-4 py-2 text-sm font-black text-white">+ إضافة دواء</button>
       </div>
 
       <!-- Prescription / Medicine Box Photo Scanner -->
-      <div class="pt-1 border-t border-[#EDE4D4] space-y-2">
-        <label for="rxPhotoInput" id="rxPhotoLbl" class="tap-btn flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#0E5A3E]/50 bg-[#EEF7F1] px-3 py-2.5 text-center text-xs font-black text-[#0E5A3E]">
+      <div class="pt-1 border-t border-[#DCEBF8] space-y-2">
+        <label for="rxPhotoInput" id="rxPhotoLbl" class="tap-btn flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#0A4D68]/50 bg-[#E8F4FD] px-3 py-2.5 text-center text-xs font-black text-[#0A4D68]">
           📷 إضافة الأدوية من صورة الوصفة أو العلبة
         </label>
         <input id="rxPhotoInput" type="file" accept="image/*" class="hidden" />
-        <div id="rxPhotoPreviewWrap" class="hidden space-y-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] p-3">
+        <div id="rxPhotoPreviewWrap" class="hidden space-y-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3">
           <img id="rxPhotoPreview" alt="معاينة الصورة" class="max-h-48 w-full rounded-xl object-contain bg-white" />
           <div class="flex gap-2">
             <button id="rxAnalyzeBtn" type="button" class="tap-btn flex-1 rounded-xl bg-violet-700 px-3 py-2 text-xs font-black text-white">✨ قراءة الأدوية بالذكاء الاصطناعي</button>
@@ -224,7 +224,7 @@
         <div id="rxExtractedWrap" class="hidden space-y-2 rounded-2xl border border-violet-300 bg-violet-50/70 p-3">
           <p id="rxExtractedTitle" class="text-xs font-black text-violet-950">📋 الأدوية المستخرجة من الصورة (راجعها ثم اضغط حفظ):</p>
           <div id="rxExtractedList" class="space-y-1.5"></div>
-          <button id="rxSaveAllBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-xs font-black text-white">✓ حفظ الأدوية المحددة في الجدول</button>
+          <button id="rxSaveAllBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0A4D68] px-4 py-2.5 text-xs font-black text-white">✓ حفظ الأدوية المحددة في الجدول</button>
         </div>
       </div>
     </div>
@@ -234,9 +234,9 @@
   <!-- TAB 2B: MEDICAL APPOINTMENTS & LABS -->
   <section id="secAppts" class="hidden space-y-3.5">
     <div class="cg-card p-4 space-y-2.5">
-      <h2 id="apptsHeading" class="text-lg font-black text-[#0E5A3E]">📅 المواعيد الطبية والفحوصات</h2>
+      <h2 id="apptsHeading" class="text-lg font-black text-[#0A4D68]">📅 المواعيد الطبية والفحوصات</h2>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <select id="apptTypeSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-sm font-bold">
+        <select id="apptTypeSel" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-sm font-bold">
           <option value="doctor">🩺 عيادة طبية / طبيب</option>
           <option value="labs">🧪 تحاليل طبية</option>
           <option value="xray">🩻 أشعة / سكانير / راديو</option>
@@ -246,18 +246,18 @@
           <option value="vision">👁️ عيون / أسنان / سمع</option>
           <option value="cnam">🪪 تجديد CNAM / دفتر العلاج</option>
         </select>
-        <input id="apptTitleIn" type="text" placeholder="الطبيب أو الفحص (مثال: د. بن سالم / تحليل سكري)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-sm font-bold" />
+        <input id="apptTitleIn" type="text" placeholder="الطبيب أو الفحص (مثال: د. بن سالم / تحليل سكري)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold" />
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <input id="apptDateIn" type="date" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" dir="ltr" />
-        <input id="apptTimeIn" type="time" value="09:00" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black" dir="ltr" />
+        <input id="apptDateIn" type="date" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" dir="ltr" />
+        <input id="apptTimeIn" type="time" value="09:00" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-black" dir="ltr" />
       </div>
-      <input id="apptLocIn" type="text" placeholder="المكان / المصحة / المخبر (إلزامي)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
+      <input id="apptLocIn" type="text" placeholder="المكان / المصحة / المخبر (إلزامي)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
       <label class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-950">
         <input id="apptFastingChk" type="checkbox" class="h-4 w-4 accent-amber-600" />
         <span id="apptFastingLbl">🍽️ يتطلب صياماً قبل الموعد (تحليل على الريق)</span>
       </label>
-      <button id="addApptBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white">+ حفظ الموعد الطبي</button>
+      <button id="addApptBtn" type="button" class="tap-btn w-full rounded-xl bg-[#0A4D68] px-4 py-2.5 text-sm font-black text-white">+ حفظ الموعد الطبي</button>
       <p id="apptSaveMsg" class="hidden text-center text-xs font-extrabold"></p>
       <button id="testApptCallBtn" type="button" class="tap-btn w-full rounded-xl border border-indigo-300 bg-indigo-50 px-3 py-2 text-xs font-black text-indigo-950">📞 تجربة رنة مكالمة الموعد بعد 5 ثوانٍ</button>
     </div>
@@ -266,58 +266,58 @@
 
   <!-- TAB 3: PRIVATE MESSAGES (FAMILY / NURSE) -->
   <section id="secMsgs" class="hidden space-y-3">
-    <div class="grid grid-cols-2 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1">
-      <button id="chFamBtn" type="button" class="rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white">💚 العائلة</button>
-      <button id="chNurseBtn" type="button" class="rounded-xl px-3 py-2 text-xs font-black text-[#3C5044]">🩺 الممرض</button>
+    <div class="grid grid-cols-2 gap-1.5 rounded-2xl bg-[#E3EFFB] p-1">
+      <button id="chFamBtn" type="button" class="rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white">💚 العائلة</button>
+      <button id="chNurseBtn" type="button" class="rounded-xl px-3 py-2 text-xs font-black text-[#334E63]">🩺 الممرض</button>
     </div>
     <div id="dmList" class="cg-card p-3 space-y-2 min-h-[260px] max-h-[55vh] overflow-y-auto"></div>
     <div class="flex gap-2">
-      <button id="dmMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-base font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
-      <input id="dmInput" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <button id="dmSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-5 py-2.5 text-sm font-black text-white">إرسال</button>
+      <button id="dmMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-base font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
+      <input id="dmInput" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <button id="dmSendBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-5 py-2.5 text-sm font-black text-white">إرسال</button>
     </div>
   </section>
 
   <!-- TAB 4: SETTINGS (WATER MOVED HERE + AUDIO + PUSH + EXPORT) -->
   <section id="secSettings" class="hidden space-y-3">
     <div class="cg-card p-4 space-y-2.5">
-      <h2 id="setHeading" class="text-lg font-black text-[#0E5A3E]">⚙️ الإعدادات والماء والتنبيهات</h2>
+      <h2 id="setHeading" class="text-lg font-black text-[#0A4D68]">⚙️ الإعدادات والماء والتنبيهات</h2>
       <button id="waterBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-sky-300 bg-sky-50 px-4 py-3 text-base font-extrabold text-sky-900">
         <span>💧 <span id="waterLbl">شرب الماء اليوم</span></span>
         <span id="waterVal" class="text-sm font-black text-sky-800">0 / 8 (+ كوب)</span>
       </button>
-      <button id="testVoiceBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0E5A3E]">🔊 تجربة التذكير الصوتي</button>
+      <button id="testVoiceBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-base font-extrabold text-[#0A4D68]">🔊 تجربة التذكير الصوتي</button>
       <button id="ringtoneBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-base font-extrabold text-amber-950">🔔 نغمة التنبيه</button>
       <button id="pushBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-rose-300 bg-rose-50 px-4 py-3 text-base font-extrabold text-rose-900">📲 تفعيل إشعارات الخلفية</button>
       <button id="testNativeCallAlarmBtn" type="button" class="tap-btn w-full rounded-2xl border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm font-black text-amber-950">📞 تجربة منبّه «مكالمة الدواء» بعد 5 ثوانٍ</button>
-      <p id="nativeAlarmStatus" class="hidden text-center text-[11px] font-black text-[#0E5A3E]"></p>
+      <p id="nativeAlarmStatus" class="hidden text-center text-[11px] font-black text-[#0A4D68]"></p>
       <button id="fallDetectBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-orange-300 bg-orange-50 px-4 py-3 text-sm font-black text-orange-950">
         <span id="fallDetectLbl">🛡️ كشف السقوط التلقائي</span>
         <span id="fallDetectState" class="rounded-full bg-white px-2.5 py-0.5 text-xs font-black text-orange-900">متوقف</span>
       </button>
       <button id="testFallBtn" type="button" class="tap-btn w-full rounded-2xl border border-orange-300 bg-white px-4 py-2.5 text-xs font-black text-orange-900">⚠️ تجربة تنبيه السقوط (عدّ تنازلي 25 ثانية)</button>
-      <button id="editProfSetBtn" type="button" class="tap-btn w-full rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-base font-extrabold text-[#163024]">👤 تحديث معلومات المسنّ والصورة</button>
-      <button id="exportReportBtn" type="button" class="tap-btn w-full rounded-2xl border border-emerald-300 bg-[#EFF7F1] px-4 py-3 text-base font-extrabold text-[#0E5A3E]">📥 تصدير التقرير الصحي (PDF / HTML)</button>
+      <button id="editProfSetBtn" type="button" class="tap-btn w-full rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-base font-extrabold text-[#0B2538]">👤 تحديث معلومات المسنّ والصورة</button>
+      <button id="exportReportBtn" type="button" class="tap-btn w-full rounded-2xl border border-emerald-300 bg-[#E8F4FD] px-4 py-3 text-base font-extrabold text-[#0A4D68]">📥 تصدير التقرير الصحي (PDF / HTML)</button>
       <div class="grid grid-cols-2 gap-2 pt-1">
-        <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-3 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+        <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-white px-3 py-3 text-xs font-black text-[#0B2538]">🔄 تغيير الدور</button>
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <button id="srGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#C7DFCE] bg-[#EFF7F1] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">❓ طريقة استعمال التطبيق (دليل المسنّ)</button>
-        <button id="srFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
-        <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
+        <button id="srGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">❓ طريقة استعمال التطبيق (دليل المسنّ)</button>
+        <button id="srFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">📩 مراسلة / إبلاغ</button>
+        <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">🛡️ الخصوصية</a>
       </div>
       <button id="deleteAccountBtn" type="button" class="tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800">🗑️ حذف بياناتي وحسابي نهائياً</button>
     </div>
 
     <div class="cg-card p-4 text-center space-y-2">
-      <p id="setQrTitle" class="text-sm font-black text-[#0E5A3E]">📷 شارك تطبيق SoinsDar عبر QR Code</p>
-      <p id="setQrSub" class="text-[11px] font-bold text-[#5C6F63]">امسح الكود بهاتف آخر لفتح التطبيق مباشرة</p>
-      <div class="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-[#DFD5C5] bg-white p-3 shadow-sm">
+      <p id="setQrTitle" class="text-sm font-black text-[#0A4D68]">📷 شارك تطبيق SoinsDar عبر QR Code</p>
+      <p id="setQrSub" class="text-[11px] font-bold text-[#4A657A]">امسح الكود بهاتف آخر لفتح التطبيق مباشرة</p>
+      <div class="mx-auto inline-flex flex-col items-center gap-1 rounded-2xl border border-[#CFE3F5] bg-white p-3 shadow-sm">
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https%3A%2F%2Fjabeurj011-ship-it.github.io%2Fcareguard-tn%2F" alt="QR Code SoinsDar" loading="lazy" class="h-36 w-36 rounded-lg" />
-        <span class="text-[10px] font-bold text-[#5C6F63]" dir="ltr">jabeurj011-ship-it.github.io/careguard-tn</span>
+        <span class="text-[10px] font-bold text-[#4A657A]" dir="ltr">jabeurj011-ship-it.github.io/careguard-tn</span>
       </div>
-      <a id="setApkBtn" href="https://github.com/jabeurj011-ship-it/careguard-tn/releases/latest/download/careguard-tn.apk" target="_blank" rel="noopener noreferrer" class="tap-btn mx-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-xs font-black text-white shadow-sm">
+      <a id="setApkBtn" href="https://github.com/jabeurj011-ship-it/careguard-tn/releases/latest/download/careguard-tn.apk" target="_blank" rel="noopener noreferrer" class="tap-btn mx-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0A4D68] px-4 py-2.5 text-xs font-black text-white shadow-sm">
         <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span id="setApkLbl">تحميل التطبيق على الهاتف (APK)</span>
       </a>
@@ -326,47 +326,47 @@
 </main>
 
 <!-- Bottom Navigation (Senior Only) -->
-<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
+<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#CFE3F5] bg-[#FFFFFF]/95 backdrop-blur">
   <div class="mx-auto grid max-w-xl grid-cols-5 py-2 text-center text-[11px] font-black">
-    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg><span id="navHomeLbl">الرئيسية</span></button>
-    <button id="navMeds" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.5 20.5L20.5 10.5a4.95 4.95 0 00-7-7L3.5 13.5a4.95 4.95 0 007 7z"/><path d="M8.5 8.5l7 7"/></svg><span id="navMedsLbl">الأدوية</span></button>
-    <button id="navAppts" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span id="navApptsLbl">المواعيد</span></button>
-    <button id="navMsgs" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M21 11.5a8.5 8.5 0 01-12.5 7.5L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg><span id="navMsgsLbl">الرسائل</span></button>
-    <button id="navSet" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span id="navSetLbl">الإعدادات</span></button>
+    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0A4D68]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg><span id="navHomeLbl">الرئيسية</span></button>
+    <button id="navMeds" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.5 20.5L20.5 10.5a4.95 4.95 0 00-7-7L3.5 13.5a4.95 4.95 0 007 7z"/><path d="M8.5 8.5l7 7"/></svg><span id="navMedsLbl">الأدوية</span></button>
+    <button id="navAppts" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span id="navApptsLbl">المواعيد</span></button>
+    <button id="navMsgs" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M21 11.5a8.5 8.5 0 01-12.5 7.5L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg><span id="navMsgsLbl">الرسائل</span></button>
+    <button id="navSet" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h.09a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v.09a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span id="navSetLbl">الإعدادات</span></button>
   </div>
 </nav>
 
 <!-- Modal: Find Nearest Nurse -->
 <div id="findNurseModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-3">
-  <div class="flex max-h-[92vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB]">
-    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-3">
+  <div class="flex max-h-[92vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border border-[#CFE3F5]">
+    <div class="flex items-center justify-between border-b border-[#DCEBF8] pb-3">
       <div>
-        <h3 id="fnTitle" class="font-serif-brand text-2xl font-extrabold text-[#0E5A3E]">🩺 طلب ممرض</h3>
-        <p id="fnSub" class="text-xs font-bold text-[#5C6F63]">ممرضون موثقون في تونس مرتبون حسب القرب</p>
+        <h3 id="fnTitle" class="font-serif-brand text-2xl font-extrabold text-[#0A4D68]">🩺 طلب ممرض</h3>
+        <p id="fnSub" class="text-xs font-bold text-[#4A657A]">ممرضون موثقون في تونس مرتبون حسب القرب</p>
       </div>
       <button id="closeFindNurseBtn" type="button" class="rounded-xl px-3 py-1 text-xl font-black text-slate-600">✕</button>
     </div>
     <div class="mt-3 space-y-2">
-      <select id="fnReasonSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-bold">
+      <select id="fnReasonSel" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2 text-xs font-bold">
         <option value="💉 حقنة / إبرة">💉 حقنة / إبرة (Injection)</option>
         <option value="🩹 تغيير ضمادات">🩹 تغيير ضمادات (Pansement)</option>
         <option value="💧 تركيب سيروم / مصل">💧 تركيب سيروم / مصل (Sérum)</option>
         <option value="🩺 قياس ضغط / سكري">🩺 قياس ضغط / سكري (Tension / Glycémie)</option>
         <option value="🏥 رعاية شاملة / مساعدة">🏥 رعاية شاملة / مساعدة</option>
       </select>
-      <select id="fnGenderSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2 text-xs font-bold">
+      <select id="fnGenderSel" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2 text-xs font-bold">
         <option value="any">🤝 لا يهم (ممرض أو ممرضة)</option>
         <option value="female">👩‍⚕️ ممرضة فقط</option>
         <option value="male">👨‍⚕️ ممرض فقط</option>
       </select>
       <button id="fnBroadcastBtn" type="button" class="tap-btn flex h-auto w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-3.5 py-3 text-start shadow-sm">
         <div class="min-w-0 flex-1 space-y-0.5">
-          <p id="fnBcTitle" class="text-sm font-black leading-snug text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
-          <p id="fnBcSub" class="text-[11px] font-bold leading-snug text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك</p>
+          <p id="fnBcTitle" class="text-sm font-black leading-snug text-[#0A4D68]">⚡ طلب أقرب ممرض متاح الآن</p>
+          <p id="fnBcSub" class="text-[11px] font-bold leading-snug text-[#4A657A]">يرسل الطلب للجميع — أول ممرض يقبل يحضر إليك</p>
         </div>
-        <span id="fnBcBadge" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
+        <span id="fnBcBadge" class="shrink-0 rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
       </button>
-      <div id="fnStatusBox" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+      <div id="fnStatusBox" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
     </div>
     <div id="fnList" class="my-3 flex-1 space-y-2.5 overflow-y-auto min-h-[180px]"></div>
   </div>
@@ -374,15 +374,15 @@
 
 <!-- Modal: My Visit Requests & Reviews -->
 <div id="myReqsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-3">
-  <div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB]">
-    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-3">
-      <h3 class="font-serif-brand text-2xl font-extrabold text-[#0E5A3E]">📋 طلباتي وتقييماتي</h3>
+  <div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border border-[#CFE3F5]">
+    <div class="flex items-center justify-between border-b border-[#DCEBF8] pb-3">
+      <h3 class="font-serif-brand text-2xl font-extrabold text-[#0A4D68]">📋 طلباتي وتقييماتي</h3>
       <button id="closeMyReqsBtn" type="button" class="rounded-xl px-3 py-1 text-xl font-black text-slate-600">✕</button>
     </div>
-    <div class="mt-3 grid grid-cols-3 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1">
-      <button id="mrTabAct" type="button" class="rounded-xl bg-[#0E5A3E] px-2 py-2 text-xs font-black text-white">⏳ الجارية</button>
-      <button id="mrTabAcc" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">✅ المقبولة</button>
-      <button id="mrTabHist" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#3C5044]">⭐ السجل</button>
+    <div class="mt-3 grid grid-cols-3 gap-1.5 rounded-2xl bg-[#E3EFFB] p-1">
+      <button id="mrTabAct" type="button" class="rounded-xl bg-[#0A4D68] px-2 py-2 text-xs font-black text-white">⏳ الجارية</button>
+      <button id="mrTabAcc" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">✅ المقبولة</button>
+      <button id="mrTabHist" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">⭐ السجل</button>
     </div>
     <div id="mrList" class="my-3 flex-1 space-y-2.5 overflow-y-auto min-h-[200px]"></div>
   </div>
@@ -390,36 +390,36 @@
 
 <!-- Modal: Senior Profile & Photo -->
 <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-3">
-  <div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
+  <div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border border-[#CFE3F5] space-y-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-xl font-black text-[#0E5A3E]">👤 تحديث معلومات المسنّ</h3>
+      <h3 class="text-xl font-black text-[#0A4D68]">👤 تحديث معلومات المسنّ</h3>
       <button id="closeProfBtn" type="button" class="rounded-xl px-3 py-1 text-xl font-black text-slate-600">✕</button>
     </div>
     <div class="flex-1 space-y-2.5 overflow-y-auto pr-1">
-      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#DFD5C5] bg-[#FAF6EE] px-3.5 py-2.5">
-        <span class="text-xs font-extrabold text-[#163024]">📷 صورة المسنّ الشخصية</span>
-        <label for="seniorAvatarFile" class="tap-btn cursor-pointer rounded-xl bg-[#0E5A3E] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
+      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] px-3.5 py-2.5">
+        <span class="text-xs font-extrabold text-[#0B2538]">📷 صورة المسنّ الشخصية</span>
+        <label for="seniorAvatarFile" class="tap-btn cursor-pointer rounded-xl bg-[#0A4D68] px-3.5 py-1.5 text-xs font-black text-white">تغيير الصورة</label>
         <input id="seniorAvatarFile" type="file" accept="image/*" class="hidden" />
       </div>
-      <input id="pName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pPhone" type="tel" dir="ltr" placeholder="هاتف المسنّ" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pEmPhone" type="tel" dir="ltr" placeholder="رقم الطوارئ (العائلة)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pBlood" type="text" placeholder="فصيلة الدم (مثال: O+)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pAllergies" type="text" placeholder="الحساسية (مثال: البنسلين، الأسبرين)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pConditions" type="text" placeholder="الأمراض المزمنة (السكري، ضغط الدم...)" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pAddress" type="text" placeholder="عنوان السكن" class="w-full rounded-xl border border-[#D8CEBE] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pPhone" type="tel" dir="ltr" placeholder="هاتف المسنّ" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pEmPhone" type="tel" dir="ltr" placeholder="رقم الطوارئ (العائلة)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pBlood" type="text" placeholder="فصيلة الدم (مثال: O+)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pAllergies" type="text" placeholder="الحساسية (مثال: البنسلين، الأسبرين)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pConditions" type="text" placeholder="الأمراض المزمنة (السكري، ضغط الدم...)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pAddress" type="text" placeholder="عنوان السكن" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
       <div class="flex items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
-        <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white">📍 حفظ موقع المنزل GPS</button>
-        <span id="homeGpsTxt" class="text-xs font-bold text-[#0E5A3E]"></span>
+        <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white">📍 حفظ موقع المنزل GPS</button>
+        <span id="homeGpsTxt" class="text-xs font-bold text-[#0A4D68]"></span>
       </div>
     </div>
-    <button id="saveProfBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white">حفظ المعلومات</button>
+    <button id="saveProfBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white">حفظ المعلومات</button>
   </div>
 </div>
 
 <!-- Modal: Emergency SOS -->
 <div id="sosModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-rose-950/80 p-4">
-  <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border-2 border-rose-400 space-y-3">
+  <div class="w-full max-w-md rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border-2 border-rose-400 space-y-3">
     <div class="flex items-center justify-between">
       <h3 class="text-xl font-black text-rose-900">🚨 الطوارئ والاستغاثة</h3>
       <button id="closeSosBtn" type="button" class="rounded-xl px-3 py-1 text-xl font-black text-slate-600">✕</button>
@@ -430,12 +430,12 @@
       <a href="tel:190" class="tap-btn flex items-center justify-center rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-3 text-sm font-black text-rose-900">🚑 الإسعاف 190</a>
       <a href="tel:198" class="tap-btn flex items-center justify-center rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-3 text-sm font-black text-rose-900">🚒 الحماية 198</a>
     </div>
-    <a id="callEmFamLink" href="tel:190" class="hidden tap-btn flex items-center justify-center rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white">📞 اتصال بالعائلة</a>
+    <a id="callEmFamLink" href="tel:190" class="hidden tap-btn flex items-center justify-center rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white">📞 اتصال بالعائلة</a>
   </div>
 </div>
 
 <!-- Modal: Medication Due Incoming-Call Alarm -->
-<div id="medDueModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between bg-gradient-to-b from-[#0A3D2A] via-[#0E5A3E] to-[#082E20] px-6 py-10 text-center text-white">
+<div id="medDueModal" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-between bg-gradient-to-b from-[#0A3D2A] via-[#0A4D68] to-[#082E20] px-6 py-10 text-center text-white">
   <div class="space-y-2 pt-4">
     <p class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-black tracking-wide">📞 مكالمة تذكير بالدواء • SoinsDar</p>
     <h3 class="text-3xl font-black">حان وقت الدواء!</h3>
@@ -470,9 +470,9 @@
 
 <!-- Ringtone Modal -->
 <div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
-  <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
+  <div class="w-full max-w-md rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border border-[#CFE3F5] space-y-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-black text-[#0E5A3E]">🎵 استوديو نغمات التنبيه</h3>
+      <h3 class="text-lg font-black text-[#0A4D68]">🎵 استوديو نغمات التنبيه</h3>
       <button id="closeRingBtn" type="button" class="rounded-xl px-3 py-1 text-lg font-black text-slate-600">✕</button>
     </div>
     <div id="ringStudioList" class="max-h-60 space-y-2 overflow-y-auto pr-0.5"></div>
@@ -486,7 +486,7 @@
       🎵 اختر نغمة صوتية من الهاتف (MP3 / WAV / M4A)
     </label>
     <input id="customRingFile" type="file" accept="audio/*" class="hidden" />
-    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0E5A3E]"></p>
+    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0A4D68]"></p>
     <div class="grid grid-cols-2 gap-2">
       <button id="testRingBtn" type="button" class="tap-btn rounded-xl bg-amber-600 px-3 py-2.5 text-xs font-black text-white">🔊 تجربة النغمة</button>
       <button id="stopRingBtn" type="button" class="tap-btn rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-black text-slate-800">⏹️ إيقاف</button>
@@ -501,7 +501,7 @@
     <h3 id="fallModalTitle" class="text-2xl font-black text-rose-800">هل سقطت؟</h3>
     <p id="fallModalSub" class="text-sm font-bold text-slate-700">سيتم إرسال استغاثة تلقائياً للعائلة والممرض خلال:</p>
     <div id="fallCountdownNum" class="text-5xl font-black text-rose-600 tabular-nums">25</div>
-    <button id="cancelFallBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0E5A3E] px-5 py-4 text-lg font-black text-white shadow-lg">✓ أنا بخير — إلغاء الإنذار</button>
+    <button id="cancelFallBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0A4D68] px-5 py-4 text-lg font-black text-white shadow-lg">✓ أنا بخير — إلغاء الإنذار</button>
   </div>
 </div>
 
@@ -562,11 +562,11 @@
     $('secAppts').classList.toggle('hidden', t !== 'appts');
     $('secMsgs').classList.toggle('hidden', t !== 'msgs');
     $('secSettings').classList.toggle('hidden', t !== 'settings');
-    $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (t === 'home' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navMeds').className = 'flex flex-col items-center gap-0.5 ' + (t === 'meds' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navAppts').className = 'flex flex-col items-center gap-0.5 ' + (t === 'appts' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navMsgs').className = 'flex flex-col items-center gap-0.5 ' + (t === 'msgs' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navSet').className = 'flex flex-col items-center gap-0.5 ' + (t === 'settings' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (t === 'home' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navMeds').className = 'flex flex-col items-center gap-0.5 ' + (t === 'meds' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navAppts').className = 'flex flex-col items-center gap-0.5 ' + (t === 'appts' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navMsgs').className = 'flex flex-col items-center gap-0.5 ' + (t === 'msgs' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navSet').className = 'flex flex-col items-center gap-0.5 ' + (t === 'settings' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     if (t === 'appts') loadAppts();
     if (t === 'msgs') { loadDirectMessages(); if (seniorId && user) S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', seniorId).neq('sender_user_id', user.id).is('read_at', null).then(() => refreshUnreadBadge()).catch(() => {}); }
   }
@@ -710,10 +710,10 @@
       };
       addHRow('🩸', isFr ? 'Groupe' : 'فصيلة الدم', seniorProfile.blood_type, 'bg-rose-50 text-rose-900 border border-rose-200');
       addHRow('⚠️', isFr ? 'Allergies' : 'الحساسية', seniorProfile.allergies, 'bg-amber-50 text-amber-950 border border-amber-200');
-      addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', seniorProfile.conditions, 'bg-emerald-50 text-[#0E5A3E] border border-emerald-200');
+      addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', seniorProfile.conditions, 'bg-emerald-50 text-[#0A4D68] border border-emerald-200');
       if (!mr.childNodes.length) {
         const sp = document.createElement('span');
-        sp.className = 'inline-block rounded-full bg-white border border-[#E6DCCB] px-2.5 py-0.5 text-[11px] font-extrabold text-[#163024]';
+        sp.className = 'inline-block rounded-full bg-white border border-[#CFE3F5] px-2.5 py-0.5 text-[11px] font-extrabold text-[#0B2538]';
         sp.textContent = '🛡️ ' + (isFr ? 'Fiche médicale' : 'البطاقة الطبية');
         mr.appendChild(sp);
       }
@@ -808,7 +808,7 @@
     box.replaceChildren();
     if (!upcoming.length) {
       const emp = document.createElement('div');
-      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#4A657A]';
       emp.textContent = isFr ? 'Aucun rendez-vous médical à venir.' : 'لا توجد مواعيد طبية قادمة حالياً.';
       box.appendChild(emp);
       return;
@@ -826,10 +826,10 @@
       badge.className = 'inline-block rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-black text-indigo-900';
       badge.textContent = `${m.icon} ${isFr ? m.fr : m.ar}`;
       const ttl = document.createElement('p');
-      ttl.className = 'text-sm font-black text-[#163024] break-words';
+      ttl.className = 'text-sm font-black text-[#0B2538] break-words';
       ttl.textContent = a.title;
       const meta = document.createElement('p');
-      meta.className = 'text-xs font-bold text-[#0E5A3E]';
+      meta.className = 'text-xs font-bold text-[#0A4D68]';
       meta.textContent = `🗓️ ${dt.toLocaleDateString([], { weekday: 'short', day: '2-digit', month: '2-digit' })} • 🕒 ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` + (a.location ? ` • 📍 ${a.location}` : '');
       left.append(badge, ttl, meta);
       if (a.fasting_required) {
@@ -848,11 +848,11 @@
       card.appendChild(top);
 
       const actRow = document.createElement('div');
-      actRow.className = 'flex items-center justify-between gap-3 pt-2 border-t border-[#EDE4D4]';
+      actRow.className = 'flex items-center justify-between gap-3 pt-2 border-t border-[#DCEBF8]';
       if (isApptDue) {
         const doneBtn = document.createElement('button');
         doneBtn.type = 'button';
-        doneBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-4 py-1.5 text-xs font-black text-white';
+        doneBtn.className = 'tap-btn rounded-xl bg-[#0A4D68] px-4 py-1.5 text-xs font-black text-white';
         doneBtn.textContent = isFr ? '✓ Fait' : '✓ تم الحضور';
         doneBtn.addEventListener('click', async () => {
           await S.client.from('medical_appointments').update({ status: 'done' }).eq('id', a.id);
@@ -861,7 +861,7 @@
         actRow.appendChild(doneBtn);
       } else {
         const waitHint = document.createElement('span');
-        waitHint.className = 'text-[11px] font-bold text-[#5C6F63]';
+        waitHint.className = 'text-[11px] font-bold text-[#4A657A]';
         waitHint.textContent = isFr ? '🔒 Validation disponible à l\'heure du RDV' : '🔒 يتفعّل زر «تم» عند حلول الموعد';
         actRow.appendChild(waitHint);
       }
@@ -978,7 +978,7 @@
     box.replaceChildren();
     if (!meds.length) {
       const emp = document.createElement('div');
-      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#4A657A]';
       emp.textContent = isFr ? 'Aucun médicament enregistré.' : 'لا توجد أدوية مسجلة بعد.';
       box.appendChild(emp);
       return;
@@ -993,12 +993,12 @@
       const left = document.createElement('div');
       left.className = 'min-w-0 flex-1';
       const nm = document.createElement('p');
-      nm.className = 'text-sm font-black text-[#163024] break-words leading-snug';
+      nm.className = 'text-sm font-black text-[#0B2538] break-words leading-snug';
       nm.dir = 'auto';
       nm.textContent = `${m.name} (${m.dosage || '08:00'})`;
       const st = document.createElement('p');
       if (isT) {
-        st.className = 'text-xs font-black text-[#0E5A3E]';
+        st.className = 'text-xs font-black text-[#0A4D68]';
         st.textContent = (isFr ? '✓ Pris à ' : '✓ تم التناول الساعة ') + tStr;
       } else if (dueNow) {
         const _mt = String((m && m.dosage) || '').match(/(\d{1,2}):(\d{2})/);
@@ -1009,7 +1009,7 @@
           ? (isFr ? '⏳ C\'est l\'heure — en attente' : '⏳ حان الوقت — لم يُؤخذ بعد')
           : (isFr ? `🕒 Bientôt (${m.dosage || ''})` : `🕒 اقترب الموعد (${m.dosage || ''})`);
       } else {
-        st.className = 'text-xs font-bold text-[#5C6F63]';
+        st.className = 'text-xs font-bold text-[#4A657A]';
         st.textContent = isFr ? `🔒 Prévu à ${m.dosage || ''}` : `🔒 يحين الساعة ${m.dosage || ''}`;
       }
       left.append(nm, st);
@@ -1019,7 +1019,7 @@
       if (!isT && dueNow) {
         const takeBtn = document.createElement('button');
         takeBtn.type = 'button';
-        takeBtn.className = 'tap-btn rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white';
+        takeBtn.className = 'tap-btn rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white';
         takeBtn.textContent = isFr ? '✓ Pris' : '✓ تناولته';
         takeBtn.addEventListener('click', async () => {
           if (!isMedDueNow(m)) return;
@@ -1407,44 +1407,44 @@
         const phone = (np && np.phone) || '';
         const callNurseUrl = S.safeTelHref ? S.safeTelHref(phone) : (phone ? ('tel:' + phone) : '');
         box.replaceChildren();
-        box.className = 'rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-4 shadow-md space-y-3';
+        box.className = 'rounded-3xl border-2 border-[#B6D8F2] bg-[#FFFFFF] p-4 shadow-md space-y-3';
         const hdr = document.createElement('div'); hdr.className = 'flex items-center justify-between';
-        const t = document.createElement('p'); t.className = 'text-sm font-black text-[#0E5A3E]';
+        const t = document.createElement('p'); t.className = 'text-sm font-black text-[#0A4D68]';
         t.textContent = isFr ? '✅ Infirmier en route !' : '✅ تم قبول طلبك! الممرض في طريقه إليك';
         const callBtnEl = callNurseUrl ? (() => {
           const ca = document.createElement('a');
           ca.href = callNurseUrl;
-          ca.className = 'tap-btn inline-flex items-center gap-1 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white shadow-sm';
+          ca.className = 'tap-btn inline-flex items-center gap-1 rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white shadow-sm';
           ca.textContent = (isFr ? '📞 Appeler ' : '📞 اتصال: ') + nName;
           return ca;
         })() : null;
         const done = document.createElement('button'); done.type = 'button';
-        done.className = 'rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-black text-[#0E5A3E]';
+        done.className = 'rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-black text-[#0A4D68]';
         done.textContent = isFr ? '✓ Arrivé' : '✓ تم الوصول';
         done.addEventListener('click', async () => {
           await S.client.from('nurse_visit_requests').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', r.id);
           loadVisitBanner(r.id);
         });
         hdr.append(t, done);
-        const info = document.createElement('div'); info.className = 'flex items-center gap-3 rounded-2xl bg-[#FAF6EE] p-3';
-        const av = document.createElement('div'); av.className = 'h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#0E5A3E] text-white flex items-center justify-center font-black';
+        const info = document.createElement('div'); info.className = 'flex items-center gap-3 rounded-2xl bg-[#F2F8FF] p-3';
+        const av = document.createElement('div'); av.className = 'h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#0A4D68] text-white flex items-center justify-center font-black';
         if (pr && pr.avatar_url) { const img = document.createElement('img'); img.src = pr.avatar_url; img.className = 'h-full w-full object-cover'; av.appendChild(img); }
         else av.textContent = nName.charAt(0).toUpperCase();
         const det = document.createElement('div');
-        const dp1 = document.createElement('p'); dp1.className = 'text-sm font-black text-[#163024]'; dp1.textContent = nName;
-        const dp2 = document.createElement('p'); dp2.className = 'text-xs font-bold text-[#0E5A3E]'; dp2.textContent = r.care_reason || '';
+        const dp1 = document.createElement('p'); dp1.className = 'text-sm font-black text-[#0B2538]'; dp1.textContent = nName;
+        const dp2 = document.createElement('p'); dp2.className = 'text-xs font-bold text-[#0A4D68]'; dp2.textContent = r.care_reason || '';
         det.append(dp1, dp2);
         info.append(av, det);
         box.append(hdr, info);
         if (phone && S.safeTelHref(phone)) {
           const row = document.createElement('div'); row.className = 'flex gap-2';
           const ca = document.createElement('a'); ca.href = S.safeTelHref(phone);
-          ca.className = 'tap-btn flex-1 text-center rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+          ca.className = 'tap-btn flex-1 text-center rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white';
           ca.textContent = '📞 ' + phone;
           const digits = phone.replace(/\D/g, '');
           const wa = document.createElement('a'); wa.href = 'https://wa.me/' + (digits.length === 8 ? '216' + digits : digits);
           wa.target = '_blank'; wa.rel = 'noopener noreferrer';
-          wa.className = 'tap-btn rounded-xl border border-emerald-500 bg-white px-4 py-2 text-xs font-black text-[#0E5A3E]';
+          wa.className = 'tap-btn rounded-xl border border-emerald-500 bg-white px-4 py-2 text-xs font-black text-[#0A4D68]';
           wa.textContent = '💬 WhatsApp';
           row.append(ca, wa);
           box.appendChild(row);
@@ -1466,11 +1466,11 @@
     if (exRev || (!targetReviewReqId && localStorage.getItem('cg_v2_skip_rev_' + r.id))) { box.classList.add('hidden'); return; }
 
     box.replaceChildren();
-    box.className = 'rounded-3xl border-2 border-amber-400 bg-[#FFFDF9] p-4 shadow-md space-y-3';
+    box.className = 'rounded-3xl border-2 border-amber-400 bg-[#FFFFFF] p-4 shadow-md space-y-3';
     const hdr = document.createElement('div'); hdr.className = 'flex items-center justify-between';
-    const title = document.createElement('p'); title.className = 'text-sm font-black text-[#0E5A3E]';
+    const title = document.createElement('p'); title.className = 'text-sm font-black text-[#0A4D68]';
     title.textContent = `⭐ تقييم الممرض: ${r.accepted_by_name || r.nurse_name || 'الممرض'}`;
-    const cls = document.createElement('button'); cls.type = 'button'; cls.className = 'rounded-xl border border-[#D8CEBE] px-2.5 py-1 text-xs font-black'; cls.textContent = '✕';
+    const cls = document.createElement('button'); cls.type = 'button'; cls.className = 'rounded-xl border border-[#C2DBF0] px-2.5 py-1 text-xs font-black'; cls.textContent = '✕';
     cls.addEventListener('click', () => { localStorage.setItem('cg_v2_skip_rev_' + r.id, '1'); box.classList.add('hidden'); });
     hdr.append(title, cls);
     box.appendChild(hdr);
@@ -1480,8 +1480,8 @@
     const bYes = document.createElement('button'); bYes.type = 'button'; bYes.textContent = '✓ حضر وأنجز الخدمة';
     const bNo = document.createElement('button'); bNo.type = 'button'; bNo.textContent = '✕ لم يحضر / لم ينجز';
     const syncOut = () => {
-      bYes.className = outcome === 'completed' ? 'rounded-xl border-2 border-emerald-600 bg-emerald-50 py-2 text-xs font-black text-[#0E5A3E]' : 'rounded-xl border border-[#D8CEBE] bg-white py-2 text-xs font-bold';
-      bNo.className = outcome === 'not_completed' ? 'rounded-xl border-2 border-rose-500 bg-rose-50 py-2 text-xs font-black text-rose-900' : 'rounded-xl border border-[#D8CEBE] bg-white py-2 text-xs font-bold';
+      bYes.className = outcome === 'completed' ? 'rounded-xl border-2 border-emerald-600 bg-emerald-50 py-2 text-xs font-black text-[#0A4D68]' : 'rounded-xl border border-[#C2DBF0] bg-white py-2 text-xs font-bold';
+      bNo.className = outcome === 'not_completed' ? 'rounded-xl border-2 border-rose-500 bg-rose-50 py-2 text-xs font-black text-rose-900' : 'rounded-xl border border-[#C2DBF0] bg-white py-2 text-xs font-bold';
     };
     bYes.addEventListener('click', () => { outcome = 'completed'; syncOut(); });
     bNo.addEventListener('click', () => { outcome = 'not_completed'; syncOut(); });
@@ -1498,11 +1498,11 @@
     syncStars(); box.appendChild(stars);
 
     const cmt = document.createElement('input'); cmt.type = 'text'; cmt.placeholder = 'تعليق أو سبب شكوى (اختياري)...';
-    cmt.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold';
+    cmt.className = 'w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-xs font-bold';
     const blkLbl = document.createElement('label'); blkLbl.className = 'flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-900';
     const blkChk = document.createElement('input'); blkChk.type = 'checkbox'; blkChk.className = 'h-4 w-4 accent-rose-600';
     blkLbl.append(blkChk, document.createTextNode('🚫 عدم ظهور طلباتي لهذا الممرض مرة أخرى'));
-    const sub = document.createElement('button'); sub.type = 'button'; sub.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] py-2.5 text-sm font-black text-white';
+    const sub = document.createElement('button'); sub.type = 'button'; sub.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] py-2.5 text-sm font-black text-white';
     sub.textContent = '⭐ إرسال التقييم وإغلاق الطلب';
     sub.addEventListener('click', async () => {
       sub.disabled = true; sub.textContent = '⏳ جاري الحفظ...';
@@ -1548,16 +1548,16 @@
     const box = $('fnList');
     box.replaceChildren();
     if (!list.length) {
-      const p = document.createElement('p'); p.className = 'text-center text-xs font-bold text-[#5C6F63] py-4';
+      const p = document.createElement('p'); p.className = 'text-center text-xs font-bold text-[#4A657A] py-4';
       p.textContent = 'لا يوجد ممرضون مطابقون حالياً.';
       box.appendChild(p); return;
     }
     list.forEach((n) => {
-      const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-2';
-      const nm = document.createElement('p'); nm.className = 'text-sm font-black text-[#163024]';
+      const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#CFE3F5] bg-white p-3.5 space-y-2';
+      const nm = document.createElement('p'); nm.className = 'text-sm font-black text-[#0B2538]';
       nm.textContent = `${n.full_name || 'ممرض'} • ${n.region ? S.formatGovLabel(n.region) : 'تونس'}` + (n.city_zip ? ` (${n.city_zip})` : '');
       const btn = document.createElement('button'); btn.type = 'button';
-      btn.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] py-2 text-xs font-black text-white';
+      btn.className = 'tap-btn w-full rounded-xl bg-[#0A4D68] py-2 text-xs font-black text-white';
       btn.textContent = '📋 طلب زيارة';
       btn.addEventListener('click', () => sendVisitReq('direct', n.user_id, n.full_name));
       c.append(nm, btn); box.appendChild(c);
@@ -1638,21 +1638,21 @@
     if (!items.length) { box.textContent = 'لا توجد طلبات هنا حالياً.'; return; }
     const fmtT = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     items.forEach((r) => {
-      const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-1.5';
+      const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#CFE3F5] bg-white p-3.5 space-y-1.5';
       const top = document.createElement('div'); top.className = 'flex justify-between text-xs font-black';
       const ts1 = document.createElement('span'); ts1.textContent = r.accepted_by_name || r.nurse_name || 'في انتظار ممرض';
-      const ts2 = document.createElement('span'); ts2.className = 'text-[#5C6F63]'; ts2.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
+      const ts2 = document.createElement('span'); ts2.className = 'text-[#4A657A]'; ts2.textContent = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
       top.append(ts1, ts2);
-      const tl = document.createElement('p'); tl.className = 'text-[11px] font-bold text-[#5C6F63]';
+      const tl = document.createElement('p'); tl.className = 'text-[11px] font-bold text-[#4A657A]';
       tl.textContent = [r.created_at ? '🕒 الطلب: ' + fmtT(r.created_at) : '', r.accepted_at ? '✅ الاستلام: ' + fmtT(r.accepted_at) : '', r.completed_at ? '🏁 التنفيذ: ' + fmtT(r.completed_at) : ''].filter(Boolean).join(' • ');
       c.append(top, tl);
-      if (r.care_reason) { const p = document.createElement('p'); p.className = 'text-xs font-bold text-[#0E5A3E]'; p.textContent = '🩺 ' + r.care_reason; c.appendChild(p); }
+      if (r.care_reason) { const p = document.createElement('p'); p.className = 'text-xs font-bold text-[#0A4D68]'; p.textContent = '🩺 ' + r.care_reason; c.appendChild(p); }
       if (mrTab === 'active') {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'rounded-xl border border-rose-300 bg-rose-50 px-3 py-1 text-xs font-black text-rose-900'; b.textContent = '✕ إلغاء الطلب';
         b.addEventListener('click', async () => { await S.client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'cancelled' }).eq('id', r.id); loadMyReqs(); });
         c.appendChild(b);
       } else if (mrTab === 'history' && r.status === 'completed') {
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white'; b.textContent = '⭐ قيّم الآن';
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white'; b.textContent = '⭐ قيّم الآن';
         b.addEventListener('click', () => { $('myReqsModal').classList.add('hidden'); localStorage.removeItem('cg_v2_skip_rev_' + r.id); loadVisitBanner(r.id); window.scrollTo({ top: 0, behavior: 'smooth' }); });
         c.appendChild(b);
       }
@@ -1668,7 +1668,7 @@
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).in('channel', qCh).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('dmList'); box.replaceChildren();
     const note = document.createElement('p');
-    note.className = 'text-center text-[10px] font-bold text-[#5C6F63] pb-1';
+    note.className = 'text-center text-[10px] font-bold text-[#4A657A] pb-1';
     note.textContent = S.getLang() === 'fr' ? '🕒 Messages effacés automatiquement après 24h' : '🕒 تُمسح الرسائل تلقائياً بعد 24 ساعة';
     box.appendChild(note);
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
@@ -1692,7 +1692,7 @@
     data.forEach((lk) => {
       const row = document.createElement('div'); row.className = 'flex items-center justify-between gap-2 rounded-xl bg-white p-2.5 text-xs font-black';
       const lbl = document.createElement('span'); lbl.textContent = lk.role_type === 'nurse' ? ('🩺 طلب ربط من ممرض' + (lk.requester_name ? ': ' + lk.requester_name : '')) : ('👨‍👩‍👧 طلب ربط من العائلة' + (lk.requester_name ? ': ' + lk.requester_name : ''));
-      const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'rounded-lg bg-[#0E5A3E] px-3 py-1 text-white'; ok.textContent = 'قبول ✓';
+      const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'rounded-lg bg-[#0A4D68] px-3 py-1 text-white'; ok.textContent = 'قبول ✓';
       ok.addEventListener('click', async () => { await S.client.from('senior_care_links').update({ status: 'approved' }).eq('id', lk.id); loadPendingLinks(); });
       row.append(lbl, ok); list.appendChild(row);
     });
@@ -1703,7 +1703,7 @@
   $('exportReportBtn').addEventListener('click', () => {
     const p = seniorProfile || {};
     const rows = meds.map((m) => `<tr><td>${m.name}</td><td>${m.dosage || ''}</td><td>${takenMap.has(m.id) ? '✓ تم التناول' : '⏳ لم يُؤخذ'}</td></tr>`).join('');
-    const htmlDoc = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>التقرير الصحي — SoinsDar</title><style>body{font-family:sans-serif;background:#FAF6EE;padding:20px;color:#163024}.s{max-width:700px;margin:auto;background:#FFFDF9;padding:24px;border-radius:18px;border:1px solid #E6DCCB}table{width:100%;border-collapse:collapse}th,td{border:1px solid #E6DCCB;padding:8px;text-align:right}th{background:#EAF4EE}</style></head><body><div class="s"><button onclick="window.print()">🖨️ طباعة / PDF</button><h1>التقرير الصحي — ${p.display_name || 'المسنّ'}</h1><p>فصيلة الدم: ${p.blood_type || '-'} | الحساسية: ${p.allergies || '-'} | الأمراض: ${p.conditions || '-'}</p><h3>الأدوية</h3><table><tr><th>الدواء</th><th>الموعد</th><th>الحالة</th></tr>${rows}</table></div></body></html>`;
+    const htmlDoc = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>التقرير الصحي — SoinsDar</title><style>body{font-family:sans-serif;background:#F2F8FF;padding:20px;color:#0B2538}.s{max-width:700px;margin:auto;background:#FFFFFF;padding:24px;border-radius:18px;border:1px solid #CFE3F5}table{width:100%;border-collapse:collapse}th,td{border:1px solid #CFE3F5;padding:8px;text-align:right}th{background:#E8F4FD}</style></head><body><div class="s"><button onclick="window.print()">🖨️ طباعة / PDF</button><h1>التقرير الصحي — ${p.display_name || 'المسنّ'}</h1><p>فصيلة الدم: ${p.blood_type || '-'} | الحساسية: ${p.allergies || '-'} | الأمراض: ${p.conditions || '-'}</p><h3>الأدوية</h3><table><tr><th>الدواء</th><th>الموعد</th><th>الحالة</th></tr>${rows}</table></div></body></html>`;
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([htmlDoc], { type: 'text/html;charset=utf-8' })); a.download = 'careguard-report.html'; a.click();
   });
 
@@ -1727,8 +1727,8 @@
   $('mrTabAct').addEventListener('click', () => { mrTab = 'active'; loadMyReqs(); });
   $('mrTabAcc').addEventListener('click', () => { mrTab = 'accepted'; loadMyReqs(); });
   $('mrTabHist').addEventListener('click', () => { mrTab = 'history'; loadMyReqs(); });
-  $('chFamBtn').addEventListener('click', () => { dmChannel = 'family'; $('chFamBtn').className = 'rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white'; $('chNurseBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#3C5044]'; loadDirectMessages(); });
-  $('chNurseBtn').addEventListener('click', () => { dmChannel = 'nurse'; $('chNurseBtn').className = 'rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white'; $('chFamBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#3C5044]'; loadDirectMessages(); });
+  $('chFamBtn').addEventListener('click', () => { dmChannel = 'family'; $('chFamBtn').className = 'rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white'; $('chNurseBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#334E63]'; loadDirectMessages(); });
+  $('chNurseBtn').addEventListener('click', () => { dmChannel = 'nurse'; $('chNurseBtn').className = 'rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white'; $('chFamBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#334E63]'; loadDirectMessages(); });
 
   $('checkInBtn').addEventListener('click', async () => {
     if (!seniorId) return;
@@ -1843,7 +1843,7 @@
         const tmVal = /^\d{2}:\d{2}$/.test(tmPart) ? tmPart : '08:00';
         const autoFreq = detectFreqFromName(nmVal);
         const row = document.createElement('div');
-        row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-2.5 py-2 border border-violet-200 text-xs font-bold text-[#163024]';
+        row.className = 'flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-2.5 py-2 border border-violet-200 text-xs font-bold text-[#0B2538]';
         const left = document.createElement('div');
         left.className = 'flex items-center gap-2 min-w-0 flex-1';
         const cb = document.createElement('input');
@@ -1852,11 +1852,11 @@
         cb.dataset.name = nmVal; cb.dataset.time = tmVal; cb.dataset.freq = String(autoFreq);
         const txtIn = document.createElement('input');
         txtIn.type = 'text'; txtIn.value = nmVal; txtIn.dir = 'auto';
-        txtIn.className = 'min-w-0 flex-1 rounded-lg border border-violet-200 bg-[#FAF6EE] px-2 py-1 text-xs font-bold text-[#163024]';
+        txtIn.className = 'min-w-0 flex-1 rounded-lg border border-violet-200 bg-[#F2F8FF] px-2 py-1 text-xs font-bold text-[#0B2538]';
         txtIn.addEventListener('input', () => { cb.dataset.name = txtIn.value.trim(); });
         left.append(cb, txtIn);
         const fSel = document.createElement('select');
-        fSel.className = 'rounded-lg border border-[#D8CEBE] bg-[#FAF6EE] px-2 py-1 text-xs font-extrabold';
+        fSel.className = 'rounded-lg border border-[#C2DBF0] bg-[#F2F8FF] px-2 py-1 text-xs font-extrabold';
         [1, 2, 3, 4].forEach((n) => {
           const o = document.createElement('option');
           o.value = String(n);
@@ -1974,7 +1974,7 @@
     $('apptLocIn').value = '';
     $('apptFastingChk').checked = false;
     if (msgEl) {
-      msgEl.className = 'text-center text-xs font-extrabold text-[#0E5A3E]';
+      msgEl.className = 'text-center text-xs font-extrabold text-[#0A4D68]';
       msgEl.textContent = isFr ? '✅ Rendez-vous enregistré !' : '✅ تم حفظ الموعد الطبي بنجاح!';
       msgEl.classList.remove('hidden');
       setTimeout(() => msgEl.classList.add('hidden'), 3500);
@@ -2211,7 +2211,7 @@
     const el = $('sosMsg');
     el.replaceChildren();
     if (ok) {
-      el.className = 'rounded-2xl border border-emerald-300 bg-emerald-50 p-3 text-center text-xs font-black text-[#0E5A3E]';
+      el.className = 'rounded-2xl border border-emerald-300 bg-emerald-50 p-3 text-center text-xs font-black text-[#0A4D68]';
       el.textContent = isFr ? '✅ SOS envoyé avec votre position GPS !' : '✅ تم إرسال الاستغاثة مع موقعك إلى العائلة والممرض!';
     } else {
       el.className = 'rounded-2xl border-2 border-rose-500 bg-rose-50 p-3 text-center text-xs font-black text-rose-900 space-y-2';
@@ -2519,7 +2519,7 @@
       if ($('heroBatBar')) $('heroBatBar').style.width = `${Math.max(5, Math.min(100, pct))}%`;
       $('heroBatPill').className = (pct <= 20 && !isChg)
         ? 'rounded-full bg-rose-100 border border-rose-300 px-2.5 py-0.5 text-[11px] font-black text-rose-800 animate-pulse'
-        : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0E5A3E]';
+        : 'rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-black text-[#0A4D68]';
       if (!seniorId) return;
 
       const dsKey = 'cg_v2_ds_at_' + seniorId;

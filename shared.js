@@ -318,15 +318,15 @@
       const isActive = cur === r.id;
       const row = document.createElement('div');
       row.className = isActive
-        ? 'flex items-center justify-between gap-2 rounded-2xl border-2 border-[#0E5A3E] bg-[#EFF7F1] p-2.5'
-        : 'flex items-center justify-between gap-2 rounded-2xl border border-[#E6DCCB] bg-white p-2.5';
+        ? 'flex items-center justify-between gap-2 rounded-2xl border-2 border-[#0A4D68] bg-[#E8F4FD] p-2.5'
+        : 'flex items-center justify-between gap-2 rounded-2xl border border-[#CFE3F5] bg-white p-2.5';
       const info = document.createElement('div');
       info.className = 'min-w-0 flex-1';
       const ttl = document.createElement('p');
-      ttl.className = 'text-xs font-black text-[#163024] truncate';
+      ttl.className = 'text-xs font-black text-[#0B2538] truncate';
       ttl.textContent = `${r.icon} ${isFr ? r.fr : r.ar}`;
       const sub = document.createElement('p');
-      sub.className = 'text-[10px] font-bold text-[#5C6F63] truncate';
+      sub.className = 'text-[10px] font-bold text-[#4A657A] truncate';
       sub.textContent = isFr ? r.descFr : r.descAr;
       info.append(ttl, sub);
 
@@ -341,8 +341,8 @@
       const pickB = document.createElement('button');
       pickB.type = 'button';
       pickB.className = isActive
-        ? 'tap-btn rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-[11px] font-black text-white'
-        : 'tap-btn rounded-xl border border-[#0E5A3E]/30 bg-white px-2.5 py-1.5 text-[11px] font-black text-[#0E5A3E]';
+        ? 'tap-btn rounded-xl bg-[#0A4D68] px-2.5 py-1.5 text-[11px] font-black text-white'
+        : 'tap-btn rounded-xl border border-[#0A4D68]/30 bg-white px-2.5 py-1.5 text-[11px] font-black text-[#0A4D68]';
       pickB.textContent = isActive ? (isFr ? '✓ Choisi' : '✓ مختارة') : (isFr ? 'Choisir' : 'اختيار');
       pickB.addEventListener('click', () => {
         localStorage.setItem(CONFIG.RINGTONE_KEY, r.id);
@@ -520,7 +520,7 @@
       if (active && rec) {
         active = false;
         try { rec.stop(); } catch (_) {}
-        btn.className = 'tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]';
+        btn.className = 'tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0A4D68]';
         btn.textContent = '🎤';
         return;
       }
@@ -564,16 +564,16 @@
     const mine = m.sender_user_id === myUid;
     const d = document.createElement('div');
     d.className = mine
-      ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]'
-      : 'rounded-2xl bg-white border border-slate-200 p-2.5 space-y-1.5 text-xs font-bold text-[#163024]';
+      ? 'rounded-2xl bg-emerald-50 border border-emerald-200 p-2.5 space-y-1.5 text-xs font-bold text-[#0B2538]'
+      : 'rounded-2xl bg-white border border-slate-200 p-2.5 space-y-1.5 text-xs font-bold text-[#0B2538]';
     const hdr = document.createElement('div');
-    hdr.className = 'flex items-center justify-between gap-2 text-[11px] font-black text-[#0E5A3E]';
+    hdr.className = 'flex items-center justify-between gap-2 text-[11px] font-black text-[#0A4D68]';
     const isFr = getLang() === 'fr';
     const roleTag = m.sender_role === 'nurse' ? (isFr ? '🩺 Infirmier' : '🩺 الممرض')
       : (m.sender_role === 'family' ? (isFr ? '👨‍👩‍👧 Famille' : '👨‍👩‍👧 العائلة')
       : (m.sender_role === 'senior' ? (isFr ? '👴 Senior' : '👴 المسنّ') : ''));
     const nm = document.createElement('span'); nm.textContent = (m.sender_name || '') + (roleTag ? ` (${roleTag})` : '');
-    const tm = document.createElement('span'); tm.className = 'text-[#5C6F63]';
+    const tm = document.createElement('span'); tm.className = 'text-[#4A657A]';
     tm.textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     hdr.append(nm, tm);
     d.appendChild(hdr);
@@ -606,11 +606,11 @@
     wrap.id = 'cgFeedbackModal';
     wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-4';
     const card = document.createElement('div');
-    card.className = 'w-full max-w-md rounded-3xl border border-[#E6DCCB] bg-[#FFFDF9] p-5 shadow-2xl space-y-3';
+    card.className = 'w-full max-w-md rounded-3xl border border-[#CFE3F5] bg-[#FFFFFF] p-5 shadow-2xl space-y-3';
     const hdr = document.createElement('div');
     hdr.className = 'flex items-center justify-between';
     const h3 = document.createElement('h3');
-    h3.className = 'text-base font-black text-[#0E5A3E]';
+    h3.className = 'text-base font-black text-[#0A4D68]';
     h3.textContent = isFr ? '📩 Contacter SoinsDar / Signaler' : '📩 مراسلة الإدارة / إبلاغ أو اقتراح';
     const cls = document.createElement('button');
     cls.type = 'button';
@@ -620,7 +620,7 @@
     hdr.append(h3, cls);
 
     const sel = document.createElement('select');
-    sel.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2.5 text-xs font-black text-[#163024]';
+    sel.className = 'w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-xs font-black text-[#0B2538]';
     [
       ['suggestion', isFr ? '💡 Suggestion / Amélioration' : '💡 اقتراح أو فكرة لتطوير التطبيق'],
       ['violation', isFr ? '🚨 Signaler un abus / infraction' : '🚨 الإبلاغ عن مخالفة أو سوء استخدام'],
@@ -635,14 +635,14 @@
     const ta = document.createElement('textarea');
     ta.rows = 4;
     ta.placeholder = isFr ? 'Écrivez votre message ou signalement ici...' : 'اكتب رسالتك أو تفاصيل البلاغ أو الاقتراح هنا...';
-    ta.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white p-3 text-xs font-bold text-[#163024]';
+    ta.className = 'w-full rounded-xl border border-[#C2DBF0] bg-white p-3 text-xs font-bold text-[#0B2538]';
 
     const st = document.createElement('p');
     st.className = 'hidden text-center text-xs font-extrabold';
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-2.5 text-sm font-black text-white';
+    btn.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-2.5 text-sm font-black text-white';
     btn.textContent = isFr ? '📤 Envoyer à l\'administration' : '📤 إرسال إلى إدارة التطبيق';
     btn.addEventListener('click', async () => {
       const msg = ta.value.trim();
@@ -664,7 +664,7 @@
           message: msg
         });
         if (error) throw error;
-        st.className = 'text-center text-xs font-extrabold text-[#0E5A3E]';
+        st.className = 'text-center text-xs font-extrabold text-[#0A4D68]';
         st.textContent = isFr ? '✅ Message envoyé à l\'équipe SoinsDar !' : '✅ تم إرسال رسالتك إلى إدارة التطبيق بنجاح!';
         st.classList.remove('hidden');
         setTimeout(() => wrap.remove(), 1800);
@@ -747,15 +747,15 @@
     wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4 backdrop-blur-sm';
 
     const card = document.createElement('div');
-    card.className = 'w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl border-2 border-[#C7DFCE] bg-[#FFFDF9] p-5 shadow-2xl space-y-3.5';
+    card.className = 'w-full max-w-md max-h-[88vh] overflow-y-auto rounded-3xl border-2 border-[#B6D8F2] bg-[#FFFFFF] p-5 shadow-2xl space-y-3.5';
 
     const hdr = document.createElement('div');
     hdr.className = 'text-center space-y-1';
     const h3 = document.createElement('h3');
-    h3.className = 'text-lg font-black text-[#0E5A3E]';
+    h3.className = 'text-lg font-black text-[#0A4D68]';
     h3.textContent = cfg.title;
     const sub = document.createElement('p');
-    sub.className = 'text-xs font-bold text-[#5C6F63]';
+    sub.className = 'text-xs font-bold text-[#4A657A]';
     sub.textContent = cfg.sub;
     hdr.append(h3, sub);
 
@@ -763,12 +763,12 @@
     list.className = 'space-y-2.5';
     cfg.steps.forEach(([t, d]) => {
       const item = document.createElement('div');
-      item.className = 'rounded-2xl border border-[#E6DCCB] bg-[#FAF6EE] p-3 space-y-1';
+      item.className = 'rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-1';
       const it = document.createElement('p');
-      it.className = 'text-xs font-black text-[#0E5A3E]';
+      it.className = 'text-xs font-black text-[#0A4D68]';
       it.textContent = t;
       const idesc = document.createElement('p');
-      idesc.className = 'text-xs font-bold leading-relaxed text-[#163024]';
+      idesc.className = 'text-xs font-bold leading-relaxed text-[#0B2538]';
       idesc.textContent = d;
       item.append(it, idesc);
       list.appendChild(item);
@@ -776,7 +776,7 @@
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'tap-btn w-full rounded-2xl bg-[#0E5A3E] px-4 py-3 text-sm font-black text-white shadow-md';
+    btn.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white shadow-md';
     btn.textContent = isFr ? '✓ J\'ai compris l\'application' : '✓ فهمت التطبيق';
     btn.addEventListener('click', () => {
       try { localStorage.setItem(key, '1'); } catch (_) {}

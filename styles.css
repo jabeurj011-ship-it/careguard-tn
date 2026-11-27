@@ -1,35 +1,65 @@
+/* SOINSDAR — Clinical Tech, Trust, Cleanliness & Peace of Mind Theme */
 :root {
-  --cg-bg: #FAF6EE;
-  --cg-surface: #FFFDF9;
-  --cg-primary: #0E5A3E;
-  --cg-primary-dark: #0A4630;
-  --cg-border: #E6DCCB;
-  --cg-text: #163024;
-  --cg-muted: #5C6F63;
-  --cg-accent: #D97706;
+  --sd-bg: #F2F8FF;
+  --sd-bg-2: #E6F1FC;
+  --sd-card: rgba(255, 255, 255, 0.94);
+  --sd-border: #CFE3F5;
+  --sd-primary: #0A4D68;
+  --sd-primary-deep: #062D42;
+  --sd-accent: #0EA5E9;
+  --sd-ink: #0B2538;
+  --sd-muted: #4A657A;
 }
-* { box-sizing: border-box; }
+
 html, body {
-  margin: 0; padding: 0;
-  background-color: var(--cg-bg);
-  color: var(--cg-text);
-  font-family: 'Plus Jakarta Sans', 'Cairo', system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
+  font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(165deg, #F5FAFF 0%, #EBF4FD 55%, #F0F7FF 100%);
+  color: var(--sd-ink);
+  -webkit-font-smoothing: antialiased;
 }
-.font-serif-brand { font-family: 'Fraunces', 'Cairo', Georgia, serif; }
-.tap-btn { min-height: 44px; transition: transform 0.12s ease, opacity 0.12s ease; cursor: pointer; }
-.tap-btn:active { transform: scale(0.97); }
-.tap-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.font-serif-brand {
+  font-family: 'Fraunces', 'Cairo', Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
 .cg-card {
-  background: var(--cg-surface);
-  border: 1px solid var(--cg-border);
+  background: var(--sd-card);
+  border: 1px solid var(--sd-border);
   border-radius: 24px;
-  box-shadow: 0 8px 24px -10px rgba(22, 48, 36, 0.10);
+  box-shadow: 0 10px 28px rgba(8, 52, 84, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
 }
-@keyframes cgPulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(14, 90, 62, 0.45); }
-  70% { box-shadow: 0 0 0 14px rgba(14, 90, 62, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(14, 90, 62, 0); }
+
+.tap-btn {
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
 }
-.cg-pulse-once { animation: cgPulseGlow 0.9s ease-out; }
+.tap-btn:active {
+  transform: scale(0.97);
+}
+
+/* Sleek clinical gradient for primary pill buttons */
+button.bg-\[\#0A4D68\],
+a.bg-\[\#0A4D68\] {
+  background: linear-gradient(135deg, #062D42 0%, #0A4D68 55%, #0E7490 100%);
+  box-shadow: 0 6px 18px rgba(10, 77, 104, 0.24);
+}
+
+/* Floating glassmorphic bottom navigation bar */
+nav.fixed.bottom-0 {
+  margin: 0 auto 10px auto;
+  max-width: calc(36rem - 16px);
+  border-radius: 22px;
+  border: 1px solid #CFE3F5;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 30px rgba(8, 52, 84, 0.12);
+}
+
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #0EA5E9 !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+}

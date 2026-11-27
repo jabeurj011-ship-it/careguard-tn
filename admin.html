@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoinsDar — لوحة الإدارة</title>
-  <meta name="theme-color" content="#0E5A3E" />
+  <meta name="theme-color" content="#0A4D68" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,18 +14,18 @@
 </head>
 <body class="min-h-screen pb-16">
 
-<header class="sticky top-0 z-30 bg-[#FAF6EE]/95 backdrop-blur border-b border-[#E8DFCE]">
+<header class="sticky top-0 z-30 bg-[#F2F8FF]/95 backdrop-blur border-b border-[#CFE3F5]">
   <div class="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3">
     <div class="flex items-center gap-2.5">
 <img src="./emblem-soinsdar.png" alt="SOINSDAR" class="h-11 w-auto shrink-0 object-contain" />
       <div>
-        <h1 class="font-serif-brand text-xl font-extrabold leading-none text-[#0E5A3E]">لوحة الإدارة</h1>
-        <p class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SoinsDar • مراقبة شاملة</p>
+        <h1 class="font-serif-brand text-xl font-extrabold leading-none text-[#0A4D68]">لوحة الإدارة</h1>
+        <p class="mt-0.5 text-[11px] font-bold text-[#4A657A]">SoinsDar • مراقبة شاملة</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button id="admRefreshBtn" type="button" class="tap-btn rounded-xl border border-[#D8CEBE] bg-white px-3 py-1.5 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
-      <a href="./index.html?choose=1" class="tap-btn inline-flex items-center rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">الرئيسية</a>
+      <button id="admRefreshBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-3 py-1.5 text-xs font-black text-[#0A4D68]">🔄 تحديث</button>
+      <a href="./index.html?choose=1" class="tap-btn inline-flex items-center rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white">الرئيسية</a>
     </div>
   </div>
 </header>
@@ -33,43 +33,43 @@
 <main class="mx-auto max-w-2xl space-y-4 px-4 pt-4">
   <div id="admGuardBox" class="hidden cg-card p-6 text-center space-y-3">
     <p class="text-base font-black text-rose-800">🔒 هذه الصفحة مخصصة لإدارة التطبيق فقط.</p>
-    <p id="admGuardEmail" class="text-xs font-bold text-[#5C6F63]"></p>
-    <a href="./index.html?choose=1" class="inline-block rounded-xl bg-[#0E5A3E] px-5 py-2.5 text-xs font-black text-white">العودة للبوابة</a>
+    <p id="admGuardEmail" class="text-xs font-bold text-[#4A657A]"></p>
+    <a href="./index.html?choose=1" class="inline-block rounded-xl bg-[#0A4D68] px-5 py-2.5 text-xs font-black text-white">العودة للبوابة</a>
   </div>
 
   <div id="admContentWrap" class="hidden space-y-4">
     <!-- KPI Summary -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
       <div class="cg-card p-3 text-center">
-        <div id="kpiSeniors" class="text-xl font-black text-[#0E5A3E]">0</div>
-        <div class="text-[11px] font-extrabold text-[#5C6F63]">👴 المسنّون</div>
+        <div id="kpiSeniors" class="text-xl font-black text-[#0A4D68]">0</div>
+        <div class="text-[11px] font-extrabold text-[#4A657A]">👴 المسنّون</div>
       </div>
       <div class="cg-card p-3 text-center">
         <div id="kpiNurses" class="text-xl font-black text-teal-800">0</div>
-        <div class="text-[11px] font-extrabold text-[#5C6F63]">🩺 الممرضون</div>
+        <div class="text-[11px] font-extrabold text-[#4A657A]">🩺 الممرضون</div>
       </div>
       <div class="cg-card p-3 text-center">
         <div id="kpiReqs" class="text-xl font-black text-indigo-800">0</div>
-        <div class="text-[11px] font-extrabold text-[#5C6F63]">📋 الطلبات</div>
+        <div class="text-[11px] font-extrabold text-[#4A657A]">📋 الطلبات</div>
       </div>
       <div class="cg-card p-3 text-center">
         <div id="kpiAlerts" class="text-xl font-black text-rose-700">0</div>
-        <div class="text-[11px] font-extrabold text-[#5C6F63]">🚨 تنبيهات مفتوحة</div>
+        <div class="text-[11px] font-extrabold text-[#4A657A]">🚨 تنبيهات مفتوحة</div>
       </div>
     </div>
 
     <!-- 6 Subtabs -->
-    <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 rounded-2xl bg-[#EFE8DA] p-1.5">
-      <button type="button" data-adm-tab="nurses" class="rounded-xl bg-[#0E5A3E] text-white py-2 text-xs font-black">🩺 الممرضون</button>
-      <button type="button" data-adm-tab="seniors" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👴 المسنّون</button>
-      <button type="button" data-adm-tab="families" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">👨‍👩‍👧 العائلات</button>
-      <button type="button" data-adm-tab="requests" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">📋 الطلبات</button>
-      <button type="button" data-adm-tab="reviews" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">⭐ التقييمات</button>
-      <button type="button" data-adm-tab="alerts" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">🚨 التنبيهات</button>
-      <button type="button" data-adm-tab="feedback" class="rounded-xl text-[#3C5044] py-2 text-xs font-extrabold">📩 البلاغات</button>
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 rounded-2xl bg-[#E3EFFB] p-1.5">
+      <button type="button" data-adm-tab="nurses" class="rounded-xl bg-[#0A4D68] text-white py-2 text-xs font-black">🩺 الممرضون</button>
+      <button type="button" data-adm-tab="seniors" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">👴 المسنّون</button>
+      <button type="button" data-adm-tab="families" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">👨‍👩‍👧 العائلات</button>
+      <button type="button" data-adm-tab="requests" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">📋 الطلبات</button>
+      <button type="button" data-adm-tab="reviews" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">⭐ التقييمات</button>
+      <button type="button" data-adm-tab="alerts" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">🚨 التنبيهات</button>
+      <button type="button" data-adm-tab="feedback" class="rounded-xl text-[#334E63] py-2 text-xs font-extrabold">📩 البلاغات</button>
     </div>
 
-    <div id="admToast" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+    <div id="admToast" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
     <div id="admList" class="space-y-2.5"></div>
   </div>
 </main>
@@ -127,7 +127,7 @@
   function renderTab() {
     document.querySelectorAll('[data-adm-tab]').forEach((b) => {
       const on = b.dataset.admTab === activeTab;
-      b.className = on ? 'rounded-xl bg-[#0E5A3E] text-white py-2 text-xs font-black' : 'rounded-xl text-[#3C5044] py-2 text-xs font-extrabold';
+      b.className = on ? 'rounded-xl bg-[#0A4D68] text-white py-2 text-xs font-black' : 'rounded-xl text-[#334E63] py-2 text-xs font-extrabold';
     });
 
     const box = $('admList');
@@ -144,17 +144,17 @@
         const top = document.createElement('div');
         top.className = 'flex items-center justify-between gap-2';
         const nm = document.createElement('p');
-        nm.className = 'text-sm font-black text-[#163024]';
+        nm.className = 'text-sm font-black text-[#0B2538]';
         nm.textContent = `🩺 ${n.full_name || 'ممرض'} (${n.credential || 'IDE'})`;
         const bdg = document.createElement('span');
-        bdg.className = isBan ? 'rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-black text-white' : (isSusp ? 'rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-white' : (isVer ? 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-[#0E5A3E]' : 'rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-black text-slate-700'));
+        bdg.className = isBan ? 'rounded-full bg-rose-600 px-2.5 py-0.5 text-[10px] font-black text-white' : (isSusp ? 'rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-white' : (isVer ? 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-[#0A4D68]' : 'rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-black text-slate-700'));
         bdg.textContent = isBan ? 'محظور' : (isSusp ? 'معلّق' : (isVer ? '✓ موثّق' : 'قيد المراجعة'));
         top.append(nm, bdg);
         const nrGovRaw = n.region || ((n.base_lat && n.base_lng) ? S.detectTnGovernorate(n.base_lat, n.base_lng) : '');
         const nrGov = nrGovRaw ? S.formatGovLabel(nrGovRaw) : '—';
         const nrAddr = n.city_zip || n.city || '—';
         const meta = document.createElement('p');
-        meta.className = 'text-xs font-bold text-[#5C6F63] leading-relaxed';
+        meta.className = 'text-xs font-bold text-[#4A657A] leading-relaxed';
         meta.textContent = `🏛️ الولاية: ${nrGov} • 📍 العنوان: ${nrAddr} • 📞 ${n.phone || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(n.created_at)}`;
         meta.classList.add('whitespace-pre-line');
         const row = document.createElement('div');
@@ -162,7 +162,7 @@
 
         const bVer = document.createElement('button');
         bVer.type = 'button';
-        bVer.className = 'rounded-xl bg-[#0E5A3E] px-2.5 py-1.5 text-[11px] font-black text-white';
+        bVer.className = 'rounded-xl bg-[#0A4D68] px-2.5 py-1.5 text-[11px] font-black text-white';
         bVer.textContent = isVer ? 'إلغاء التوثيق' : '🏅 توثيق';
         bVer.addEventListener('click', async () => {
           const next = isVer ? 'pending' : 'verified';
@@ -222,7 +222,7 @@
         s2.textContent = r.status;
         top.append(s1, s2);
         const p = document.createElement('p');
-        p.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p.className = 'text-[11px] font-bold text-[#4A657A]';
         p.textContent = `${r.care_reason || ''} • ${S.formatGovLabel(r.region) || ''} • ${fmtDate(r.created_at)}` + (r.discrepancy_flag ? ' • ⚠️ تعارض نتيجة' : '');
         c.append(top, p);
         if (r.status === 'open' || r.status === 'pending' || r.status === 'accepted') {
@@ -247,10 +247,10 @@
         const c = document.createElement('div');
         c.className = 'cg-card p-3.5 space-y-1.5 ' + (rv.is_complaint ? 'border-rose-300 bg-rose-50/40' : '');
         const p1 = document.createElement('p');
-        p1.className = 'text-xs font-black text-[#163024]';
+        p1.className = 'text-xs font-black text-[#0B2538]';
         p1.textContent = `${'⭐'.repeat(Math.max(1, Math.min(5, rv.rating || 5)))} — ${rv.reviewer_name || 'مستخدم'} ${rv.is_complaint ? '• ⚠️ شكوى' : ''}`;
         const p2 = document.createElement('p');
-        p2.className = 'text-xs font-bold text-[#5C6F63]';
+        p2.className = 'text-xs font-bold text-[#4A657A]';
         p2.textContent = (rv.comment || 'بدون تعليق') + ' • ' + fmtDate(rv.created_at);
         const del = document.createElement('button');
         del.type = 'button';
@@ -275,10 +275,10 @@
         const d = document.createElement('div');
         d.className = 'min-w-0 flex-1';
         const p1 = document.createElement('p');
-        p1.className = 'text-sm font-black text-[#163024] truncate';
+        p1.className = 'text-sm font-black text-[#0B2538] truncate';
         p1.textContent = `👴 ${sp.display_name || 'مسنّ'}`;
         const p2 = document.createElement('p');
-        p2.className = 'text-[11px] font-bold text-[#5C6F63] break-words';
+        p2.className = 'text-[11px] font-bold text-[#4A657A] break-words';
         const srGovRaw = (sp.home_lat && sp.home_lng) ? S.detectTnGovernorate(sp.home_lat, sp.home_lng) : '';
         const srGov = srGovRaw ? S.formatGovLabel(srGovRaw) : '—';
         p2.classList.add('whitespace-pre-line', 'leading-relaxed');
@@ -311,10 +311,10 @@
         const d = document.createElement('div');
         d.className = 'min-w-0 flex-1';
         const p1 = document.createElement('p');
-        p1.className = 'text-sm font-black text-[#163024] truncate';
+        p1.className = 'text-sm font-black text-[#0B2538] truncate';
         p1.textContent = `👨‍👩‍👧 ${f.requester_name || 'قريب / عائلة'}`;
         const p2 = document.createElement('p');
-        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p2.className = 'text-[11px] font-bold text-[#4A657A]';
         const spf = f.senior_profiles || {};
         const senName = spf.display_name || '—';
         const fmGovRaw = (spf.home_lat && spf.home_lng) ? S.detectTnGovernorate(spf.home_lat, spf.home_lng) : '';
@@ -342,7 +342,7 @@
     if (activeTab === 'feedback') {
       if (!dataState.feedback.length) {
         const em = document.createElement('div');
-        em.className = 'cg-card p-5 text-center text-xs font-bold text-[#5C6F63]';
+        em.className = 'cg-card p-5 text-center text-xs font-bold text-[#4A657A]';
         em.textContent = 'لا توجد رسائل أو بلاغات مستخدمين حالياً.';
         box.appendChild(em);
       }
@@ -352,14 +352,14 @@
         const hdr = document.createElement('div');
         hdr.className = 'flex items-center justify-between gap-2';
         const nm = document.createElement('p');
-        nm.className = 'font-black text-[#0E5A3E]';
+        nm.className = 'font-black text-[#0A4D68]';
         nm.textContent = `[${f.category || 'message'}] ${f.user_name || 'مستخدم'} (${f.user_role || ''})`;
         const tm = document.createElement('span');
-        tm.className = 'text-[10px] font-bold text-[#5C6F63]';
+        tm.className = 'text-[10px] font-bold text-[#4A657A]';
         tm.textContent = f.created_at ? new Date(f.created_at).toLocaleString('ar-TN') : '';
         hdr.append(nm, tm);
         const msg = document.createElement('p');
-        msg.className = 'font-bold text-[#163024] whitespace-pre-line';
+        msg.className = 'font-bold text-[#0B2538] whitespace-pre-line';
         msg.textContent = f.message || '';
         const act = document.createElement('div');
         act.className = 'flex items-center justify-between';
@@ -370,7 +370,7 @@
         if (f.status !== 'resolved') {
           const btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = 'rounded-xl bg-[#0E5A3E] px-3 py-1 text-[11px] font-black text-white';
+          btn.className = 'rounded-xl bg-[#0A4D68] px-3 py-1 text-[11px] font-black text-white';
           btn.textContent = '✓ إغلاق البلاغ';
           btn.addEventListener('click', async () => {
             await S.client.from('app_feedback').update({ status: 'resolved' }).eq('id', f.id);
@@ -393,13 +393,13 @@
         p1.className = 'text-xs font-black text-rose-900';
         p1.textContent = `🚨 ${al.message || al.alert_type || 'تنبيه'}`;
         const p2 = document.createElement('p');
-        p2.className = 'text-[11px] font-bold text-[#5C6F63]';
+        p2.className = 'text-[11px] font-bold text-[#4A657A]';
         p2.textContent = `${al.status} • ${fmtDate(al.created_at)}`;
         c.append(p1, p2);
         if (isOpen) {
           const b = document.createElement('button');
           b.type = 'button';
-          b.className = 'rounded-xl bg-[#0E5A3E] px-3 py-1 text-[11px] font-black text-white';
+          b.className = 'rounded-xl bg-[#0A4D68] px-3 py-1 text-[11px] font-black text-white';
           b.textContent = '✓ إغلاق التنبيه';
           b.addEventListener('click', async () => {
             await S.client.from('alerts').update({ status: 'resolved' }).eq('id', al.id);

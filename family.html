@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoinsDar — فضاء العائلة</title>
-  <meta name="theme-color" content="#0E5A3E" />
+  <meta name="theme-color" content="#0A4D68" />
   <link rel="manifest" href="./manifest.json" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
@@ -13,28 +13,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-28">
 
 <!-- Top Header -->
-<header class="sticky top-0 z-30 bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#FAF6EE]/95 backdrop-blur border-b border-[#DCECE4]">
+<header class="sticky top-0 z-30 bg-gradient-to-b from-[#DFF3EA] via-[#ECF8F3] to-[#F2F8FF]/95 backdrop-blur border-b border-[#B6D8F2]">
   <div class="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
     <div class="flex items-center gap-2.5 min-w-0">
       <img src="./emblem-soinsdar.png" alt="SOINSDAR" class="h-11 w-auto shrink-0 object-contain" />
       <div class="min-w-0">
-        <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0E5A3E]">فضاء العائلة</h1>
-        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#5C6F63]">SOINSDAR • رعايتهم تجمعنا</p>
+        <h1 id="hdrTitle" class="font-serif-brand truncate text-xl font-extrabold leading-none text-[#0A4D68]">فضاء العائلة</h1>
+        <p id="hdrSub" class="mt-0.5 text-[11px] font-bold text-[#4A657A]">SOINSDAR • رعايتهم تجمعنا</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
       <button id="ringtoneBtn" type="button" class="tap-btn flex h-9 w-9 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-950"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
       <button id="pushBtn" type="button" class="tap-btn flex h-9 w-9 items-center justify-center rounded-full border border-rose-200 bg-rose-50 text-rose-900"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#E8DFCE] bg-[#FFFDF8] px-3 py-1.5 text-xs font-black text-[#0E5A3E]">FR</button>
+      <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#CFE3F5] bg-[#FFFFFF] px-3 py-1.5 text-xs font-black text-[#0A4D68]">FR</button>
     </div>
   </div>
 </header>
 
 <main class="mx-auto max-w-xl space-y-4 px-4 pt-3">
-  <div id="liveCheckInToast" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-[#0E5A3E] shadow-sm"></div>
+  <div id="liveCheckInToast" class="hidden rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-4 py-3 text-center text-xs font-black text-[#0A4D68] shadow-sm"></div>
   <details id="leftHomeBanner" class="hidden rounded-3xl border-2 border-rose-500 bg-rose-50 p-3.5 shadow-md">
     <summary id="leftHomeSummary" class="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-rose-950">
       <span id="leftHomeSumText">📍🚨 تنبيهات الخروج من المنزل</span>
@@ -47,12 +47,12 @@
   <section id="secHome" class="space-y-3.5">
     <div class="cg-card p-4 space-y-2.5">
       <div class="flex items-center justify-between">
-        <p id="linkTitle" class="text-sm font-black text-[#0E5A3E]">🔗 ربط المسنّ عبر الرمز (CG-...)</p>
-        <button id="refreshBtn" type="button" class="rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-1 text-xs font-black text-[#0E5A3E]">🔄 تحديث</button>
+        <p id="linkTitle" class="text-sm font-black text-[#0A4D68]">🔗 ربط المسنّ عبر الرمز (CG-...)</p>
+        <button id="refreshBtn" type="button" class="rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-2.5 py-1 text-xs font-black text-[#0A4D68]">🔄 تحديث</button>
       </div>
       <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="min-w-0 flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-black uppercase" />
-        <select id="linkRelationSel" class="shrink-0 rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-2.5 py-2 text-xs font-black text-[#163024]">
+        <input id="linkCodeInput" type="text" dir="ltr" placeholder="CG-123456" class="min-w-0 flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-black uppercase" />
+        <select id="linkRelationSel" class="shrink-0 rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-2.5 py-2 text-xs font-black text-[#0B2538]">
           <option value="ابن">ابن</option>
           <option value="ابنة">ابنة</option>
           <option value="أخ">أخ</option>
@@ -61,7 +61,7 @@
           <option value="حفيد/ة">حفيد/ة</option>
           <option value="قريب">قريب آخر</option>
         </select>
-        <button id="linkSubmitBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">ربط</button>
+        <button id="linkSubmitBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">ربط</button>
       </div>
       <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
     </div>
@@ -73,12 +73,12 @@
   <section id="secAlerts" class="hidden space-y-3">
     <h2 id="alertsHeading" class="text-lg font-black text-rose-900">🚨 التنبيهات النشطة</h2>
     <div id="alertsList" class="space-y-2.5"></div>
-    <details id="resolvedAlertsDet" class="hidden rounded-2xl border border-[#DFEAE3] bg-white px-3.5 py-2.5 shadow-sm">
-      <summary id="resolvedAlertsSum" class="cursor-pointer list-none flex items-center justify-between text-xs font-black text-[#0E5A3E]">
+    <details id="resolvedAlertsDet" class="hidden rounded-2xl border border-[#CFE3F5] bg-white px-3.5 py-2.5 shadow-sm">
+      <summary id="resolvedAlertsSum" class="cursor-pointer list-none flex items-center justify-between text-xs font-black text-[#0A4D68]">
         <span>📋 سجل التقارير والتنبيهات السابقة</span>
-        <span class="text-[11px] text-[#5C6F63]">اضغط للعرض ▾</span>
+        <span class="text-[11px] text-[#4A657A]">اضغط للعرض ▾</span>
       </summary>
-      <div id="resolvedAlertsList" class="mt-2.5 pt-2 border-t border-[#E6DCCB] space-y-2"></div>
+      <div id="resolvedAlertsList" class="mt-2.5 pt-2 border-t border-[#CFE3F5] space-y-2"></div>
     </details>
   </section>
 
@@ -86,56 +86,56 @@
   <section id="secNurse" class="hidden space-y-3.5">
     <div class="cg-card p-4 space-y-3">
       <div>
-        <h2 id="fnHeading" class="text-lg font-black text-[#0E5A3E]">🩺 طلب ممرض لقريبك</h2>
-        <p id="fnSub" class="text-xs font-bold text-[#5C6F63]">ممرضون موثّقون في تونس مرتبون حسب القرب</p>
+        <h2 id="fnHeading" class="text-lg font-black text-[#0A4D68]">🩺 طلب ممرض لقريبك</h2>
+        <p id="fnSub" class="text-xs font-bold text-[#4A657A]">ممرضون موثّقون في تونس مرتبون حسب القرب</p>
       </div>
-      <select id="careReasonSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-bold text-[#163024]">
+      <select id="careReasonSel" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-bold text-[#0B2538]">
         <option value="💉 حقنة / إبرة">💉 حقنة / إبرة (Injection)</option>
         <option value="🩹 تغيير ضمادات">🩹 تغيير ضمادات (Pansement)</option>
         <option value="💧 تركيب سيروم / مصل">💧 تركيب سيروم / مصل (Sérum)</option>
         <option value="🩺 قياس ضغط / سكري">🩺 قياس ضغط / سكري (Tension / Glycémie)</option>
         <option value="🏥 رعاية شاملة / مساعدة">🏥 رعاية شاملة / مساعدة</option>
       </select>
-      <select id="genderPrefSel" class="w-full rounded-xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-bold text-[#163024]">
+      <select id="genderPrefSel" class="w-full rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-bold text-[#0B2538]">
         <option value="any">🤝 لا يهم (ممرض أو ممرضة)</option>
         <option value="female">👩‍⚕️ ممرضة فقط</option>
         <option value="male">👨‍⚕️ ممرض فقط</option>
       </select>
       <button id="broadcastBtn" type="button" class="tap-btn flex h-auto w-full items-center justify-between gap-2 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 to-emerald-50 px-3.5 py-3 text-start shadow-sm">
         <div class="min-w-0 flex-1 space-y-0.5">
-          <p id="bcTitle" class="text-sm font-black leading-snug text-[#0E5A3E]">⚡ طلب أقرب ممرض متاح الآن</p>
-          <p id="bcSub" class="text-[11px] font-bold leading-snug text-[#5C6F63]">يرسل الطلب للجميع — أول ممرض يقبل يحضر</p>
+          <p id="bcTitle" class="text-sm font-black leading-snug text-[#0A4D68]">⚡ طلب أقرب ممرض متاح الآن</p>
+          <p id="bcSub" class="text-[11px] font-bold leading-snug text-[#4A657A]">يرسل الطلب للجميع — أول ممرض يقبل يحضر</p>
         </div>
-        <span id="bcBadge" class="shrink-0 rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
+        <span id="bcBadge" class="shrink-0 rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white">⚡ إرسال</span>
       </button>
-      <div id="fnStatus" class="hidden rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]"></div>
+      <div id="fnStatus" class="hidden rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
       <div id="nursesList" class="space-y-2.5"></div>
     </div>
 
     <div class="grid grid-cols-2 gap-2.5">
-      <div class="grid grid-cols-2 gap-2.5">
-      <button id="famGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#C7DFCE] bg-[#EFF7F1] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">❓ طريقة استعمال التطبيق (دليل العائلة)</button>
-      <button id="famFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#0E5A3E]">📩 مراسلة / إبلاغ</button>
-      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#D8CEBE] bg-[#FAF6EE] px-3 py-2.5 text-xs font-black text-[#163024]">🛡️ الخصوصية</a>
+      <button id="famGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">❓ طريقة استعمال التطبيق (دليل العائلة)</button>
+      <button id="famFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">📩 مراسلة / إبلاغ</button>
+      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">🛡️ الخصوصية</a>
     </div>
-    <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#D8CEBE] bg-white px-4 py-3 text-xs font-black text-[#163024]">🔄 تغيير الدور</button>
+    <div class="grid grid-cols-2 gap-2.5">
+      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-xs font-black text-[#0B2538]">🔄 تغيير الدور</button>
       <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
     </div>
   </section>
 </main>
 
 <!-- Bottom Navigation (Family Only) -->
-<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#E8DFCE] bg-[#FFFDF9]/95 backdrop-blur">
+<nav class="fixed bottom-0 inset-x-0 z-30 border-t border-[#CFE3F5] bg-[#FFFFFF]/95 backdrop-blur">
   <div class="mx-auto grid max-w-xl grid-cols-3 py-2 text-center text-xs font-black">
-    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0E5A3E]">
+    <button id="navHome" type="button" class="flex flex-col items-center gap-1 text-[#0A4D68]">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>
       <span id="navHomeLbl">المتابعة</span>
     </button>
-    <button id="navAlerts" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
+    <button id="navAlerts" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
       <span><span id="navAlertsLbl">التنبيهات</span> (<span id="alertsCnt">0</span>)</span>
     </button>
-    <button id="navNurse" type="button" class="flex flex-col items-center gap-1 text-[#5C6F63]">
+    <button id="navNurse" type="button" class="flex flex-col items-center gap-1 text-[#4A657A]">
       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg>
       <span id="navNurseLbl">طلب ممرض</span>
     </button>
@@ -144,9 +144,9 @@
 
 <!-- Ringtone Modal -->
 <div id="ringtoneModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
-  <div class="w-full max-w-md rounded-3xl bg-[#FFFDF9] p-5 shadow-2xl border border-[#E6DCCB] space-y-3">
+  <div class="w-full max-w-md rounded-3xl bg-[#FFFFFF] p-5 shadow-2xl border border-[#CFE3F5] space-y-3">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-black text-[#0E5A3E]">🎵 استوديو نغمات التنبيه</h3>
+      <h3 class="text-lg font-black text-[#0A4D68]">🎵 استوديو نغمات التنبيه</h3>
       <button id="closeRingModalBtn" type="button" class="rounded-xl px-3 py-1 text-lg font-black text-slate-600">✕</button>
     </div>
     <div id="ringStudioList" class="max-h-60 space-y-2 overflow-y-auto pr-0.5"></div>
@@ -159,7 +159,7 @@
       🎵 اختر نغمة صوتية من الهاتف (MP3 / WAV / M4A)
     </label>
     <input id="customRingFile" type="file" accept="audio/*" class="hidden" />
-    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0E5A3E]"></p>
+    <p id="customRingStatus" class="text-center text-xs font-bold text-[#0A4D68]"></p>
     <div class="grid grid-cols-2 gap-2">
       <button id="testRingBtn" type="button" class="tap-btn rounded-xl bg-amber-600 px-3 py-2.5 text-xs font-black text-white">🔊 تجربة النغمة</button>
       <button id="stopRingBtn" type="button" class="tap-btn rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-black text-slate-800">⏹️ إيقاف</button>
@@ -169,16 +169,16 @@
 
 <!-- Family Direct Chat Modal -->
 <div id="chatModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 p-3">
-  <div class="flex max-h-[88vh] w-full max-w-md flex-col rounded-3xl bg-[#FFFDF9] p-4 shadow-2xl border border-[#E6DCCB]">
-    <div class="flex items-center justify-between border-b border-[#EAE0CF] pb-2.5">
-      <h3 id="chatTitle" class="text-base font-black text-[#0E5A3E]">💬 محادثة العائلة</h3>
+  <div class="flex max-h-[88vh] w-full max-w-md flex-col rounded-3xl bg-[#FFFFFF] p-4 shadow-2xl border border-[#CFE3F5]">
+    <div class="flex items-center justify-between border-b border-[#DCEBF8] pb-2.5">
+      <h3 id="chatTitle" class="text-base font-black text-[#0A4D68]">💬 محادثة العائلة</h3>
       <button id="closeChatBtn" type="button" class="rounded-xl px-2.5 py-1 text-lg font-black text-slate-600">✕</button>
     </div>
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
-      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0E5A3E]" title="رسالة صوتية">🎤</button>
-      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ أو الممرض..." class="flex-1 rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-sm font-bold" />
-      <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0E5A3E] px-4 py-2 text-xs font-black text-white">إرسال</button>
+      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ أو الممرض..." class="flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
+      <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
   </div>
 </div>
@@ -198,9 +198,9 @@
     $('secHome').classList.toggle('hidden', tab !== 'home');
     $('secAlerts').classList.toggle('hidden', tab !== 'alerts');
     $('secNurse').classList.toggle('hidden', tab !== 'nurse');
-    $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'home' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navAlerts').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'alerts' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
-    $('navNurse').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'nurse' ? 'text-[#0E5A3E]' : 'text-[#5C6F63]');
+    $('navHome').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'home' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navAlerts').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'alerts' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+    $('navNurse').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'nurse' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     if (tab === 'nurse') loadNurses();
   }
 
@@ -331,7 +331,7 @@
     let totalAlerts = 0;
     if (!linkedCards.length) {
       const emp = document.createElement('div');
-      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#5C6F63]';
+      emp.className = 'cg-card p-6 text-center text-xs font-bold text-[#4A657A]';
       emp.textContent = isFr ? 'Aucun proche lié — entrez le code CG-... ci-dessus.' : 'لا يوجد قريب مرتبط بعد — أدخل رمز المسنّ (CG-...) أعلاه.';
       box.appendChild(emp);
     }
@@ -353,7 +353,7 @@
         const isLeftHome = al.alert_type === 'left_home';
         const row = document.createElement('div');
         row.className = isDaily
-          ? 'flex flex-col gap-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-3.5 text-xs font-bold text-[#163024]'
+          ? 'flex flex-col gap-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-3.5 text-xs font-bold text-[#0B2538]'
           : 'flex items-center justify-between gap-2 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-black text-rose-950';
         const txt = document.createElement('div');
         txt.className = 'min-w-0 flex-1 whitespace-pre-line leading-relaxed';
@@ -366,7 +366,7 @@
         const okBtn = document.createElement('button');
         okBtn.type = 'button';
         okBtn.className = isDaily
-          ? 'self-end rounded-xl bg-[#0E5A3E] px-3 py-1.5 text-[11px] font-black text-white'
+          ? 'self-end rounded-xl bg-[#0A4D68] px-3 py-1.5 text-[11px] font-black text-white'
           : 'shrink-0 rounded-xl bg-rose-700 px-3 py-1.5 text-[11px] font-black text-white';
         okBtn.textContent = isLeftHome
           ? (isFr ? 'Vu / Nous sommes informés ✓' : 'تمت الرؤية / علمنا بذلك ✓')
@@ -422,7 +422,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
           const fmtR = formatAlertDisplay(ral, sp.display_name, isFr);
           const rRow = document.createElement('div');
           rRow.className = ral.alert_type === 'daily_report'
-            ? 'rounded-xl border border-emerald-200 bg-emerald-50/60 p-2.5 text-[11px] font-bold text-[#163024] whitespace-pre-line'
+            ? 'rounded-xl border border-emerald-200 bg-emerald-50/60 p-2.5 text-[11px] font-bold text-[#0B2538] whitespace-pre-line'
             : 'rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-[11px] font-bold text-slate-700 whitespace-pre-line';
           const dtStr = ral.created_at ? new Date(ral.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
           rRow.textContent = (dtStr ? `[${dtStr}] ` : '') + (ral.alert_type === 'daily_report' ? '📊 ' : '✓ ') + fmtR.text;
@@ -435,7 +435,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       const top = document.createElement('div');
       top.className = 'flex items-center gap-3';
       const av = document.createElement('div');
-      av.className = 'h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#C7DFCE] bg-[#0E5A3E] flex items-center justify-center text-xl font-black text-white';
+      av.className = 'h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#B6D8F2] bg-[#0A4D68] flex items-center justify-center text-xl font-black text-white';
       if (sp.avatar_url) {
         const img = document.createElement('img');
         img.src = sp.avatar_url; img.className = 'h-full w-full object-cover';
@@ -446,16 +446,16 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       const info = document.createElement('div');
       info.className = 'min-w-0 flex-1';
       const nm = document.createElement('p');
-      nm.className = 'text-lg font-black text-[#163024] truncate';
+      nm.className = 'text-lg font-black text-[#0B2538] truncate';
       nm.textContent = sp.display_name || 'المسنّ';
       const sub = document.createElement('p');
-      sub.className = 'text-xs font-bold text-[#5C6F63]';
+      sub.className = 'text-xs font-bold text-[#4A657A]';
       sub.textContent = `🔋 ${batPct} • 💊 ${meds.filter((m) => takenSet.has(m.id)).length}/${meds.length} • 💧 ${water}/8`;
       info.append(nm, sub);
       top.append(av, info);
       card.appendChild(top);
       const okBadge = document.createElement('div');
-      okBadge.className = 'flex items-center justify-between gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs font-black text-[#0E5A3E]';
+      okBadge.className = 'flex items-center justify-between gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs font-black text-[#0A4D68]';
       okBadge.textContent = isFr
         ? `💚 ${sp.display_name || 'Votre proche'} va bien — confirmé à ${lastChk}`
         : `💚 ${sp.display_name || 'قريبك'} بخير — آخر تأكيد الساعة ${lastChk}`;
@@ -464,29 +464,29 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       // Collapsible Meds Accordion (keeps family cards short & clean)
       if (meds.length) {
         const det = document.createElement('details');
-        det.className = 'rounded-2xl bg-[#FAF6EE] border border-[#E6DCCB] px-3 py-2.5';
+        det.className = 'rounded-2xl bg-[#F2F8FF] border border-[#CFE3F5] px-3 py-2.5';
         const sum = document.createElement('summary');
-        sum.className = 'cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-[#0E5A3E]';
+        sum.className = 'cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-black text-[#0A4D68]';
         const takenCnt = meds.filter((m) => takenSet.has(m.id)).length;
         const sLeft = document.createElement('span');
         sLeft.textContent = isFr ? `💊 Médicaments (${takenCnt}/${meds.length})` : `💊 أدوية المسنّ (${takenCnt}/${meds.length})`;
         const sRight = document.createElement('span');
-        sRight.className = 'text-[11px] text-[#5C6F63]';
+        sRight.className = 'text-[11px] text-[#4A657A]';
         sRight.textContent = isFr ? 'Voir la liste ▾' : 'اضغط للعرض ▾';
         sum.append(sLeft, sRight);
         det.appendChild(sum);
         const mWrap = document.createElement('div');
-        mWrap.className = 'mt-2.5 pt-2 border-t border-[#E6DCCB] space-y-1.5';
+        mWrap.className = 'mt-2.5 pt-2 border-t border-[#CFE3F5] space-y-1.5';
         meds.forEach((m) => {
           const isT = takenSet.has(m.id);
           const row = document.createElement('div');
-          row.className = 'flex flex-wrap items-center justify-between gap-1.5 border-b border-[#EDE4D4] pb-1.5 last:border-0 last:pb-0 text-xs font-bold';
+          row.className = 'flex flex-wrap items-center justify-between gap-1.5 border-b border-[#DCEBF8] pb-1.5 last:border-0 last:pb-0 text-xs font-bold';
           const l = document.createElement('span');
-          l.className = 'min-w-0 flex-1 break-words leading-snug text-[#163024]';
+          l.className = 'min-w-0 flex-1 break-words leading-snug text-[#0B2538]';
           l.dir = 'auto';
           l.textContent = `${m.name}${m.dosage ? ' (' + m.dosage + ')' : ''}`;
           const r = document.createElement('span');
-          r.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0E5A3E]' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900';
+          r.className = isT ? 'shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[#0A4D68]' : 'shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-amber-900';
           const tAt = isT && takenTimeMap.get(m.id) ? (' ' + takenTimeMap.get(m.id)) : '';
           r.textContent = isT ? ((isFr ? '✓ Pris' : '✓ تم التناول') + tAt) : (isFr ? '⏳ En attente' : '⏳ لم يُؤخذ');
           row.append(l, r);
@@ -509,7 +509,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
         aSum.append(aL, aR);
         aDet.appendChild(aSum);
         const aWrap = document.createElement('div');
-        aWrap.className = 'mt-2 pt-2 border-t border-[#D4CBEB] space-y-1.5 text-xs font-bold text-[#163024]';
+        aWrap.className = 'mt-2 pt-2 border-t border-[#D4CBEB] space-y-1.5 text-xs font-bold text-[#0B2538]';
         appts.forEach((ap) => {
           const dt = new Date(ap.appt_at);
           const row = document.createElement('div');
@@ -530,7 +530,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       if (sp.senior_phone && S.safeTelHref(sp.senior_phone)) {
         const callA = document.createElement('a');
         callA.href = S.safeTelHref(sp.senior_phone);
-        callA.className = 'tap-btn flex-1 text-center rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-black text-[#163024]';
+        callA.className = 'tap-btn flex-1 text-center rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-xs font-black text-[#0B2538]';
         callA.textContent = isFr ? '📞 Appeler' : '📞 اتصال';
         acts.appendChild(callA);
       }
@@ -538,7 +538,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
       chatBtn.type = 'button';
       chatBtn.className = hasUnread
         ? 'tap-btn flex-1 rounded-xl bg-rose-600 px-3 py-2 text-xs font-black text-white animate-pulse'
-        : 'tap-btn flex-1 rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+        : 'tap-btn flex-1 rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white';
       chatBtn.textContent = hasUnread ? (isFr ? '🔴 Nouveau message' : '🔴 رسالة جديدة') : (isFr ? '💬 Message' : '💬 رسالة طمأنة');
       chatBtn.addEventListener('click', () => {
         localStorage.setItem('cg_v2_fam_seen_' + sp.id, String(Date.now()));
@@ -576,7 +576,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
     }
     if (!totalAlerts) {
       const ok = document.createElement('div');
-      ok.className = 'cg-card p-6 text-center text-xs font-bold text-[#0E5A3E]';
+      ok.className = 'cg-card p-6 text-center text-xs font-bold text-[#0A4D68]';
       ok.textContent = isFr ? '🟢 Aucune alerte active.' : '🟢 لا توجد تنبيهات نشطة حالياً — كل شيء بخير.';
       alBox.appendChild(ok);
     }
@@ -597,7 +597,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
     const box = $('chatMessages');
     box.replaceChildren();
     const note = document.createElement('p');
-    note.className = 'text-center text-[10px] font-bold text-[#5C6F63] pb-1';
+    note.className = 'text-center text-[10px] font-bold text-[#4A657A] pb-1';
     note.textContent = S.getLang() === 'fr' ? '🕒 Messages effacés automatiquement après 24h' : '🕒 تُمسح الرسائل تلقائياً بعد 24 ساعة';
     box.appendChild(note);
     (data || []).forEach((m) => box.appendChild(S.renderChatMessageEl(m, user.id)));
@@ -619,20 +619,20 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
     box.replaceChildren();
     if (!list.length) {
       const emp = document.createElement('p');
-      emp.className = 'text-center text-xs font-bold text-[#5C6F63] py-4';
+      emp.className = 'text-center text-xs font-bold text-[#4A657A] py-4';
       emp.textContent = isFr ? 'Aucun infirmier trouvé.' : 'لا يوجد ممرضون مطابقون حالياً.';
       box.appendChild(emp);
       return;
     }
     list.forEach((n) => {
       const c = document.createElement('div');
-      c.className = 'rounded-2xl border border-[#DFD5C5] bg-white p-3.5 space-y-2';
+      c.className = 'rounded-2xl border border-[#CFE3F5] bg-white p-3.5 space-y-2';
       const nm = document.createElement('p');
-      nm.className = 'text-sm font-black text-[#163024]';
+      nm.className = 'text-sm font-black text-[#0B2538]';
       nm.textContent = `${n.full_name || 'ممرض'} • ${n.region ? S.formatGovLabel(n.region) : 'تونس'}` + (n.city_zip ? ` (${n.city_zip})` : '');
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] px-3 py-2 text-xs font-black text-white';
+      btn.className = 'tap-btn w-full rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white';
       btn.textContent = isFr ? '📋 Demander une visite' : '📋 طلب زيارة';
       btn.addEventListener('click', () => sendNurseReq('direct', n.user_id, n.full_name));
       c.append(nm, btn);
@@ -643,7 +643,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
   async function sendNurseReq(mode, nurseUid, nurseName) {
     const st = $('fnStatus');
     const isFr = S.getLang() === 'fr';
-    st.className = 'rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0E5A3E]';
+    st.className = 'rounded-2xl border border-emerald-400 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0A4D68]';
     st.textContent = isFr ? '⏳ Envoi de la demande...' : '⏳ جاري إرسال الطلب...';
     st.classList.remove('hidden');
     st.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -701,9 +701,9 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
         syncS();
         const cmt = document.createElement('input');
         cmt.type = 'text'; cmt.placeholder = 'ملاحظة أو تقييم مختصر (اختياري)...';
-        cmt.className = 'w-full rounded-xl border border-[#D8CEBE] bg-white px-3 py-2 text-xs font-bold';
+        cmt.className = 'w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-xs font-bold';
         const sub = document.createElement('button');
-        sub.type = 'button'; sub.className = 'tap-btn w-full rounded-xl bg-[#0E5A3E] py-2 text-xs font-black text-white';
+        sub.type = 'button'; sub.className = 'tap-btn w-full rounded-xl bg-[#0A4D68] py-2 text-xs font-black text-white';
         sub.textContent = '⭐ إرسال التقييم وفتح الطلب الجديد';
         sub.addEventListener('click', async () => {
           sub.disabled = true; sub.textContent = '⏳ جاري الحفظ...';
