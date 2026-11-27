@@ -564,6 +564,7 @@
   let appts = [];
   let takenMap = new Map();
   let alertedMedKeys = new Set();
+  let preAlertedMedKeys = new Set();
   let alertedApptIds = new Set();
   const WATER_SLOTS = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
   function getWaterSlotInfo() {
@@ -2156,7 +2157,8 @@
     const freq = Number($('newMedFreq').value || 1);
     const times = freq === 2 ? ['08:00', '20:00'] : (freq === 3 ? ['08:00', '14:00', '20:00'] : (freq === 4 ? ['08:00', '12:00', '16:00', '20:00'] : [$('newMedTime').value || '08:00']));
     const rows = times.map((t, i) => ({ senior_id: seniorId, name: times.length > 1 ? `${nm} (${i + 1}/${times.length})` : nm, dosage: t }));
-    await S.client.from('medications').insert(rows);
+    const { error: medErr } = await S.client.from('medications').insert(rows);
+    if (medErr) { alert('⚠️ ' + medErr.message); return; }
     $('newMedName').value = '';
     loadMeds();
   });
@@ -2329,7 +2331,7 @@
         const url = c.toDataURL('image/jpeg', 0.72);
         seniorProfile.avatar_url = url;
         renderSeniorHeader();
-        await S.client.from('senior_profiles').update({ avatar_url: url }).eq('id', seniorId);
+        const { error: avErr } = await S.client.from('senior_profiles').update({ avatar_url: url }).eq('id', seniorId); if (avErr) alert('⚠️ ' + avErr.message);
       };
       img.src = String(r.result || '');
     };
@@ -2354,7 +2356,7 @@
         $('homeGpsTxt').textContent = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
         $('homeGpsTxt').className = 'text-xs font-black text-emerald-700';
         if ($('profSaveErr')) $('profSaveErr').classList.add('hidden');
-        if (seniorId) await S.client.from('senior_profiles').update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude }).eq('id', seniorId);
+        if (seniorId) { const { error: gpErr } = await S.client.from('senior_profiles').update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude }).eq('id', seniorId); if (gpErr && $('profSaveErr')) { $('profSaveErr').textContent = '⚠️ ' + gpErr.message; $('profSaveErr').classList.remove('hidden'); } }
       },
       () => {
         $('homeGpsTxt').textContent = isFr ? '⚠️ Activez le GPS du téléphone !' : '⚠️ تعذر تحديد الموقع: فعّل الـ GPS في الهاتف!';
@@ -2368,7 +2370,7 @@
     const isFr = S.getLang() === 'fr';
     const errEl = $('profSaveErr');
     const showProfErr = (msg) => {
-      if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); try { errEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {} }
     };
     if (errEl) errEl.classList.add('hidden');
     const rawPh = ($('pPhone').value || '').trim().replace(/[^\d+]/g, '');
@@ -2437,7 +2439,7 @@
     let updErr = null;
     if (seniorId) {
       const res = await S.client.from('senior_profiles').update(patch).eq('id', seniorId).select('*').maybeSingle();
-      updErr = res.error;
+      updErr = res.error || (!res.data ? new Error('لم يُحفظ — تحقق من صلاحيات جدول senior_profiles (RLS)') : null);
       if (!updErr && res.data) seniorProfile = res.data;
     } else if (user) {
       const reg = 'CG-' + Math.random().toString(36).slice(2, 8).toUpperCase();
