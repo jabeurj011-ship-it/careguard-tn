@@ -1681,18 +1681,25 @@
     st.textContent = error ? ('⚠️ ' + error.message) : '✅ تم إرسال طلب الزيارة بنجاح!';
   }
 
-  // My Requests Modal
-  async function loadMyReqs() {
-    const { data: rows } = await S.client.from('nurse_visit_requests').select('*').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(30);
-    const compIds = (rows || []).filter((r) => r.status === 'completed').map((r) => r.id);
-    const revMap = new Map();
-    if (compIds.length) {
-      const { data: revs } = await S.client.from('nurse_reviews').select('visit_request_id, rating').in('visit_request_id', compIds);
-      (revs || []).forEach((rv) => revMap.set(rv.visit_request_id, rv.rating));
-    }
-    const items = (rows || []).filter((r) => mrTab === 'active' ? (r.status === 'open' || r.status === 'pending') : (mrTab === 'accepted' ? r.status === 'accepted' : (r.status === 'completed' || r.status === 'declined')));
+  // My Requests Modal (instant tab switch + background refresh)
+  let cachedMrRows = [];
+  let cachedMrRevMap = new Map();
+  let mrLoadedOnce = false;
+
+  function syncMrTabs() {
+    const on = 'rounded-xl bg-[#0A4D68] px-2 py-2 text-xs font-black text-white';
+    const off = 'rounded-xl px-2 py-2 text-xs font-black text-[#334E63]';
+    if ($('mrTabAct')) $('mrTabAct').className = mrTab === 'active' ? on : off;
+    if ($('mrTabAcc')) $('mrTabAcc').className = mrTab === 'accepted' ? on : off;
+    if ($('mrTabHist')) $('mrTabHist').className = mrTab === 'history' ? on : off;
+  }
+
+  function renderMyReqs() {
+    syncMrTabs();
     const box = $('mrList'); box.replaceChildren();
+    const items = cachedMrRows.filter((r) => mrTab === 'active' ? (r.status === 'open' || r.status === 'pending') : (mrTab === 'accepted' ? r.status === 'accepted' : (r.status === 'completed' || r.status === 'declined')));
     if (!items.length) { box.textContent = 'لا توجد طلبات هنا حالياً.'; return; }
+    const revMap = cachedMrRevMap;
     const fmtT = (iso) => iso ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     items.forEach((r) => {
       const c = document.createElement('div'); c.className = 'rounded-2xl border border-[#CFE3F5] bg-white p-3.5 space-y-1.5';
@@ -1730,6 +1737,24 @@
       }
       box.appendChild(c);
     });
+  }
+
+  async function loadMyReqs() {
+    syncMrTabs();
+    const box = $('mrList');
+    if (mrLoadedOnce) renderMyReqs();
+    else { box.textContent = '⏳ جاري التحميل...'; }
+    const { data: rows } = await S.client.from('nurse_visit_requests').select('*').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(30);
+    cachedMrRows = rows || [];
+    const compIds = cachedMrRows.filter((r) => r.status === 'completed').map((r) => r.id);
+    const revMap = new Map();
+    if (compIds.length) {
+      const { data: revs } = await S.client.from('nurse_reviews').select('visit_request_id, rating').in('visit_request_id', compIds);
+      (revs || []).forEach((rv) => revMap.set(rv.visit_request_id, rv.rating));
+    }
+    cachedMrRevMap = revMap;
+    mrLoadedOnce = true;
+    renderMyReqs();
   }
 
   // Direct Messages
@@ -1797,9 +1822,9 @@
   $('fnBroadcastBtn').addEventListener('click', () => sendVisitReq('open', null, null));
   $('openMyReqsBtn').addEventListener('click', () => { $('myReqsModal').classList.remove('hidden'); loadMyReqs(); });
   $('closeMyReqsBtn').addEventListener('click', () => $('myReqsModal').classList.add('hidden'));
-  $('mrTabAct').addEventListener('click', () => { mrTab = 'active'; loadMyReqs(); });
-  $('mrTabAcc').addEventListener('click', () => { mrTab = 'accepted'; loadMyReqs(); });
-  $('mrTabHist').addEventListener('click', () => { mrTab = 'history'; loadMyReqs(); });
+  $('mrTabAct').addEventListener('click', () => { mrTab = 'active'; renderMyReqs(); });
+  $('mrTabAcc').addEventListener('click', () => { mrTab = 'accepted'; renderMyReqs(); });
+  $('mrTabHist').addEventListener('click', () => { mrTab = 'history'; renderMyReqs(); });
   $('chFamBtn').addEventListener('click', () => { dmChannel = 'family'; $('chFamBtn').className = 'rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white'; $('chNurseBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#334E63]'; loadDirectMessages(); });
   $('chNurseBtn').addEventListener('click', () => { dmChannel = 'nurse'; $('chNurseBtn').className = 'rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white'; $('chFamBtn').className = 'rounded-xl px-3 py-2 text-xs font-black text-[#334E63]'; loadDirectMessages(); });
 
