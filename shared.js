@@ -402,9 +402,18 @@
     } catch (_) {}
   }
 
-  // Arabic / French TTS
+  // Arabic / French TTS (Native Android TTS in APK + Web Speech in browser)
   function speakText(text) {
-    if (!('speechSynthesis' in window) || !text) return;
+    if (!text) return;
+    try {
+      const Cap = window.Capacitor;
+      const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+      if (NA && typeof NA.speak === 'function') {
+        NA.speak({ text: String(text), lang: getLang() }).catch(() => {});
+        return;
+      }
+    } catch (_) {}
+    if (!('speechSynthesis' in window)) return;
     try {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
