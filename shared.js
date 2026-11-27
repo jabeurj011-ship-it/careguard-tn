@@ -415,7 +415,12 @@
     } catch (_) {}
     if (!('speechSynthesis' in window)) return;
     try {
-      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+      }
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
       const u = new SpeechSynthesisUtterance(text);
       const isFr = getLang() === 'fr';
       const want = isFr ? 'fr' : 'ar';
