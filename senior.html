@@ -2048,7 +2048,7 @@
   if ($('waterDueTakeBtn')) $('waterDueTakeBtn').addEventListener('click', confirmWaterGlass);
 
   $('testVoiceBtn').addEventListener('click', () => {
-    S.playStrongRingtone();
+    S.stopRingtone();
     S.speakText(S.getLang() === 'fr'
       ? 'Bonjour de SoinsDar : il est temps de prendre votre médicament, vérifier votre rendez-vous avec le médecin, ou recharger la batterie.'
       : 'مرحباً من سوان دار: حان موعد الدواء، لديك موعد مع الطبيب، أو البطارية تحتاج شحن.');
