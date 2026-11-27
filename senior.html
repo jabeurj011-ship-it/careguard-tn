@@ -23,6 +23,7 @@
     <div class="flex items-center justify-between gap-1.5">
       <div class="flex items-center gap-1.5">
         <button id="openMyReqsBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#B6D8F2] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg><span>طلباتي</span></button>
+        <button id="openEmCardBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-black text-rose-900 shadow-sm">🪪 <span>الإسعاف</span></button>
         <button id="openProfileBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-full border border-[#B6D8F2] bg-white/90 px-2.5 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>بياناتي</span></button>
       </div>
       <button id="langBtn" type="button" class="tap-btn rounded-full border border-[#0A4D68]/30 bg-white/95 px-3 py-1 text-[11px] font-black text-[#0A4D68] shadow-sm">FR</button>
@@ -272,8 +273,9 @@
     </div>
     <div id="dmList" class="cg-card p-3 space-y-2 min-h-[260px] max-h-[55vh] overflow-y-auto"></div>
     <div class="flex gap-2">
-      <button id="dmMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-base font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
-      <input id="dmInput" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <button id="dmMicBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-base font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
+      <button id="dmImgBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-base font-black text-[#0A4D68]" title="إرسال صورة">📷</button>
+      <input id="dmInput" type="text" placeholder="اكتب رسالتك هنا..." class="min-w-0 flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold" />
       <button id="dmSendBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-5 py-2.5 text-sm font-black text-white">إرسال</button>
     </div>
   </section>
@@ -296,6 +298,13 @@
         <span id="fallDetectState" class="rounded-full bg-white px-2.5 py-0.5 text-xs font-black text-orange-900">متوقف</span>
       </button>
       <button id="testFallBtn" type="button" class="tap-btn w-full rounded-2xl border border-orange-300 bg-white px-4 py-2.5 text-xs font-black text-orange-900">⚠️ تجربة تنبيه السقوط (عدّ تنازلي 25 ثانية)</button>
+      <button id="safeZoneBtn" type="button" class="tap-btn flex w-full items-center justify-between rounded-2xl border-2 border-[#B6D8F2] bg-[#F2F8FF] px-4 py-3 text-sm font-black text-[#0A4D68]">
+        <span class="inline-flex items-center gap-2">
+          <svg class="h-4 w-4 shrink-0 text-[#0A4D68]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>
+          <span id="safeZoneLbl">تتبع مغادرة المنزل</span>
+        </span>
+        <span id="safeZoneState" class="rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-black text-white">مفعّل ✓</span>
+      </button>
       <button id="editProfSetBtn" type="button" class="tap-btn w-full rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-base font-extrabold text-[#0B2538]">👤 تحديث معلومات المسنّ والصورة</button>
       <button id="exportReportBtn" type="button" class="tap-btn w-full rounded-2xl border border-emerald-300 bg-[#E8F4FD] px-4 py-3 text-base font-extrabold text-[#0A4D68]">📥 تصدير التقرير الصحي (PDF / HTML)</button>
       <div class="grid grid-cols-2 gap-2 pt-1">
@@ -303,9 +312,18 @@
         <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-3 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <button id="srGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">❓ طريقة استعمال التطبيق (دليل المسنّ)</button>
-        <button id="srFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">📩 مراسلة / إبلاغ</button>
-        <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">🛡️ الخصوصية</a>
+        <button id="srGuideBtn" type="button" class="tap-btn col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>طريقة استعمال التطبيق (دليل المسنّ)</span>
+        </button>
+        <button id="srFeedbackBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>مراسلة / إبلاغ</span>
+        </button>
+        <a href="./privacy.html" class="tap-btn flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">
+          <svg class="h-4 w-4 shrink-0 text-[#0A4D68]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>الخصوصية</span>
+        </a>
       </div>
       <button id="deleteAccountBtn" type="button" class="tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800">🗑️ حذف بياناتي وحسابي نهائياً</button>
     </div>
@@ -425,6 +443,10 @@
       <button id="closeSosBtn" type="button" class="rounded-xl px-3 py-1 text-xl font-black text-slate-600">✕</button>
     </div>
     <button id="sendSosBtn" type="button" class="tap-btn w-full rounded-2xl bg-rose-600 px-4 py-4 text-lg font-black text-white shadow-md">🚨 إرسال استغاثة SOS مع موقعي للعائلة والممرض</button>
+    <button id="sendWhatsappSosBtn" type="button" class="tap-btn flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-emerald-500 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-900">
+      <svg class="h-5 w-5 shrink-0 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+      <span id="sendWhatsappSosLbl">إرسال استغاثة عبر واتساب</span>
+    </button>
     <p id="sosMsg" class="hidden text-center text-xs font-black text-rose-900"></p>
     <div class="grid grid-cols-2 gap-2">
       <a href="tel:190" class="tap-btn flex items-center justify-center rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-3 text-sm font-black text-rose-900">🚑 الإسعاف 190</a>
@@ -505,6 +527,21 @@
   </div>
 </div>
 
+
+<!-- Modal: First-Aid Emergency Card -->
+<div id="emCardModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 p-4">
+  <div class="w-full max-w-md rounded-3xl border-2 border-rose-400 bg-white p-5 shadow-2xl space-y-3">
+    <div class="flex items-center justify-between border-b border-rose-100 pb-2.5">
+      <h3 class="text-lg font-black text-rose-900">🪪 بطاقة الإسعافات والطوارئ</h3>
+      <button id="closeEmCardBtn" type="button" class="rounded-xl px-2.5 py-1 text-lg font-black text-slate-600">✕</button>
+    </div>
+    <div id="emCardBody" class="space-y-2 text-sm font-bold text-[#0B2538]"></div>
+    <div class="grid grid-cols-2 gap-2 pt-1">
+      <a href="tel:190" class="tap-btn rounded-2xl bg-rose-700 py-3 text-center text-sm font-black text-white">🚑 SAMU 190</a>
+      <a href="tel:198" class="tap-btn rounded-2xl bg-amber-600 py-3 text-center text-sm font-black text-white">🚒 الحماية 198</a>
+    </div>
+  </div>
+</div>
 <script src="./shared.js"></script>
 <script>
 (function () {
@@ -1663,8 +1700,9 @@
   // Direct Messages
   async function loadDirectMessages() {
     if (!seniorId) return;
-    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const qCh = dmChannel === 'nurse' ? ['nurse'] : ['family'];
+    await S.purgeExpiredChatMessages(seniorId, qCh[0]);
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', seniorId).in('channel', qCh).gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('dmList'); box.replaceChildren();
     const note = document.createElement('p');
@@ -1994,6 +2032,17 @@
     loadMeds();
   });
 
+  if (S.attachImagePicker) {
+    S.attachImagePicker($('dmImgBtn'), async (imgData) => {
+      if (!seniorId || !imgData) return;
+      await S.client.from('care_direct_messages').insert({
+        senior_id: seniorId, sender_user_id: user.id,
+        sender_name: (seniorProfile && seniorProfile.display_name) || 'المسنّ',
+        sender_role: 'senior', channel: dmChannel, message_text: '__IMG__:' + imgData
+      });
+      loadDirectMessages();
+    });
+  }
   S.attachVoiceRecorder($('dmMicBtn'), async (audioData) => {
     if (!seniorId || !audioData) return;
     await S.client.from('care_direct_messages').insert({
@@ -2241,7 +2290,9 @@
     let sec = 25;
     const isFr = S.getLang() === 'fr';
     $('fallModalTitle').textContent = isFr ? 'Chute détectée !' : 'هل سقطت؟';
-    $('fallModalSub').textContent = isFr ? 'Alerte SOS automatique envoyée dans :' : 'سيتم إرسال استغاثة تلقائياً للعائلة والممرض خلال:';
+    $('fallModalSub').textContent = isFr
+      ? 'Aucun message n\'est envoyé si vous annulez avant la fin du décompte :'
+      : 'تأكيد السقوط: لن يُرسل أي تنبيه إذا ضغطت «أنا بخير» قبل انتهاء العد التنازلي:';
     $('cancelFallBtn').textContent = isFr ? '✓ Je vais bien — Annuler' : '✓ أنا بخير — إلغاء الإنذار';
     $('fallCountdownNum').textContent = String(sec);
     $('fallDetectModal').classList.remove('hidden');
@@ -2293,9 +2344,54 @@
   if ($('testFallBtn')) $('testFallBtn').addEventListener('click', startFallCountdown);
   syncFallBtnUI();
 
-  // Note 7: Home Safe-Zone Departure Alert (> 250m from registered home_lat/home_lng)
+  // Note 7: Home Safe-Zone Departure Alert (> 250m from registered home_lat/home_lng) — toggleable (active by default)
+  let safeZoneEnabled = localStorage.getItem('cg_v2_safe_zone') !== '0';
+  function syncSafeZoneUI() {
+    const isFr = S.getLang() === 'fr';
+    if ($('safeZoneLbl')) $('safeZoneLbl').textContent = isFr ? 'Suivi sortie du domicile' : 'تتبع مغادرة المنزل';
+    if ($('safeZoneState')) {
+      $('safeZoneState').textContent = safeZoneEnabled ? (isFr ? 'Actif ✓' : 'مفعّل ✓') : (isFr ? 'Désactivé' : 'متوقف');
+      $('safeZoneState').className = safeZoneEnabled
+        ? 'rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-black text-white'
+        : 'rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-black text-slate-700';
+    }
+  }
+  if ($('safeZoneBtn')) {
+    $('safeZoneBtn').addEventListener('click', () => {
+      safeZoneEnabled = !safeZoneEnabled;
+      try { localStorage.setItem('cg_v2_safe_zone', safeZoneEnabled ? '1' : '0'); } catch (_) {}
+      syncSafeZoneUI();
+    });
+  }
+  syncSafeZoneUI();
+
+  if ($('sendWhatsappSosBtn')) {
+    $('sendWhatsappSosBtn').addEventListener('click', async () => {
+      const isFr = S.getLang() === 'fr';
+      let lat = null, lng = null;
+      if (navigator.geolocation) {
+        await new Promise((res) => {
+          navigator.geolocation.getCurrentPosition(
+            (p) => { lat = p.coords.latitude; lng = p.coords.longitude; res(); },
+            () => res(),
+            { enableHighAccuracy: true, timeout: 4000 }
+          );
+        });
+      }
+      const mapUrl = (lat && lng) ? ` https://www.google.com/maps?q=${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}` : '';
+      const name = (seniorProfile && seniorProfile.display_name) || (isFr ? 'Senior' : 'المسنّ');
+      const txt = isFr
+        ? `🚨 ALERTE SOS SOINSDAR de ${name} — Besoin d'aide immédiate !${mapUrl}`
+        : `🚨 استغاثة عاجلة (SoinsDar) من ${name} — أحتاج إلى مساعدة فورية!${mapUrl}`;
+      const rawPh = (seniorProfile && seniorProfile.emergency_phone) ? String(seniorProfile.emergency_phone).replace(/\D+/g, '') : '';
+      const waPh = rawPh.length === 8 ? '216' + rawPh : rawPh;
+      const waUrl = (waPh ? `https://wa.me/${waPh}` : 'https://wa.me/') + `?text=${encodeURIComponent(txt)}`;
+      window.open(waUrl, '_blank', 'noopener');
+    });
+  }
+
   function checkHomeSafeZone() {
-    if (!seniorId || !seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng || !navigator.geolocation) return;
+    if (!safeZoneEnabled || !seniorId || !seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const dist = S.haversineMeters(pos.coords.latitude, pos.coords.longitude, Number(seniorProfile.home_lat), Number(seniorProfile.home_lng));
       if (dist > 250) {
@@ -2458,6 +2554,39 @@
 
   $('langBtn').addEventListener('click', () => { S.setLang(S.getLang() === 'fr' ? 'ar' : 'fr'); applyTexts(); renderSeniorHeader(); renderMeds(); renderAppts(); });
   $('switchRoleBtn').addEventListener('click', () => { window.location.href = './index.html?choose=1'; });
+  if ($('openEmCardBtn')) {
+    $('openEmCardBtn').addEventListener('click', () => {
+      const p = seniorProfile || {};
+      const isFr = S.getLang() === 'fr';
+      const body = $('emCardBody');
+      body.replaceChildren();
+      const rows = [
+        [isFr ? '👤 Nom' : '👤 الاسم', p.display_name || '—'],
+        [isFr ? '🩸 Groupe sanguin' : '🩸 فصيلة الدم', p.blood_type || '—'],
+        [isFr ? '⚠️ Allergies' : '⚠️ الحساسية', p.allergies || (isFr ? 'Aucune signalée' : 'لا توجد مسجّلة')],
+        [isFr ? '🩺 Maladies' : '🩺 الأمراض المزمنة', p.conditions || '—'],
+        [isFr ? '📍 Adresse' : '📍 العنوان', p.home_address || '—']
+      ];
+      rows.forEach(([k, v]) => {
+        const r = document.createElement('div');
+        r.className = 'rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] px-3 py-2';
+        const kl = document.createElement('span'); kl.className = 'text-xs font-black text-[#0A4D68]'; kl.textContent = k + ': ';
+        const vl = document.createElement('span'); vl.className = 'text-sm font-black text-[#0B2538]'; vl.textContent = v;
+        r.append(kl, vl);
+        body.appendChild(r);
+      });
+      if (p.emergency_phone) {
+        const ca = document.createElement('a');
+        ca.href = S.safeTelHref ? S.safeTelHref(p.emergency_phone) : ('tel:' + p.emergency_phone);
+        ca.className = 'tap-btn block w-full rounded-2xl bg-[#0A4D68] py-3 text-center text-sm font-black text-white';
+        ca.textContent = (isFr ? '📞 Appeler proche: ' : '📞 اتصال طوارئ بالعائلة: ') + p.emergency_phone;
+        body.appendChild(ca);
+      }
+      $('emCardModal').classList.remove('hidden');
+    });
+  }
+  if ($('closeEmCardBtn')) $('closeEmCardBtn').addEventListener('click', () => $('emCardModal').classList.add('hidden'));
+
   $('signOutBtn').addEventListener('click', S.signOut);
   if ($('srGuideBtn')) $('srGuideBtn').addEventListener('click', () => S.showOnboardingModal && S.showOnboardingModal('senior', user && user.id, true));
   if ($('srFeedbackBtn')) $('srFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'senior', (seniorProfile && seniorProfile.display_name) || 'المسنّ'));

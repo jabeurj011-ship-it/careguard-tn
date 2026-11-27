@@ -45,6 +45,10 @@
 
   <!-- TAB 1: MY LINKED SENIORS -->
   <section id="secHome" class="space-y-3.5">
+    <div id="tnClockBanner" class="flex items-center justify-between rounded-2xl border border-[#CFE3F5] bg-white px-3.5 py-2 text-xs font-black text-[#0A4D68] shadow-sm">
+      <span>🇹🇳 بتوقيت تونس الآن</span>
+      <span id="tnClockVal" dir="ltr" class="rounded-lg bg-[#E8F4FD] px-2.5 py-0.5 text-sm font-black text-[#0B2538]">--:--</span>
+    </div>
     <div class="cg-card p-4 space-y-2.5">
       <div class="flex items-center justify-between">
         <p id="linkTitle" class="text-sm font-black text-[#0A4D68]">🔗 ربط المسنّ عبر الرمز (CG-...)</p>
@@ -113,9 +117,18 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2.5">
-      <button id="famGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">❓ طريقة استعمال التطبيق (دليل العائلة)</button>
-      <button id="famFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">📩 مراسلة / إبلاغ</button>
-      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">🛡️ الخصوصية</a>
+      <button id="famGuideBtn" type="button" class="tap-btn col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>طريقة استعمال التطبيق (دليل العائلة)</span>
+      </button>
+      <button id="famFeedbackBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>مراسلة / إبلاغ</span>
+      </button>
+      <a href="./privacy.html" class="tap-btn flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">
+        <svg class="h-4 w-4 shrink-0 text-[#0A4D68]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>الخصوصية</span>
+      </a>
     </div>
     <div class="grid grid-cols-2 gap-2.5">
       <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-xs font-black text-[#0B2538]">🔄 تغيير الدور</button>
@@ -176,8 +189,9 @@
     </div>
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
-      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
-      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ أو الممرض..." class="flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
+      <button id="chatMicBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-2 text-sm font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
+      <button id="chatImgBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-2 text-sm font-black text-[#0A4D68]" title="إرسال صورة">📷</button>
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ أو الممرض..." class="min-w-0 flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
   </div>
@@ -592,6 +606,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
 
   async function loadChat() {
     if (!chatSeniorId) return;
+    await S.purgeExpiredChatMessages(chatSeniorId, 'family');
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'family').gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
@@ -796,6 +811,28 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
     if (!error) { $('linkCodeInput').value = ''; loadFamilyData(); }
   });
 
+  if (S.attachImagePicker) {
+    S.attachImagePicker($('chatImgBtn'), async (imgData) => {
+      if (!chatSeniorId || !imgData) return;
+      await S.client.from('care_direct_messages').insert({
+        senior_id: chatSeniorId,
+        sender_user_id: user.id,
+        sender_name: (user.user_metadata && user.user_metadata.full_name) || 'العائلة',
+        sender_role: 'family',
+        channel: 'family',
+        message_text: '__IMG__:' + imgData
+      });
+      loadChat();
+    });
+  }
+  const updateTnClock = () => {
+    try {
+      const el = $('tnClockVal');
+      if (el) el.textContent = new Date().toLocaleTimeString('fr-TN', { timeZone: 'Africa/Tunis', hour: '2-digit', minute: '2-digit' });
+    } catch (_) {}
+  };
+  updateTnClock();
+  setInterval(updateTnClock, 30000);
   S.attachVoiceRecorder($('chatMicBtn'), async (audioData) => {
     if (!chatSeniorId || !audioData) return;
     await S.client.from('care_direct_messages').insert({

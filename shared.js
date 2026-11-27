@@ -560,6 +560,59 @@
     });
   }
 
+  function formatChatTimestamp(iso) {
+    if (!iso) return '';
+    try {
+      const dt = new Date(iso);
+      const isFr = getLang() === 'fr';
+      const locale = isFr ? 'fr-TN' : 'ar-TN';
+      const dayPart = dt.toLocaleDateString(locale, { weekday: 'long', day: '2-digit', month: '2-digit' });
+      const timePart = dt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+      return `${dayPart} • ${timePart}`;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  async function purgeExpiredChatMessages(seniorId, channel) {
+    if (!seniorId) return;
+    try {
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      let q = sbClient.from('care_direct_messages').delete().eq('senior_id', seniorId).lt('created_at', cutoff);
+      if (channel) q = q.eq('channel', channel);
+      await q;
+    } catch (_) {}
+  }
+
+  let fcmInitialized = false;
+  async function initNativeFcm(userId, role) {
+    if (fcmInitialized || !userId) return;
+    try {
+      const Cap = window.Capacitor;
+      const PN = Cap && Cap.Plugins && Cap.Plugins.PushNotifications;
+      if (!Cap || !Cap.isNativePlatform || !Cap.isNativePlatform() || !PN) return;
+      fcmInitialized = true;
+      const perm = await PN.checkPermissions();
+      if (perm.receive !== 'granted') {
+        const req = await PN.requestPermissions();
+        if (req.receive !== 'granted') return;
+      }
+      PN.addListener('registration', async (token) => {
+        if (!token || !token.value) return;
+        try {
+          await sbClient.from('fcm_tokens').upsert({
+            user_id: userId,
+            role: role || getRole() || 'family',
+            token: token.value,
+            platform: 'android',
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id,token' });
+        } catch (_) {}
+      });
+      await PN.register();
+    } catch (_) {}
+  }
+
   function renderChatMessageEl(m, myUid) {
     const mine = m.sender_user_id === myUid;
     const d = document.createElement('div');
@@ -573,11 +626,33 @@
       : (m.sender_role === 'family' ? (isFr ? '👨‍👩‍👧 Famille' : '👨‍👩‍👧 العائلة')
       : (m.sender_role === 'senior' ? (isFr ? '👴 Senior' : '👴 المسنّ') : ''));
     const nm = document.createElement('span'); nm.textContent = (m.sender_name || '') + (roleTag ? ` (${roleTag})` : '');
+    if (m.created_at && (Date.now() - new Date(m.created_at).getTime() > 24 * 60 * 60 * 1000)) {
+      const exp = document.createElement('div'); exp.className = 'hidden'; return exp;
+    }
     const tm = document.createElement('span'); tm.className = 'text-[#4A657A]';
-    tm.textContent = m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    tm.textContent = formatChatTimestamp(m.created_at);
     hdr.append(nm, tm);
     d.appendChild(hdr);
-    if (m.message_text) {
+    if (m.message_text && String(m.message_text).startsWith('__IMG__:')) {
+      const imgUrl = String(m.message_text).slice(8);
+      if (/^data:image\/(png|jpeg|jpg|webp);base64,/i.test(imgUrl)) {
+        const im = document.createElement('img');
+        im.src = imgUrl;
+        im.alt = 'صورة';
+        im.className = 'max-h-56 w-auto rounded-xl border border-[#CFE3F5] object-contain bg-white cursor-pointer';
+        im.addEventListener('click', () => {
+          const ov = document.createElement('div');
+          ov.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 p-4';
+          const big = document.createElement('img');
+          big.src = imgUrl;
+          big.className = 'max-h-[85vh] max-w-full rounded-2xl shadow-2xl';
+          ov.appendChild(big);
+          ov.addEventListener('click', () => ov.remove());
+          document.body.appendChild(ov);
+        });
+        d.appendChild(im);
+      }
+    } else if (m.message_text) {
       const p = document.createElement('p'); p.className = 'text-xs font-bold break-words';
       p.textContent = m.message_text;
       d.appendChild(p);
@@ -788,6 +863,37 @@
     document.body.appendChild(wrap);
   }
 
+  function attachImagePicker(btnEl, onPicked) {
+    if (!btnEl) return;
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/*';
+    inp.className = 'sr-only';
+    document.body.appendChild(inp);
+    btnEl.addEventListener('click', () => inp.click());
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0];
+      inp.value = '';
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          const maxD = 720;
+          const sc = Math.min(1, maxD / Math.max(im.width || 1, im.height || 1));
+          const w = Math.max(1, Math.round(im.width * sc));
+          const h = Math.max(1, Math.round(im.height * sc));
+          const cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          cv.getContext('2d').drawImage(im, 0, 0, w, h);
+          if (onPicked) onPicked(cv.toDataURL('image/jpeg', 0.72));
+        };
+        im.src = String(r.result || '');
+      };
+      r.readAsDataURL(f);
+    });
+  }
+
   window.CG_SHARED = {
     CONFIG,
     $,
@@ -819,6 +925,10 @@
     normGov,
     formatGovLabel,
     openFeedbackModal,
-    showOnboardingModal
+    showOnboardingModal,
+    attachImagePicker,
+    formatChatTimestamp,
+    purgeExpiredChatMessages,
+    initNativeFcm
   };
 })();

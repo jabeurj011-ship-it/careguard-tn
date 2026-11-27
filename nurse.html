@@ -38,29 +38,72 @@
   <!-- Block / Suspension Warning Banner -->
   <div id="blockWarnBox" class="hidden rounded-2xl border-2 border-rose-400 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900"></div>
 
-  <!-- TAB 1: VISIT REQUESTS (UBER + DIRECT + GOOGLE MAPS) -->
-  <section id="secRequests" class="hidden space-y-3">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 id="reqHeading" class="text-lg font-black text-[#0A4D68]">🩺 طلبات الزيارة</h2>
-        <p id="reqSub" class="text-xs font-bold text-[#4A657A]">اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps</p>
+  <!-- FLOATING MODAL: VISIT REQUESTS (MANDATORY GPS GATE + GOOGLE MAPS) -->
+  <div id="reqFloatingModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/65 backdrop-blur-sm p-3">
+    <div id="secRequests" class="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-[#CFE3F5] bg-[#F2F8FF] p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0A4D68] text-white shadow-sm">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg>
+          </div>
+          <div class="min-w-0">
+            <h2 id="reqHeading" class="truncate text-base font-black text-[#0A4D68]">الطلبات المتوفرة</h2>
+            <p id="reqSub" class="truncate text-[11px] font-bold text-[#4A657A]">يتطلب تفعيل GPS لمشاهدة الطلبات القريبة</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="refreshReqBtn" type="button" class="tap-btn inline-flex items-center gap-1 rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-1.5 text-xs font-black text-[#0A4D68]"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 11-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>تحديث</span></button>
+          <button id="closeReqModalBtn" type="button" aria-label="Close" class="tap-btn flex h-8 w-8 items-center justify-center rounded-xl border border-[#C2DBF0] bg-white text-sm font-black text-[#0B2538]">✕</button>
+        </div>
       </div>
-      <button id="refreshReqBtn" type="button" class="tap-btn inline-flex items-center gap-1.5 rounded-xl border border-[#C2DBF0] bg-white px-3 py-1.5 text-xs font-black text-[#0A4D68]"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ><path d="M21 12a9 9 0 11-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>تحديث</span></button>
-    </div>
 
-    <div class="grid grid-cols-3 gap-1.5 rounded-2xl bg-[#E3EFFB] p-1">
-      <button id="subTabNew" type="button" class="rounded-xl bg-[#0A4D68] px-2 py-2 text-xs font-black text-white">🔔 الجديدة (<span id="cntNew">0</span>)</button>
-      <button id="subTabAcc" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">✅ المقبولة (<span id="cntAcc">0</span>)</button>
-      <button id="subTabHist" type="button" class="rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">📋 السجل</button>
-    </div>
+      <div class="grid grid-cols-3 gap-1.5 rounded-2xl bg-[#E3EFFB] p-1">
+        <button id="subTabNew" type="button" class="inline-flex items-center justify-center gap-1 rounded-xl bg-[#0A4D68] px-2 py-2 text-xs font-black text-white">
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span>الجديدة (<span id="cntNew">0</span>)</span>
+        </button>
+        <button id="subTabAcc" type="button" class="inline-flex items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>المقبولة (<span id="cntAcc">0</span>)</span>
+        </button>
+        <button id="subTabHist" type="button" class="inline-flex items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-black text-[#334E63]">
+          <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>السجل</span>
+        </button>
+      </div>
 
-    <div id="reqStatusMsg" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
-    <div id="reqList" class="space-y-2.5"></div>
-  </section>
+      <div class="flex items-center justify-between gap-2 rounded-2xl border border-[#CFE3F5] bg-white px-3 py-2">
+        <span class="inline-flex items-center gap-1.5 text-xs font-black text-[#0A4D68]">
+          <svg class="h-4 w-4 text-[#0EA5E9]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>نطاق الطلبات:</span>
+        </span>
+        <select id="radiusFilterSel" class="rounded-xl border border-[#C2DBF0] bg-[#F2F8FF] px-2.5 py-1 text-xs font-black text-[#0B2538]">
+          <option value="5000">5 كم</option>
+          <option value="10000">10 كم</option>
+          <option value="20000">20 كم</option>
+          <option value="0">كل الولاية</option>
+        </select>
+      </div>
+      <div id="reqStatusMsg" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
+      <div id="reqList" class="space-y-2.5"></div>
+    </div>
+  </div>
 
   <!-- TAB 1 (HOME): NURSE SUMMARY CARD + PATIENT DATA TABLE -->
   <section id="secPatients" class="space-y-3.5">
     <div id="nurseHomeProfileCard" class="rounded-[24px] border border-[#CFE3F5] bg-white p-4 shadow-sm"></div>
+    <button id="openReqsCardBtn" type="button" class="tap-btn flex w-full items-center justify-between gap-3 rounded-[22px] bg-[#0A4D68] p-4 text-white shadow-md">
+      <div class="flex items-center gap-3 text-start">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+          <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4v5a4.5 4.5 0 009 0V4"/><path d="M9 13.5V16a5 5 0 0010 0v-2.5"/><circle cx="19" cy="11.5" r="2"/></svg>
+        </div>
+        <div>
+          <p id="openReqsCardTitle" class="text-sm font-black">الطلبات المتوفرة الآن</p>
+          <p id="openReqsCardSub" class="text-[11px] font-bold text-sky-100">اضغط لفتح نافذة الطلبات الجديدة (يتطلب تفعيل GPS)</p>
+        </div>
+      </div>
+      <span id="homeReqCntBadge" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded-full bg-white px-2.5 text-sm font-black text-[#0A4D68]">0</span>
+    </button>
     <div id="patientsTableWrap" class="hidden cg-card p-3.5 space-y-2 overflow-x-auto"></div>
     <div class="cg-card p-4 space-y-2.5">
       <p id="linkTitle" class="text-sm font-black text-[#0A4D68]">🔗 ربط مسنّ عبر الرمز (CG-...)</p>
@@ -133,12 +176,11 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3">
-        <button id="setGpsBtn" type="button" class="tap-btn rounded-xl border border-[#0A4D68] bg-white px-3 py-2 text-xs font-black text-[#0A4D68]">📍 تحديد موقع العمل GPS</button>
+        <button id="setGpsBtn" type="button" class="tap-btn inline-flex items-center gap-1.5 rounded-xl border border-[#0A4D68] bg-white px-3 py-2 text-xs font-black text-[#0A4D68]">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>تحديد موقع العمل GPS</span>
+        </button>
         <span id="gpsStatus" class="text-xs font-bold text-[#4A657A]"></span>
-        <label class="flex items-center gap-2 text-xs font-black text-[#0A4D68]">
-          <input id="npAvailNow" type="checkbox" checked class="h-4 w-4 accent-[#0A4D68]" />
-          <span id="availLbl">🟢 متاح الآن</span>
-        </label>
       </div>
 
       <label class="flex items-start gap-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-2.5 text-[11px] font-bold text-[#0B2538]">
@@ -151,13 +193,28 @@
     </div>
 
     <div class="grid grid-cols-2 gap-2.5">
-      <button id="nrGuideBtn" type="button" class="tap-btn col-span-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">❓ طريقة استعمال التطبيق (دليل الممرض)</button>
-      <button id="nrFeedbackBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">📩 مراسلة / إبلاغ</button>
-      <a href="./privacy.html" class="tap-btn flex items-center justify-center rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">🛡️ الخصوصية</a>
+      <button id="nrGuideBtn" type="button" class="tap-btn col-span-2 inline-flex items-center justify-center gap-2 rounded-2xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>طريقة استعمال التطبيق (دليل الممرض)</span>
+      </button>
+      <button id="nrFeedbackBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0A4D68]">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>مراسلة / إبلاغ</span>
+      </button>
+      <a href="./privacy.html" class="tap-btn flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-[#F2F8FF] px-3 py-2.5 text-xs font-black text-[#0B2538]">
+        <svg class="h-4 w-4 shrink-0 text-[#0A4D68]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>الخصوصية</span>
+      </a>
     </div>
     <div class="grid grid-cols-2 gap-2.5">
-      <button id="switchRoleBtn" type="button" class="tap-btn rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-xs font-black text-[#0B2538]">🔄 تغيير الدور</button>
-      <button id="signOutBtn" type="button" class="tap-btn rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">🚪 تسجيل الخروج</button>
+      <button id="switchRoleBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-2xl border border-[#C2DBF0] bg-white px-4 py-3 text-xs font-black text-[#0B2538]">
+        <svg class="h-4 w-4 shrink-0 text-[#0A4D68]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+        <span>تغيير الدور</span>
+      </button>
+      <button id="signOutBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-2xl border border-rose-300 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>تسجيل الخروج</span>
+      </button>
     </div>
   </section>
 </main>
@@ -214,8 +271,9 @@
     </div>
     <div id="chatMessages" class="my-3 flex-1 space-y-2 overflow-y-auto min-h-[200px]"></div>
     <div class="flex gap-2">
-      <button id="chatMicBtn" type="button" class="tap-btn rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
-      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ والعائلة..." class="flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
+      <button id="chatMicBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-2 text-sm font-black text-[#0A4D68]" title="رسالة صوتية">🎤</button>
+      <button id="chatImgBtn" type="button" class="tap-btn shrink-0 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-2 text-sm font-black text-[#0A4D68]" title="إرسال صورة">📷</button>
+      <input id="chatInput" type="text" placeholder="اكتب رسالة للمسنّ والعائلة..." class="min-w-0 flex-1 rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-sm font-bold" />
       <button id="chatSendBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">إرسال</button>
     </div>
   </div>
@@ -301,14 +359,67 @@
   let liveLat = null, liveLng = null;
   let chatSeniorId = null;
 
+  let reqGpsVerified = false;
+  let reqGpsChecking = false;
+  let reqGpsError = '';
+
+  function openRequestsModal() {
+    $('reqFloatingModal').classList.remove('hidden');
+    $('navRequests').className = 'flex flex-col items-center gap-0.5 text-[#0A4D68]';
+    verifyGpsForRequests();
+  }
+
+  function closeRequestsModal() {
+    $('reqFloatingModal').classList.add('hidden');
+    const onProf = !$('secProfile').classList.contains('hidden');
+    $('navRequests').className = 'flex flex-col items-center gap-0.5 text-[#4A657A]';
+    $('navPatients').className = 'flex flex-col items-center gap-0.5 ' + (!onProf ? 'text-[#0A4D68]' : 'text-[#4A657A]');
+  }
+
+  async function verifyGpsForRequests() {
+    reqGpsChecking = true;
+    reqGpsError = '';
+    renderRequests();
+    if (!navigator.geolocation) {
+      reqGpsChecking = false;
+      reqGpsVerified = false;
+      reqGpsError = S.getLang() === 'fr' ? 'GPS non pris en charge sur cet appareil.' : 'جهازك لا يدعم خدمة تحديد الموقع (GPS).';
+      renderRequests();
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        reqGpsChecking = false;
+        reqGpsVerified = true;
+        reqGpsError = '';
+        if ($('gpsStatus')) {
+          $('gpsStatus').dataset.lat = String(pos.coords.latitude);
+          $('gpsStatus').dataset.lng = String(pos.coords.longitude);
+        }
+        loadRequests();
+      },
+      () => {
+        reqGpsChecking = false;
+        reqGpsVerified = false;
+        reqGpsError = S.getLang() === 'fr'
+          ? 'Veuillez activer le GPS / Localisation pour voir les demandes.'
+          : 'يجب تفعيل خدمة الموقع (GPS) على هاتفك أولاً لمشاهدة الطلبات المتوفرة.';
+        renderRequests();
+      },
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 15000 }
+    );
+  }
+
   function switchMainTab(tab) {
-    $('secRequests').classList.toggle('hidden', tab !== 'requests');
+    if (tab === 'requests') {
+      openRequestsModal();
+      return;
+    }
+    closeRequestsModal();
     $('secPatients').classList.toggle('hidden', tab !== 'patients');
     $('secProfile').classList.toggle('hidden', tab !== 'profile');
-    $('navRequests').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'requests' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     $('navPatients').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'patients' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     $('navProfile').className = 'flex flex-col items-center gap-0.5 ' + (tab === 'profile' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
-    if (tab === 'requests') loadRequests();
     if (tab === 'patients') loadPatients();
     if (tab === 'profile') loadNurseProfile();
   }
@@ -318,8 +429,10 @@
     $('langBtn').textContent = isFr ? 'عربي' : 'FR';
     $('hdrTitle').textContent = isFr ? 'Espace Infirmier' : 'فضاء الممرض';
     $('hdrSub').textContent = isFr ? 'SOINSDAR • La maison du bien-être' : 'SOINSDAR • رعايتهم تجمعنا';
-    $('reqHeading').textContent = isFr ? '🩺 Demandes de visite' : '🩺 طلبات الزيارة';
-    $('reqSub').textContent = isFr ? 'Acceptez vite et suivez Google Maps' : 'اقبل الطلب بسرعة واحصل على التوجيه عبر Google Maps';
+    $('reqHeading').textContent = isFr ? 'Demandes disponibles' : 'الطلبات المتوفرة';
+    $('reqSub').textContent = isFr ? 'GPS requis pour afficher les demandes proches' : 'يتطلب تفعيل GPS لمشاهدة الطلبات القريبة';
+    if ($('openReqsCardTitle')) $('openReqsCardTitle').textContent = isFr ? 'Demandes disponibles maintenant' : 'الطلبات المتوفرة الآن';
+    if ($('openReqsCardSub')) $('openReqsCardSub').textContent = isFr ? 'Appuyez pour ouvrir les nouvelles demandes (GPS requis)' : 'اضغط لفتح نافذة الطلبات الجديدة (يتطلب تفعيل GPS)';
     $('navReqLbl').textContent = isFr ? 'Demandes' : 'الطلبات';
     $('navPatLbl').textContent = isFr ? 'Accueil' : 'الرئيسية';
     if ($('linkTitle')) $('linkTitle').textContent = isFr ? '🔗 Lier un patient par code (CG-...)' : '🔗 ربط مسنّ عبر الرمز (CG-...)';
@@ -431,7 +544,8 @@
         const rG = getReqGovernorate(r);
         const dm = distMeters(r);
         if (myG && rG && myG !== rG) return false;
-        if (dm !== null && dm > 5000) return false;
+        const maxDist = Number(($('radiusFilterSel') && $('radiusFilterSel').value) || 5000);
+        if (maxDist > 0 && dm !== null && dm > maxDist) return false;
         return true;
       }
       return false;
@@ -447,7 +561,33 @@
 
     $('cntNew').textContent = String(newReqs.length);
     $('cntAcc').textContent = String(accReqs.length);
+    if ($('homeReqCntBadge')) $('homeReqCntBadge').textContent = String(reqGpsVerified ? newReqs.length : 'GPS');
     listEl.replaceChildren();
+
+    if (activeSubTab === 'new' && !reqGpsVerified) {
+      const gpsBox = document.createElement('div');
+      gpsBox.className = 'cg-card p-5 text-center space-y-3 border-2 border-amber-300 bg-amber-50';
+      const ico = document.createElement('div');
+      ico.className = 'mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-200/70 text-[#0A4D68]';
+      ico.innerHTML = '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+      const msg = document.createElement('p');
+      msg.className = 'text-xs font-black text-amber-950 leading-relaxed';
+      msg.textContent = reqGpsChecking
+        ? (isFr ? '⏳ Vérification de la position GPS...' : '⏳ جاري التحقق من تفعيل الـ GPS...')
+        : (reqGpsError || (isFr ? 'Activez le GPS sur votre téléphone pour voir les demandes. Aucune demande ne s\'affichera sans GPS.' : 'يرجى تفعيل خدمة الموقع (GPS) على هاتفك لمشاهدة الطلبات. لن يظهر أي طلب بدون تفعيل الـ GPS.'));
+      gpsBox.append(ico, msg);
+      if (!reqGpsChecking) {
+        const retryBtn = document.createElement('button');
+        retryBtn.id = 'retryReqGpsBtn';
+        retryBtn.type = 'button';
+        retryBtn.className = 'tap-btn inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0A4D68] px-4 py-2.5 text-xs font-black text-white shadow-sm';
+        retryBtn.textContent = isFr ? 'Activer le GPS et actualiser' : 'تفعيل الـ GPS ومشاهدة الطلبات';
+        retryBtn.addEventListener('click', verifyGpsForRequests);
+        gpsBox.appendChild(retryBtn);
+      }
+      listEl.appendChild(gpsBox);
+      return;
+    }
 
     if (activeSubTab === 'new' && isSusp) {
       const b = document.createElement('div');
@@ -738,8 +878,7 @@
     const meta = document.createElement('p');
     meta.className = 'text-xs font-bold text-[#4A657A]';
     const gov = mp.region ? S.formatGovLabel(mp.region) : (isFr ? 'Tunisie' : 'تونس');
-    const avail = mp.is_available === false ? (isFr ? '🔴 Indisponible' : '🔴 غير متاح') : (isFr ? '🟢 Disponible' : '🟢 متاح الآن');
-    meta.textContent = `${credMap[mp.credential_level] || (isFr ? 'Infirmier' : 'ممرض')} • ${gov} • ${avail}`;
+    meta.textContent = `${credMap[mp.credential_level] || (isFr ? 'Infirmier' : 'ممرض')} • ${gov}`;
     const ph = document.createElement('p');
     ph.className = 'text-xs font-extrabold text-[#0A4D68]';
     ph.dir = 'ltr';
@@ -1052,6 +1191,7 @@
 
   async function loadChat() {
     if (!chatSeniorId) return;
+    await S.purgeExpiredChatMessages(chatSeniorId, 'nurse');
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { data } = await S.client.from('care_direct_messages').select('*').eq('senior_id', chatSeniorId).eq('channel', 'nurse').gte('created_at', since24h).order('created_at', { ascending: true }).limit(50);
     const box = $('chatMessages');
@@ -1090,7 +1230,6 @@
     if (np.years_exp != null) $('npYearsExp').value = np.years_exp;
     $('npLanguages').value = np.languages || '';
     $('npSpecialties').value = np.specialties || '';
-    $('npAvailNow').checked = !!np.is_available_now;
     $('npTermsAgree').checked = true;
     if (np.base_lat && np.base_lng) {
       $('gpsStatus').textContent = `✓ ${Number(np.base_lat).toFixed(3)}, ${Number(np.base_lng).toFixed(3)}`;
@@ -1172,7 +1311,7 @@
       years_exp: $('npYearsExp').value ? Number($('npYearsExp').value) : null,
       languages: ($('npLanguages').value || '').trim() || null,
       specialties: ($('npSpecialties').value || '').trim() || null,
-      is_available_now: !!$('npAvailNow').checked,
+      is_available_now: true,
       directory_opt_in: true,
       base_lat: $('gpsStatus').dataset.lat ? Number($('gpsStatus').dataset.lat) : null,
       base_lng: $('gpsStatus').dataset.lng ? Number($('gpsStatus').dataset.lng) : null,
@@ -1309,6 +1448,27 @@
     }
   });
 
+  if ($('radiusFilterSel')) {
+    try {
+      const savedR = localStorage.getItem('cg_nurse_radius_m');
+      if (savedR !== null) $('radiusFilterSel').value = savedR;
+    } catch (_) {}
+    $('radiusFilterSel').addEventListener('change', (e) => {
+      try { localStorage.setItem('cg_nurse_radius_m', e.target.value); } catch (_) {}
+      renderRequests();
+    });
+  }
+  if (S.attachImagePicker) {
+    S.attachImagePicker($('chatImgBtn'), async (imgData) => {
+      if (!chatSeniorId || !imgData) return;
+      await S.client.from('care_direct_messages').insert({
+        senior_id: chatSeniorId, sender_user_id: user.id,
+        sender_name: (myProfile && myProfile.full_name) || 'ممرض',
+        sender_role: 'nurse', channel: 'nurse', message_text: '__IMG__:' + imgData
+      });
+      loadChat();
+    });
+  }
   S.attachVoiceRecorder($('chatMicBtn'), async (audioData) => {
     if (!chatSeniorId || !audioData) return;
     await S.client.from('care_direct_messages').insert({
@@ -1340,8 +1500,11 @@
   $('subTabNew').addEventListener('click', () => setSubTab('new'));
   $('subTabAcc').addEventListener('click', () => setSubTab('accepted'));
   $('subTabHist').addEventListener('click', () => setSubTab('history'));
+  if ($('closeReqModalBtn')) $('closeReqModalBtn').addEventListener('click', closeRequestsModal);
+  if ($('openReqsCardBtn')) $('openReqsCardBtn').addEventListener('click', openRequestsModal);
   $('refreshReqBtn').addEventListener('click', async () => {
     const btn = $('refreshReqBtn');
+    if (!reqGpsVerified) { verifyGpsForRequests(); return; }
     const lbl = btn ? btn.querySelector('span') : null;
     const svg = btn ? btn.querySelector('svg') : null;
     const isFr = S.getLang() === 'fr';
@@ -1435,6 +1598,7 @@
       })
       .subscribe();
     }
+    S.initNativeFcm(user.id, 'nurse');
     connectNurseRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && nurseRt) { S.client.removeChannel(nurseRt); nurseRt = null; }
