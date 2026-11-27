@@ -2392,13 +2392,33 @@
       return;
     }
     if (!seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng) {
-      showProfErr(isFr ? '⚠️ Enregistrement impossible : activez le GPS puis appuyez sur « Enregistrer ».' : '⚠️ تعذر الحفظ لأن تحديد الموقع (GPS) غير مفعّل — فعّل الـ GPS واضغط على زر تحديد الموقع ثم احفظ.');
-      if ($('homeGpsTxt')) {
-        $('homeGpsTxt').textContent = isFr ? '⚠️ Position GPS obligatoire !' : '⚠️ تحديد موقع المنزل (GPS) إجباري!';
-        $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
+      const saveB = $('saveProfBtn');
+      const origTxt = saveB.textContent;
+      saveB.disabled = true;
+      saveB.textContent = isFr ? '⏳ Vérification GPS...' : '⏳ جاري التحقق من الـ GPS...';
+      const gotPos = await new Promise((resolve) => {
+        if (!navigator.geolocation) return resolve(null);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve(null),
+          { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+        );
+      });
+      saveB.disabled = false;
+      saveB.textContent = origTxt;
+      if (!gotPos) {
+        showProfErr(isFr ? '⚠️ Enregistrement impossible : activez le GPS du téléphone puis réessayez.' : '⚠️ تعذر الحفظ لأن تحديد الموقع (GPS) غير مفعّل — فعّل الـ GPS في الهاتف ثم اضغط حفظ المعلومات.');
+        if ($('homeGpsTxt')) {
+          $('homeGpsTxt').textContent = isFr ? '⚠️ Activez le GPS !' : '⚠️ فعّل الـ GPS في الهاتف!';
+          $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
+        }
+        return;
       }
-      if ($('setHomeGpsBtn')) $('setHomeGpsBtn').click();
-      return;
+      if (seniorProfile) { seniorProfile.home_lat = gotPos.lat; seniorProfile.home_lng = gotPos.lng; }
+      if ($('homeGpsTxt')) {
+        $('homeGpsTxt').textContent = `✓ ${gotPos.lat.toFixed(3)}, ${gotPos.lng.toFixed(3)}`;
+        $('homeGpsTxt').className = 'text-xs font-black text-emerald-700';
+      }
     }
     const patch = {
       display_name: $('pName').value.trim(),
@@ -2407,7 +2427,9 @@
       blood_type: $('pBlood').value.trim(),
       allergies: $('pAllergies').value.trim(),
       conditions: $('pConditions').value.trim(),
-      home_address: $('pAddress').value.trim()
+      home_address: $('pAddress').value.trim(),
+      home_lat: seniorProfile ? seniorProfile.home_lat : null,
+      home_lng: seniorProfile ? seniorProfile.home_lng : null
     };
     const { error: updErr } = await S.client.from('senior_profiles').update(patch).eq('id', seniorId);
     if (updErr) {
