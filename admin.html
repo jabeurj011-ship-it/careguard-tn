@@ -71,6 +71,9 @@
     </div>
 
     <div id="admToast" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
+    <div class="flex items-center gap-2">
+      <input id="admSearchInp" type="search" placeholder="🔍 ابحث بالاسم، رقم الهاتف، الولاية، أو الرمز (CG-)..." class="w-full rounded-2xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-xs font-bold text-[#0B2538] shadow-sm" />
+    </div>
     <div id="admList" class="space-y-2.5"></div>
   </div>
 </main>
@@ -102,8 +105,8 @@
   async function loadAll() {
     $('admList').textContent = '⏳ جاري تحميل البيانات...';
     const [sRes, fRes, nRes, rRes, revRes, alRes, fbRes, annRes] = await Promise.all([
-      S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, home_address, home_lat, home_lng, created_at').order('created_at', { ascending: false }).limit(200),
-      S.client.from('senior_care_links').select('id, senior_id, requester_user_id, requester_name, role_type, status, created_at, senior_profiles(display_name, home_address, home_lat, home_lng)').eq('role_type', 'family').order('created_at', { ascending: false }).limit(200),
+      S.client.from('senior_profiles').select('id, display_name, registration_number, senior_phone, emergency_phone, blood_type, allergies, conditions, home_address, home_lat, home_lng, created_at').order('created_at', { ascending: false }).limit(200),
+      S.client.from('senior_care_links').select('id, senior_id, requester_user_id, requester_name, requester_phone, role_type, status, created_at, senior_profiles(display_name, senior_phone, emergency_phone, home_address, home_lat, home_lng)').eq('role_type', 'family').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_profiles').select('*').order('created_at', { ascending: false }).limit(200),
       S.client.from('nurse_visit_requests').select('*').order('created_at', { ascending: false }).limit(120),
       S.client.from('nurse_reviews').select('*').order('created_at', { ascending: false }).limit(100),
@@ -127,6 +130,67 @@
     renderTab();
   }
 
+  function openSubscriberModal(title, rowsList) {
+    const existing = $('admSubDetailModal');
+    if (existing) existing.remove();
+    const wrap = document.createElement('div');
+    wrap.id = 'admSubDetailModal';
+    wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4';
+    const card = document.createElement('div');
+    card.className = 'w-full max-w-md max-h-[88vh] overflow-y-auto rounded-[28px] border border-[#CFE3F5] bg-white p-5 shadow-2xl space-y-3';
+    const hdr = document.createElement('div');
+    hdr.className = 'flex items-center justify-between border-b border-[#DCEBF8] pb-2.5';
+    const h = document.createElement('h3');
+    h.className = 'text-base font-black text-[#0A4D68]';
+    h.textContent = title;
+    const cls = document.createElement('button');
+    cls.type = 'button'; cls.className = 'rounded-xl px-2.5 py-1 text-lg font-black text-slate-500'; cls.textContent = '✕';
+    cls.addEventListener('click', () => wrap.remove());
+    hdr.append(h, cls);
+
+    const list = document.createElement('div');
+    list.className = 'space-y-2';
+    const copyLines = [title];
+    rowsList.forEach(([k, v]) => {
+      const val = v ? String(v) : '—';
+      copyLines.push(`${k}: ${val}`);
+      const item = document.createElement('div');
+      item.className = 'rounded-xl bg-[#F2F8FF] px-3 py-2 text-xs';
+      const kl = document.createElement('p'); kl.className = 'font-black text-[#4A657A] text-[10px]'; kl.textContent = k;
+      const vl = document.createElement('p'); vl.className = 'font-black text-[#0B2538] break-words'; vl.textContent = val;
+      item.append(kl, vl);
+      list.appendChild(item);
+    });
+
+    const act = document.createElement('div');
+    act.className = 'flex gap-2 pt-1';
+    const cpBtn = document.createElement('button');
+    cpBtn.type = 'button';
+    cpBtn.className = 'tap-btn flex-1 rounded-xl bg-[#0A4D68] px-3 py-2.5 text-xs font-black text-white';
+    cpBtn.textContent = '📋 نسخ كل البيانات';
+    cpBtn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(copyLines.join('\n')); showMsg('✓ تم نسخ كافة البيانات'); } catch (_) { showMsg('⚠️ تعذر النسخ التلقائي'); }
+    });
+    act.appendChild(cpBtn);
+    const phoneRow = rowsList.find(([k, v]) => /الهاتف|طوارئ/.test(k) && v && /\d{6,}/.test(String(v)));
+    if (phoneRow && S.safeTelHref && S.safeTelHref(phoneRow[1])) {
+      const ca = document.createElement('a');
+      ca.href = S.safeTelHref(phoneRow[1]);
+      ca.className = 'tap-btn rounded-xl border border-emerald-400 bg-emerald-50 px-4 py-2.5 text-xs font-black text-[#0A4D68]';
+      ca.textContent = '📞 اتصال';
+      act.appendChild(ca);
+    }
+    card.append(hdr, list, act);
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+  }
+
+  function matchSearch(parts) {
+    const q = ($('admSearchInp') && $('admSearchInp').value || '').trim().toLowerCase();
+    if (!q) return true;
+    return parts.filter(Boolean).join(' ').toLowerCase().includes(q);
+  }
+
   function renderTab() {
     document.querySelectorAll('[data-adm-tab]').forEach((b) => {
       const on = b.dataset.admTab === activeTab;
@@ -138,7 +202,7 @@
 
     if (activeTab === 'nurses') {
       if (!dataState.nurses.length) { box.textContent = 'لا يوجد ممرضون مسجّلون بعد.'; return; }
-      dataState.nurses.forEach((n) => {
+      dataState.nurses.filter((n) => matchSearch([n.full_name, n.phone, n.region, n.city_zip, n.city, n.credential, n.specialties])).forEach((n) => {
         const isBan = !!n.is_banned;
         const isVer = n.verification_status === 'verified';
         const isSusp = !!(n.suspended_until && new Date(n.suspended_until).getTime() > Date.now());
@@ -225,7 +289,24 @@
           $('kpiNurses').textContent = String(dataState.nurses.length);
           renderTab(); showMsg('🗑️ تم مسح الممرض دون حظره');
         });
-        row.append(bVer, bSusp, bBan, bDel);
+        const bDet = document.createElement('button');
+        bDet.type = 'button';
+        bDet.className = 'rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-1.5 text-[11px] font-black text-[#0A4D68]';
+        bDet.textContent = '📋 البيانات';
+        bDet.addEventListener('click', () => openSubscriberModal(`🩺 بيانات الممرض: ${n.full_name || ''}`, [
+          ['الاسم الكامل', n.full_name],
+          ['رقم الهاتف', n.phone],
+          ['الرتبة', n.credential],
+          ['الولاية', nrGov],
+          ['العنوان / المعتمدية', nrAddr],
+          ['سنوات الخبرة', n.years_exp],
+          ['التخصصات', n.specialties],
+          ['اللغات', n.languages],
+          ['الحالة', isBan ? 'محظور' : (isSusp ? 'معلّق' : (isVer ? 'موثّق' : 'قيد المراجعة'))],
+          ['موقع GPS', (n.base_lat && n.base_lng) ? `https://maps.google.com/?q=${n.base_lat},${n.base_lng}` : 'غير محدد'],
+          ['تاريخ التسجيل', fmtDate(n.created_at)]
+        ]));
+        row.append(bDet, bVer, bSusp, bBan, bDel);
         c.append(top, meta, row);
         box.appendChild(c);
       });
@@ -293,7 +374,7 @@
 
     if (activeTab === 'seniors') {
       if (!dataState.seniors.length) { box.textContent = 'لا يوجد مسنّون مسجّلون بعد.'; return; }
-      dataState.seniors.forEach((sp) => {
+      dataState.seniors.filter((sp) => matchSearch([sp.display_name, sp.senior_phone, sp.emergency_phone, sp.registration_number, sp.home_address, sp.conditions, sp.allergies])).forEach((sp) => {
         const c = document.createElement('div');
         c.className = 'cg-card p-3.5 flex items-center justify-between gap-2';
         const d = document.createElement('div');
@@ -321,7 +402,23 @@
           $('kpiSeniors').textContent = String(dataState.seniors.length);
           renderTab(); showMsg('🗑️ تم مسح ملف المسنّ');
         });
-        c.append(d, bDel);
+        const bDet = document.createElement('button');
+        bDet.type = 'button';
+        bDet.className = 'rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-1 text-[11px] font-black text-[#0A4D68] shrink-0';
+        bDet.textContent = '📋 البيانات';
+        bDet.addEventListener('click', () => openSubscriberModal(`👴 بيانات المسنّ: ${sp.display_name || ''}`, [
+          ['الاسم', sp.display_name],
+          ['الرمز', sp.registration_number],
+          ['هاتف المسنّ', sp.senior_phone],
+          ['رقم الطوارئ (العائلة)', sp.emergency_phone],
+          ['فصيلة الدم', sp.blood_type],
+          ['الحساسية', sp.allergies],
+          ['الأمراض المزمنة', sp.conditions],
+          ['الولاية', sGov],
+          ['موقع GPS', (sp.home_lat && sp.home_lng) ? `https://maps.google.com/?q=${sp.home_lat},${sp.home_lng}` : 'غير محدد'],
+          ['تاريخ التسجيل', fmtDate(sp.created_at)]
+        ]));
+        c.append(d, bDet, bDel);
         box.appendChild(c);
       });
       return;
@@ -329,7 +426,7 @@
 
     if (activeTab === 'families') {
       if (!dataState.families.length) { box.textContent = 'لا توجد حسابات عائلات مرتبطة بعد.'; return; }
-      dataState.families.forEach((f) => {
+      dataState.families.filter((f) => matchSearch([f.requester_name, f.requester_phone, f.senior_profiles && f.senior_profiles.display_name, f.senior_profiles && f.senior_profiles.emergency_phone])).forEach((f) => {
         const c = document.createElement('div');
         c.className = 'cg-card p-3.5 flex items-center justify-between gap-2';
         const d = document.createElement('div');
@@ -357,7 +454,21 @@
           dataState.families = dataState.families.filter((x) => x.id !== f.id);
           renderTab(); showMsg('🗑️ تم مسح العائلة من القائمة');
         });
-        c.append(d, bDel);
+        const famPh = f.requester_phone || (f.senior_profiles && f.senior_profiles.emergency_phone) || '';
+        const bDet = document.createElement('button');
+        bDet.type = 'button';
+        bDet.className = 'rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-3 py-1 text-[11px] font-black text-[#0A4D68] shrink-0';
+        bDet.textContent = '📋 البيانات';
+        bDet.addEventListener('click', () => openSubscriberModal(`👨‍👩‍👧 بيانات العائلة: ${f.requester_name || ''}`, [
+          ['الاسم / القرابة', f.requester_name],
+          ['رقم هاتف العائلة', famPh],
+          ['المسنّ المرتبط', f.senior_profiles && f.senior_profiles.display_name],
+          ['هاتف المسنّ', f.senior_profiles && f.senior_profiles.senior_phone],
+          ['الولاية', fGov],
+          ['الحالة', f.status],
+          ['تاريخ التسجيل', fmtDate(f.created_at)]
+        ]));
+        c.append(d, bDet, bDel);
         box.appendChild(c);
       });
       return;
@@ -526,6 +637,7 @@
     }
   });
   $('admRefreshBtn').addEventListener('click', loadAll);
+  if ($('admSearchInp')) $('admSearchInp').addEventListener('input', renderTab);
 
   (async function init() {
     user = await S.getSessionUser();

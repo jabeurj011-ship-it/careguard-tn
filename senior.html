@@ -1121,7 +1121,7 @@
           }
           meds = meds.filter((x) => x.id !== m.id);
           renderMeds();
-          scheduleNativeMedAlarms();
+          if (typeof syncNativeMedAlarms === "function") syncNativeMedAlarms();
           loadMeds();
         } catch (err) {
           delBtn.disabled = false;
@@ -2808,25 +2808,54 @@
   $('signOutBtn').addEventListener('click', S.signOut);
   if ($('srGuideBtn')) $('srGuideBtn').addEventListener('click', () => S.showOnboardingModal && S.showOnboardingModal('senior', user && user.id, true));
   if ($('srFeedbackBtn')) $('srFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'senior', (seniorProfile && seniorProfile.display_name) || 'المسنّ'));
+  let delAccArmed = false, delAccTmr = null;
   $('deleteAccountBtn').addEventListener('click', async () => {
     const isFr = S.getLang() === 'fr';
-    const ok1 = window.confirm(isFr
-      ? 'Supprimer définitivement toutes vos données (médicaments, messages, alertes) ?'
-      : 'هل أنت متأكد من حذف جميع بياناتك (الأدوية، الرسائل، التنبيهات، الملف) نهائياً؟');
-    if (!ok1) return;
+    const btn = $('deleteAccountBtn');
+    if (!delAccArmed) {
+      delAccArmed = true;
+      btn.className = 'tap-btn w-full rounded-2xl bg-rose-600 px-4 py-2.5 text-xs font-black text-white shadow';
+      btn.textContent = isFr ? '⚠️ Appuyez encore pour confirmer la suppression' : '⚠️ اضغط مرة ثانية لتأكيد الحذف النهائي';
+      delAccTmr = setTimeout(() => {
+        delAccArmed = false;
+        btn.className = 'tap-btn w-full rounded-2xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-black text-rose-800';
+        btn.textContent = isFr ? '🗑️ Supprimer mes données' : '🗑️ حذف بياناتي وحسابي نهائياً';
+      }, 5000);
+      return;
+    }
+    if (delAccTmr) clearTimeout(delAccTmr);
+    btn.disabled = true;
+    btn.textContent = isFr ? '⏳ Suppression...' : '⏳ جاري حذف كافة البيانات...';
     if (seniorId) {
       await Promise.allSettled([
         S.client.from('medication_logs').delete().eq('senior_id', seniorId),
-        S.client.from('medications').delete().eq('senior_id', seniorId),
+        S.client.from('medical_appointments').delete().eq('senior_id', seniorId),
         S.client.from('care_direct_messages').delete().eq('senior_id', seniorId),
         S.client.from('alerts').delete().eq('senior_id', seniorId),
         S.client.from('safety_checkins').delete().eq('senior_id', seniorId),
-        S.client.from('senior_care_links').delete().eq('senior_id', seniorId)
+        S.client.from('senior_care_links').delete().eq('senior_id', seniorId),
+        S.client.from('nurse_visit_requests').delete().eq('senior_id', seniorId)
       ]);
-      try { await S.client.from('senior_profiles').delete().eq('id', seniorId); } catch (_) {}
+      await Promise.allSettled([
+        S.client.from('medications').delete().eq('senior_id', seniorId)
+      ]);
+      const delSp = await S.client.from('senior_profiles').delete().eq('id', seniorId);
+      if (delSp && delSp.error) {
+        await S.client.from('senior_profiles').update({
+          display_name: '',
+          senior_phone: null,
+          emergency_phone: null,
+          blood_type: null,
+          allergies: null,
+          conditions: null,
+          home_address: null,
+          home_lat: null,
+          home_lng: null,
+          avatar_url: null
+        }).eq('id', seniorId);
+      }
     }
     try { localStorage.clear(); } catch (_) {}
-    alert(isFr ? '✓ Vos données ont été supprimées.' : '✓ تم حذف بياناتك بنجاح وتسجيل الخروج.');
     S.signOut();
   });
 
