@@ -1472,6 +1472,14 @@
     const isFr = S.getLang() === 'fr';
     const code = ($('linkCodeInput').value || '').trim().toUpperCase();
     const msg = $('linkMsg');
+    if (!myProfile || !myProfile.phone || !myProfile.base_lat || !myProfile.base_lng) {
+      msg.className = 'text-xs font-extrabold text-rose-800';
+      msg.textContent = isFr
+        ? '⚠️ Complétez d\'abord votre profil (téléphone et GPS obligatoires).'
+        : '⚠️ يرجى إكمال ملف الممرض (رقم الهاتف وتحديد موقع GPS إجباريان) قبل ربط أي مسنّ.';
+      msg.classList.remove('hidden');
+      return;
+    }
     if (!code) return;
     try {
       const { data: freshNp } = await S.client.from('nurse_profiles').select('is_banned, suspended_until').eq('user_id', user.id).maybeSingle();

@@ -420,17 +420,26 @@
         <input id="seniorAvatarFile" type="file" accept="image/*" class="hidden" />
       </div>
       <input id="pName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pPhone" type="tel" dir="ltr" placeholder="هاتف المسنّ" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pEmPhone" type="tel" dir="ltr" placeholder="رقم الطوارئ (العائلة)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pPhone" type="tel" dir="ltr" placeholder="هاتف المسنّ (إجباري *)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <input id="pEmPhone" type="tel" dir="ltr" placeholder="رقم الطوارئ للعائلة (إجباري *)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
       <input id="pBlood" type="text" placeholder="فصيلة الدم (مثال: O+)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pAllergies" type="text" placeholder="الحساسية (مثال: البنسلين، الأسبرين)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pConditions" type="text" placeholder="الأمراض المزمنة (السكري، ضغط الدم...)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
-      <input id="pAddress" type="text" placeholder="عنوان السكن" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <div class="rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-2">
+        <p class="text-xs font-black text-[#0A4D68]">⚠️ الحساسية (إجباري — اختر واحدة على الأقل *)</p>
+        <div id="allergyChoicesBox" class="grid grid-cols-2 gap-1.5 text-xs font-bold"></div>
+        <input id="pAllergies" type="hidden" />
+      </div>
+      <div class="rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-2">
+        <p class="text-xs font-black text-[#0A4D68]">🩺 الأمراض المزمنة (إجباري — اختر واحدة على الأقل *)</p>
+        <div id="condChoicesBox" class="grid grid-cols-2 gap-1.5 text-xs font-bold"></div>
+        <input id="pConditions" type="hidden" />
+      </div>
+      <input id="pAddress" type="hidden" />
       <div class="flex items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
-        <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white">📍 حفظ موقع المنزل GPS</button>
+        <button id="setHomeGpsBtn" type="button" class="tap-btn rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white">📍 تفعيل وحفظ GPS (إجباري *)</button>
         <span id="homeGpsTxt" class="text-xs font-bold text-[#0A4D68]"></span>
       </div>
     </div>
+    <p id="profSaveErr" class="hidden text-center text-xs font-black text-rose-700"></p>
     <button id="saveProfBtn" type="button" class="tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white">حفظ المعلومات</button>
   </div>
 </div>
@@ -789,11 +798,12 @@
   async function loadMeds() {
     if (!seniorId) return;
     const todayStart = S.getLocalDayStartIso();
-    const [{ data: mRows }, { data: logRows }] = await Promise.all([
-      S.client.from('medications').select('id, name, dosage').eq('senior_id', seniorId).order('created_at', { ascending: false }),
-      S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', seniorId).gte('logged_at', todayStart)
-    ]);
-    meds = mRows || [];
+    let mRes = await S.client.from('medications').select('id, name, dosage, is_active').eq('senior_id', seniorId).order('created_at', { ascending: false });
+    if (mRes.error && /is_active/i.test(mRes.error.message || '')) {
+      mRes = await S.client.from('medications').select('id, name, dosage').eq('senior_id', seniorId).order('created_at', { ascending: false });
+    }
+    const { data: logRows } = await S.client.from('medication_logs').select('medication_id, status, logged_at').eq('senior_id', seniorId).gte('logged_at', todayStart);
+    meds = (mRes.data || []).filter((x) => x.is_active !== false);
     takenMap = new Map();
     (logRows || []).forEach((l) => {
       if (l.status === 'taken') takenMap.set(l.medication_id, l.logged_at || new Date().toISOString());
@@ -911,8 +921,20 @@
       delBtn.type = 'button';
       delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-[11px] font-black text-rose-800';
       delBtn.textContent = isFr ? '🗑️ Supprimer' : '🗑️ حذف';
+      let apptDelArmed = false, apptDelTmr = null;
       delBtn.addEventListener('click', async () => {
-        if (!window.confirm(isFr ? 'Supprimer ce rendez-vous ?' : 'هل تريد حذف هذا الموعد؟')) return;
+        if (!apptDelArmed) {
+          apptDelArmed = true;
+          delBtn.textContent = isFr ? 'Confirmer ?' : 'تأكيد؟';
+          delBtn.className = 'rounded-xl bg-rose-600 px-2.5 py-1 text-xs font-black text-white';
+          apptDelTmr = setTimeout(() => {
+            apptDelArmed = false;
+            delBtn.textContent = '🗑️';
+            delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-800';
+          }, 4000);
+          return;
+        }
+        if (apptDelTmr) clearTimeout(apptDelTmr);
         await S.client.from('medical_appointments').delete().eq('id', a.id);
         loadAppts();
       });
@@ -1075,10 +1097,36 @@
       delBtn.type = 'button';
       delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-800';
       delBtn.textContent = '🗑️';
+      let medDelArmed = false, medDelTmr = null;
       delBtn.addEventListener('click', async () => {
-        if (!window.confirm(isFr ? 'Supprimer ce médicament ?' : 'حذف هذا الدواء؟')) return;
-        await S.client.from('medications').delete().eq('id', m.id);
-        loadMeds();
+        if (!medDelArmed) {
+          medDelArmed = true;
+          delBtn.textContent = isFr ? 'Confirmer ?' : 'تأكيد الحذف؟';
+          delBtn.className = 'rounded-xl bg-rose-600 px-2.5 py-1.5 text-xs font-black text-white shadow-sm';
+          medDelTmr = setTimeout(() => {
+            medDelArmed = false;
+            delBtn.textContent = '🗑️';
+            delBtn.className = 'rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-800';
+          }, 4000);
+          return;
+        }
+        if (medDelTmr) clearTimeout(medDelTmr);
+        delBtn.disabled = true;
+        try {
+          try { await S.client.from('medication_logs').delete().eq('medication_id', m.id); } catch (_) {}
+          let { error } = await S.client.from('medications').delete().eq('id', m.id);
+          if (error) {
+            const soft = await S.client.from('medications').update({ is_active: false }).eq('id', m.id);
+            if (soft.error) throw error;
+          }
+          meds = meds.filter((x) => x.id !== m.id);
+          renderMeds();
+          scheduleNativeMedAlarms();
+          loadMeds();
+        } catch (err) {
+          delBtn.disabled = false;
+          alert((isFr ? '⚠️ Erreur de suppression: ' : '⚠️ تعذر حذف الدواء: ') + ((err && err.message) || ''));
+        }
       });
       btns.appendChild(delBtn);
       row.append(left, btns);
@@ -2200,7 +2248,50 @@
       : 'مَرْحَباً مِنْ سْوَانْ دَارْ: حَانَ مَوْعِدُ الدَّوَاءِ، لَدَيْكَ مَوْعِدٌ مَعَ الطَّبِيبِ، أَوْ البَطَّارِيَّةُ تَحْتَاجُ إِلَى الشَّحْنِ.');
   });
 
+  const ALLERGY_OPTS = ['لا توجد حساسية', 'حساسية البنسلين', 'حساسية الأسبرين / المسكنات', 'حساسية مضادات حيوية أخرى', 'حساسية غذائية', 'غير متأكد / أخرى'];
+  const COND_OPTS = ['لا توجد أمراض مزمنة', 'ارتفاع ضغط الدم', 'السكري', 'أمراض القلب', 'الربو / الحساسية التنفسية', 'ألزهايمر / ضعف الذاكرة', 'غير متأكد / أمراض أخرى'];
+
+  function renderChoiceGrid(boxId, hiddenId, opts, currentVal) {
+    const box = $(boxId);
+    const hid = $(hiddenId);
+    if (!box || !hid) return;
+    const selected = new Set(String(currentVal || '').split(/[،,]/).map((x) => x.trim()).filter(Boolean));
+    box.replaceChildren();
+    const syncHidden = () => {
+      const vals = [];
+      box.querySelectorAll('input[type="checkbox"]').forEach((c) => { if (c.checked) vals.push(c.value); });
+      hid.value = vals.join('، ');
+    };
+    opts.forEach((opt, idx) => {
+      const isNone = idx === 0;
+      const lbl = document.createElement('label');
+      lbl.className = 'flex items-center gap-1.5 rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 cursor-pointer text-[11px] font-black text-[#0B2538]';
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.value = opt;
+      chk.className = 'h-3.5 w-3.5 shrink-0 accent-[#0A4D68]';
+      chk.checked = selected.has(opt);
+      chk.addEventListener('change', () => {
+        if (chk.checked) {
+          if (isNone) {
+            box.querySelectorAll('input[type="checkbox"]').forEach((o) => { if (o !== chk) o.checked = false; });
+          } else {
+            const first = box.querySelector('input[type="checkbox"]');
+            if (first && first !== chk) first.checked = false;
+          }
+        }
+        syncHidden();
+      });
+      const sp = document.createElement('span');
+      sp.textContent = opt;
+      lbl.append(chk, sp);
+      box.appendChild(lbl);
+    });
+    syncHidden();
+  }
+
   function openProfileModal() {
+    if ($('profSaveErr')) $('profSaveErr').classList.add('hidden');
     if (seniorProfile) {
       $('pName').value = seniorProfile.display_name || '';
       $('pPhone').value = seniorProfile.senior_phone || '';
@@ -2209,7 +2300,12 @@
       $('pAllergies').value = seniorProfile.allergies || '';
       $('pConditions').value = seniorProfile.conditions || '';
       $('pAddress').value = seniorProfile.home_address || '';
+      renderChoiceGrid('allergyChoicesBox', 'pAllergies', ALLERGY_OPTS, seniorProfile.allergies || '');
+      renderChoiceGrid('condChoicesBox', 'pConditions', COND_OPTS, seniorProfile.conditions || '');
       if (seniorProfile.home_lat && seniorProfile.home_lng) $('homeGpsTxt').textContent = `✓ ${Number(seniorProfile.home_lat).toFixed(3)}, ${Number(seniorProfile.home_lng).toFixed(3)}`;
+    } else {
+      renderChoiceGrid('allergyChoicesBox', 'pAllergies', ALLERGY_OPTS, '');
+      renderChoiceGrid('condChoicesBox', 'pConditions', COND_OPTS, '');
     }
     $('profileModal').classList.remove('hidden');
   }
@@ -2250,7 +2346,34 @@
   });
 
   $('saveProfBtn').addEventListener('click', async () => {
+    const isFr = S.getLang() === 'fr';
+    const errEl = $('profSaveErr');
+    const showProfErr = (msg) => {
+      if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+    };
+    if (errEl) errEl.classList.add('hidden');
+    const rawPh = ($('pPhone').value || '').trim().replace(/[^\d+]/g, '');
+    const rawEm = ($('pEmPhone').value || '').trim().replace(/[^\d+]/g, '');
+    if (!/^\+?\d{6,15}$/.test(rawPh)) {
+      showProfErr(isFr ? '⚠️ Téléphone du senior obligatoire (6 à 15 chiffres).' : '⚠️ رقم هاتف المسنّ إجباري (6 إلى 15 رقماً).');
+      $('pPhone').focus();
+      return;
+    }
+    if (!/^\+?\d{6,15}$/.test(rawEm)) {
+      showProfErr(isFr ? '⚠️ Téléphone d\'urgence (famille) obligatoire (6 à 15 chiffres).' : '⚠️ رقم الطوارئ (العائلة) إجباري (6 إلى 15 رقماً).');
+      $('pEmPhone').focus();
+      return;
+    }
+    if (!$('pAllergies').value.trim()) {
+      showProfErr(isFr ? '⚠️ Sélectionnez au moins une option pour les allergies.' : '⚠️ يرجى اختيار حالة الحساسية (أو «لا توجد حساسية»).');
+      return;
+    }
+    if (!$('pConditions').value.trim()) {
+      showProfErr(isFr ? '⚠️ Sélectionnez au moins une option pour les maladies chroniques.' : '⚠️ يرجى اختيار حالة الأمراض المزمنة (أو «لا توجد أمراض مزمنة»).');
+      return;
+    }
     if (!seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng) {
+      showProfErr(isFr ? '⚠️ L\'activation du GPS est obligatoire pour confirmer l\'enregistrement.' : '⚠️ تفعيل الـ GPS وحفظ الموقع شرط أساسي لتأكيد التسجيل.');
       const isFr = S.getLang() === 'fr';
       if ($('homeGpsTxt')) {
         $('homeGpsTxt').textContent = isFr ? '⚠️ Position GPS obligatoire !' : '⚠️ تحديد موقع المنزل (GPS) إجباري قبل الحفظ!';

@@ -67,6 +67,13 @@
         </select>
         <button id="linkSubmitBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">ربط</button>
       </div>
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <input id="famPhoneInput" type="tel" dir="ltr" placeholder="رقم هاتفك الدولي إجباري * (+33 / +216 ...)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-xs font-bold" />
+        <div class="flex items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5">
+          <button id="famGpsBtn" type="button" class="tap-btn shrink-0 rounded-lg bg-[#0A4D68] px-2.5 py-1.5 text-[11px] font-black text-white">📍 موقعك GPS *</button>
+          <span id="famGpsTxt" class="truncate text-[11px] font-bold text-[#0A4D68]"></span>
+        </div>
+      </div>
       <p id="linkMsg" class="hidden text-xs font-extrabold"></p>
     </div>
 
@@ -790,10 +797,70 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
   if ($('famGuideBtn')) $('famGuideBtn').addEventListener('click', () => S.showOnboardingModal && S.showOnboardingModal('family', user && user.id, true));
   if ($('famFeedbackBtn')) $('famFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'family', (user && user.user_metadata && user.user_metadata.full_name) || 'العائلة'));
 
+  let famGpsLat = null, famGpsLng = null;
+  function initFamContactState() {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('cg_v2_fam_prof_' + (user ? user.id : '')) || '{}'); } catch (_) {}
+    const um = (user && user.user_metadata) || {};
+    const ph = saved.phone || um.phone || '';
+    if (ph && $('famPhoneInput')) $('famPhoneInput').value = ph;
+    famGpsLat = saved.lat || um.lat || null;
+    famGpsLng = saved.lng || um.lng || null;
+    if (famGpsLat && famGpsLng && $('famGpsTxt')) {
+      $('famGpsTxt').textContent = `✓ ${Number(famGpsLat).toFixed(3)}, ${Number(famGpsLng).toFixed(3)}`;
+    }
+  }
+  initFamContactState();
+
+  if ($('famGpsBtn')) {
+    $('famGpsBtn').addEventListener('click', () => {
+      const isFr = S.getLang() === 'fr';
+      if (!navigator.geolocation) return;
+      $('famGpsTxt').textContent = isFr ? '⏳ GPS...' : '⏳ جاري تحديد الموقع...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          famGpsLat = pos.coords.latitude;
+          famGpsLng = pos.coords.longitude;
+          $('famGpsTxt').textContent = `✓ ${famGpsLat.toFixed(3)}, ${famGpsLng.toFixed(3)}`;
+          try {
+            localStorage.setItem('cg_v2_fam_prof_' + (user ? user.id : ''), JSON.stringify({
+              phone: ($('famPhoneInput').value || '').trim(),
+              lat: famGpsLat,
+              lng: famGpsLng
+            }));
+          } catch (_) {}
+        },
+        () => {
+          $('famGpsTxt').textContent = isFr ? '⚠️ Activez le GPS' : '⚠️ فعّل الـ GPS';
+        },
+        { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
+      );
+    });
+  }
+
   $('linkSubmitBtn').addEventListener('click', async () => {
     const isFr = S.getLang() === 'fr';
     const code = ($('linkCodeInput').value || '').trim().toUpperCase();
     const msg = $('linkMsg');
+    const rawFamPh = ($('famPhoneInput').value || '').trim().replace(/[^\d+]/g, '');
+    if (!/^\+?\d{6,15}$/.test(rawFamPh)) {
+      msg.className = 'text-xs font-extrabold text-rose-800';
+      msg.textContent = isFr ? '⚠️ Numéro de téléphone obligatoire (6 à 15 chiffres).' : '⚠️ رقم هاتفك إجباري (6 إلى 15 رقماً) لإتمام الربط.';
+      msg.classList.remove('hidden');
+      $('famPhoneInput').focus();
+      return;
+    }
+    if (!famGpsLat || !famGpsLng) {
+      msg.className = 'text-xs font-extrabold text-rose-800';
+      msg.textContent = isFr ? '⚠️ Activation du GPS obligatoire.' : '⚠️ تحديد موقعك (GPS) إجباري لإتمام الربط.';
+      msg.classList.remove('hidden');
+      if ($('famGpsBtn')) $('famGpsBtn').click();
+      return;
+    }
+    try {
+      localStorage.setItem('cg_v2_fam_prof_' + (user ? user.id : ''), JSON.stringify({ phone: rawFamPh, lat: famGpsLat, lng: famGpsLng }));
+      S.client.auth.updateUser({ data: { phone: rawFamPh, lat: famGpsLat, lng: famGpsLng } }).catch(() => {});
+    } catch (_) {}
     if (!code) return;
     const baseName = (user && user.user_metadata && user.user_metadata.full_name) || (isFr ? 'Famille' : 'العائلة');
     const rel = $('linkRelationSel') ? $('linkRelationSel').value : '';
