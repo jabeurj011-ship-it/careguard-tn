@@ -1509,7 +1509,12 @@
     const nUid = r.accepted_by_user_id || r.nurse_user_id;
     if (!nUid) { box.classList.add('hidden'); return; }
     const { data: exRev } = await S.client.from('nurse_reviews').select('id').eq('visit_request_id', r.id).maybeSingle();
-    if (exRev || (!targetReviewReqId && localStorage.getItem('cg_v2_skip_rev_' + r.id))) { box.classList.add('hidden'); return; }
+    if (exRev) {
+      box.classList.add('hidden');
+      if (targetReviewReqId) alert(isFr ? 'Cette visite a déjà été évaluée.' : '✓ تم تقييم هذه الزيارة مسبقاً.');
+      return;
+    }
+    if (!targetReviewReqId && localStorage.getItem('cg_v2_skip_rev_' + r.id)) { box.classList.add('hidden'); return; }
 
     box.replaceChildren();
     box.className = 'rounded-3xl border-2 border-amber-400 bg-[#FFFFFF] p-4 shadow-md space-y-3';
@@ -1679,6 +1684,12 @@
   // My Requests Modal
   async function loadMyReqs() {
     const { data: rows } = await S.client.from('nurse_visit_requests').select('*').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(30);
+    const compIds = (rows || []).filter((r) => r.status === 'completed').map((r) => r.id);
+    const revMap = new Map();
+    if (compIds.length) {
+      const { data: revs } = await S.client.from('nurse_reviews').select('visit_request_id, rating').in('visit_request_id', compIds);
+      (revs || []).forEach((rv) => revMap.set(rv.visit_request_id, rv.rating));
+    }
     const items = (rows || []).filter((r) => mrTab === 'active' ? (r.status === 'open' || r.status === 'pending') : (mrTab === 'accepted' ? r.status === 'accepted' : (r.status === 'completed' || r.status === 'declined')));
     const box = $('mrList'); box.replaceChildren();
     if (!items.length) { box.textContent = 'لا توجد طلبات هنا حالياً.'; return; }
@@ -1698,9 +1709,24 @@
         b.addEventListener('click', async () => { await S.client.from('nurse_visit_requests').update({ status: 'declined', senior_outcome: 'cancelled' }).eq('id', r.id); loadMyReqs(); });
         c.appendChild(b);
       } else if (mrTab === 'history' && r.status === 'completed') {
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white'; b.textContent = '⭐ قيّم الآن';
-        b.addEventListener('click', () => { $('myReqsModal').classList.add('hidden'); localStorage.removeItem('cg_v2_skip_rev_' + r.id); loadVisitBanner(r.id); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-        c.appendChild(b);
+        if (revMap.has(r.id)) {
+          const doneTag = document.createElement('span');
+          doneTag.className = 'inline-block rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-black text-[#0A4D68]';
+          doneTag.textContent = `⭐ تم التقييم (${revMap.get(r.id)}/5)`;
+          c.appendChild(doneTag);
+        } else {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'rounded-xl bg-[#0A4D68] px-3 py-1.5 text-xs font-black text-white'; b.textContent = '⭐ قيّم الآن';
+          b.addEventListener('click', async () => {
+            $('myReqsModal').classList.add('hidden');
+            try { localStorage.removeItem('cg_v2_skip_rev_' + r.id); } catch (_) {}
+            switchTab('home');
+            await loadVisitBanner(r.id);
+            const vb = $('visitStatusBox');
+            if (vb && !vb.classList.contains('hidden')) vb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+          c.appendChild(b);
+        }
       }
       box.appendChild(c);
     });
@@ -2769,6 +2795,8 @@
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'care_direct_messages' }, (p) => { if (p.new && p.new.sender_user_id !== user.id) S.playStrongRingtone(); if (!p.new || p.new.channel === dmChannel) loadDirectMessages(); refreshUnreadBadge(); })
         .subscribe();
     }
+    S.initNativeFcm(user.id, 'senior');
+    S.showActiveAnnouncement('senior');
     connectRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && rtCh) { S.client.removeChannel(rtCh); rtCh = null; }

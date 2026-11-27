@@ -357,6 +357,7 @@
   }
 
   function stopRingtone() {
+    if (speechRestoreTimer) { clearTimeout(speechRestoreTimer); speechRestoreTimer = null; }
     if (activeStopTimer) { clearTimeout(activeStopTimer); activeStopTimer = null; }
     if (activeAudio) {
       try { activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
@@ -402,9 +403,32 @@
     } catch (_) {}
   }
 
+  let speechRestoreTimer = null;
+  function pauseRingtoneForSpeech(estimatedMs) {
+    if (speechRestoreTimer) { clearTimeout(speechRestoreTimer); speechRestoreTimer = null; }
+    const aud = activeAudio;
+    let wasActive = false;
+    if (aud) {
+      wasActive = !aud.paused;
+      try { aud.muted = true; aud.volume = 0; aud.pause(); } catch (_) {}
+    }
+    const restore = () => {
+      if (speechRestoreTimer) { clearTimeout(speechRestoreTimer); speechRestoreTimer = null; }
+      if (activeAudio && activeAudio === aud && wasActive) {
+        try {
+          activeAudio.muted = false;
+          activeAudio.volume = 1.0;
+          activeAudio.play().catch(() => {});
+        } catch (_) {}
+      }
+    };
+    speechRestoreTimer = setTimeout(restore, estimatedMs || 6500);
+    return restore;
+  }
+
   // Arabic / French TTS (Native Android TTS in APK + reliable Web Speech fallback)
-  function speakWeb(text) {
-    if (!('speechSynthesis' in window) || !text) return;
+  function speakWeb(text, onDoneCb) {
+    if (!('speechSynthesis' in window) || !text) { if (onDoneCb) onDoneCb(); return; }
     try {
       const ss = window.speechSynthesis;
       const isFr = getLang() === 'fr';
@@ -418,12 +442,11 @@
           if (matched) { u.voice = matched; u.lang = matched.lang; }
           else u.lang = isFr ? 'fr-FR' : 'ar-SA';
           u.rate = 0.92; u.volume = 1.0;
-          if (activeAudio) { try { activeAudio.volume = 0.08; } catch (_) {} }
-          const restoreVol = () => { if (activeAudio) { try { activeAudio.volume = 1.0; } catch (_) {} } };
-          u.onend = restoreVol;
-          u.onerror = restoreVol;
+          const done = () => { if (onDoneCb) onDoneCb(); };
+          u.onend = done;
+          u.onerror = done;
           ss.speak(u);
-        } catch (_) {}
+        } catch (_) { if (onDoneCb) onDoneCb(); }
       };
       if (ss.speaking || ss.pending) {
         ss.cancel();
@@ -431,7 +454,7 @@
         return;
       }
       go();
-    } catch (_) {}
+    } catch (_) { if (onDoneCb) onDoneCb(); }
   }
 
   function normalizeSpeechText(text) {
@@ -450,15 +473,19 @@
   function speakText(text) {
     if (!text) return;
     const clean = normalizeSpeechText(text);
+    const estMs = Math.min(9000, Math.max(3500, clean.length * 115));
+    const restore = pauseRingtoneForSpeech(estMs);
     try {
       const Cap = window.Capacitor;
       const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
       if (NA && typeof NA.speak === 'function') {
-        NA.speak({ text: clean, lang: getLang() }).catch(() => speakWeb(clean));
+        NA.speak({ text: clean, lang: getLang() })
+          .then(() => { setTimeout(restore, Math.min(7000, Math.max(3000, clean.length * 100))); })
+          .catch(() => speakWeb(clean, restore));
         return;
       }
     } catch (_) {}
-    speakWeb(clean);
+    speakWeb(clean, restore);
   }
 
   // Web Push Subscribe / Unsubscribe Toggle
@@ -908,6 +935,57 @@
     });
   }
 
+  async function showActiveAnnouncement(role) {
+    if (!sbClient || !role) return;
+    try {
+      const { data, error } = await sbClient
+        .from('app_announcements')
+        .select('id, title, message, target_role, created_at')
+        .eq('is_active', true)
+        .in('target_role', ['all', role])
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (error || !data || !data.length) return;
+      const ann = data[0];
+      const seenKey = 'cg_v2_seen_ann_' + ann.id;
+      try { if (localStorage.getItem(seenKey) === '1') return; } catch (_) {}
+      if ($('cgAnnModal')) return;
+
+      const isFr = getLang() === 'fr';
+      const wrap = document.createElement('div');
+      wrap.id = 'cgAnnModal';
+      wrap.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4';
+      const card = document.createElement('div');
+      card.className = 'w-full max-w-md rounded-[28px] border-2 border-[#0EA5E9]/40 bg-white p-5 shadow-2xl space-y-3.5 text-center';
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F4FD] text-[#0A4D68]';
+      iconWrap.innerHTML = '<svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
+      const badge = document.createElement('p');
+      badge.className = 'inline-block rounded-full bg-[#E8F4FD] px-3 py-1 text-[11px] font-black text-[#0A4D68]';
+      badge.textContent = isFr ? 'Annonce SoinsDar' : 'إعلان من إدارة SoinsDar';
+      const ttl = document.createElement('h3');
+      ttl.className = 'text-lg font-black text-[#0B2538]';
+      ttl.textContent = ann.title || '';
+      const body = document.createElement('p');
+      body.className = 'rounded-2xl bg-[#F2F8FF] p-3.5 text-sm font-bold text-[#0B2538] leading-relaxed whitespace-pre-line text-start';
+      body.textContent = ann.message || '';
+      const tm = document.createElement('p');
+      tm.className = 'text-[11px] font-bold text-[#4A657A]';
+      tm.textContent = formatChatTimestamp(ann.created_at);
+      const okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'tap-btn w-full rounded-2xl bg-[#0A4D68] px-4 py-3 text-sm font-black text-white shadow-sm';
+      okBtn.textContent = isFr ? 'Compris' : 'حسناً، فهمت';
+      okBtn.addEventListener('click', () => {
+        try { localStorage.setItem(seenKey, '1'); } catch (_) {}
+        wrap.remove();
+      });
+      card.append(iconWrap, badge, ttl, body, tm, okBtn);
+      wrap.appendChild(card);
+      document.body.appendChild(wrap);
+    } catch (_) {}
+  }
+
   window.CG_SHARED = {
     CONFIG,
     $,
@@ -943,6 +1021,7 @@
     attachImagePicker,
     formatChatTimestamp,
     purgeExpiredChatMessages,
-    initNativeFcm
+    initNativeFcm,
+    showActiveAnnouncement
   };
 })();
