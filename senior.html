@@ -2049,7 +2049,7 @@
 
   $('testVoiceBtn').addEventListener('click', () => {
     S.playStrongRingtone();
-    setTimeout(() => S.speakText(S.getLang() === 'fr' ? 'Bonjour de SoinsDar, rappel pour votre médicament.' : 'مرحباً من سوان دار، تذكير بموعد دوائك وشرب الماء.'), 500);
+    setTimeout(() => S.speakText(S.getLang() === 'fr' ? 'Bonjour de SoinsDar : il est temps de prendre votre médicament, vérifier votre rendez-vous avec le médecin, ou recharger la batterie.' : 'مرحباً من سوان دار: حان موعد الدواء، لديك موعد مع الطبيب، أو البطارية تحتاج شحن.'), 500);
   });
 
   function openProfileModal() {
@@ -2540,6 +2540,9 @@
             message: batMsg
           })).catch(() => {});
         } catch (_) {}
+        S.speakText(S.getLang() === 'fr'
+          ? 'Attention, la batterie est faible et a besoin d\'être chargée.'
+          : 'تنبيه: البطارية منخفضة وتحتاج إلى شحن الآن.');
         const Cap = window.Capacitor;
         const LN = Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.LocalNotifications;
         if (LN) {
