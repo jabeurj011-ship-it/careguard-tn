@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soinsdar-tn-v176';
+const CACHE_NAME = 'soinsdar-tn-v177';
 const SHELL_ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {

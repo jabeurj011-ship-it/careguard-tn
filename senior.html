@@ -2337,12 +2337,31 @@
   });
 
   $('setHomeGpsBtn').addEventListener('click', () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      seniorProfile.home_lat = pos.coords.latitude; seniorProfile.home_lng = pos.coords.longitude;
-      $('homeGpsTxt').textContent = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
-      await S.client.from('senior_profiles').update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude }).eq('id', seniorId);
-    });
+    const isFr = S.getLang() === 'fr';
+    if (!navigator.geolocation) {
+      $('homeGpsTxt').textContent = isFr ? '⚠️ GPS non supporté' : '⚠️ الجهاز لا يدعم الـ GPS';
+      $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
+      return;
+    }
+    $('homeGpsTxt').textContent = isFr ? '⏳ Recherche GPS...' : '⏳ جاري تحديد الموقع...';
+    $('homeGpsTxt').className = 'text-xs font-bold text-[#0A4D68]';
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        if (seniorProfile) {
+          seniorProfile.home_lat = pos.coords.latitude;
+          seniorProfile.home_lng = pos.coords.longitude;
+        }
+        $('homeGpsTxt').textContent = `✓ ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`;
+        $('homeGpsTxt').className = 'text-xs font-black text-emerald-700';
+        if ($('profSaveErr')) $('profSaveErr').classList.add('hidden');
+        if (seniorId) await S.client.from('senior_profiles').update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude }).eq('id', seniorId);
+      },
+      () => {
+        $('homeGpsTxt').textContent = isFr ? '⚠️ Activez le GPS du téléphone !' : '⚠️ تعذر تحديد الموقع: فعّل الـ GPS في الهاتف!';
+        $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
   });
 
   $('saveProfBtn').addEventListener('click', async () => {
@@ -2373,10 +2392,9 @@
       return;
     }
     if (!seniorProfile || !seniorProfile.home_lat || !seniorProfile.home_lng) {
-      showProfErr(isFr ? '⚠️ L\'activation du GPS est obligatoire pour confirmer l\'enregistrement.' : '⚠️ تفعيل الـ GPS وحفظ الموقع شرط أساسي لتأكيد التسجيل.');
-      const isFr = S.getLang() === 'fr';
+      showProfErr(isFr ? '⚠️ Enregistrement impossible : activez le GPS puis appuyez sur « Enregistrer ».' : '⚠️ تعذر الحفظ لأن تحديد الموقع (GPS) غير مفعّل — فعّل الـ GPS واضغط على زر تحديد الموقع ثم احفظ.');
       if ($('homeGpsTxt')) {
-        $('homeGpsTxt').textContent = isFr ? '⚠️ Position GPS obligatoire !' : '⚠️ تحديد موقع المنزل (GPS) إجباري قبل الحفظ!';
+        $('homeGpsTxt').textContent = isFr ? '⚠️ Position GPS obligatoire !' : '⚠️ تحديد موقع المنزل (GPS) إجباري!';
         $('homeGpsTxt').className = 'text-xs font-black text-rose-700';
       }
       if ($('setHomeGpsBtn')) $('setHomeGpsBtn').click();
@@ -2391,7 +2409,11 @@
       conditions: $('pConditions').value.trim(),
       home_address: $('pAddress').value.trim()
     };
-    await S.client.from('senior_profiles').update(patch).eq('id', seniorId);
+    const { error: updErr } = await S.client.from('senior_profiles').update(patch).eq('id', seniorId);
+    if (updErr) {
+      showProfErr('⚠️ ' + (updErr.message || 'تعذر حفظ البيانات'));
+      return;
+    }
     Object.assign(seniorProfile, patch);
     renderSeniorHeader();
     $('profileModal').classList.add('hidden');
