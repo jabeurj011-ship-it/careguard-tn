@@ -402,35 +402,45 @@
     } catch (_) {}
   }
 
-  // Arabic / French TTS (Native Android TTS in APK + Web Speech in browser)
+  // Arabic / French TTS (Native Android TTS in APK + reliable Web Speech fallback)
+  function speakWeb(text) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      const ss = window.speechSynthesis;
+      const isFr = getLang() === 'fr';
+      const go = () => {
+        try {
+          if (ss.paused) ss.resume();
+          const u = new SpeechSynthesisUtterance(String(text));
+          const want = isFr ? 'fr' : 'ar';
+          const voices = ss.getVoices ? ss.getVoices() : [];
+          const matched = voices.find((x) => x.lang && x.lang.toLowerCase().startsWith(want));
+          if (matched) { u.voice = matched; u.lang = matched.lang; }
+          else u.lang = isFr ? 'fr-FR' : 'ar-SA';
+          u.rate = 0.92; u.volume = 1.0;
+          ss.speak(u);
+        } catch (_) {}
+      };
+      if (ss.speaking || ss.pending) {
+        ss.cancel();
+        setTimeout(go, 150);
+        return;
+      }
+      go();
+    } catch (_) {}
+  }
+
   function speakText(text) {
     if (!text) return;
     try {
       const Cap = window.Capacitor;
       const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
       if (NA && typeof NA.speak === 'function') {
-        NA.speak({ text: String(text), lang: getLang() }).catch(() => {});
+        NA.speak({ text: String(text), lang: getLang() }).catch(() => speakWeb(text));
         return;
       }
     } catch (_) {}
-    if (!('speechSynthesis' in window)) return;
-    try {
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
-      }
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-      const u = new SpeechSynthesisUtterance(text);
-      const isFr = getLang() === 'fr';
-      const want = isFr ? 'fr' : 'ar';
-      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-      const matched = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(want));
-      if (matched) { u.voice = matched; u.lang = matched.lang; }
-      else u.lang = isFr ? 'fr-FR' : 'ar-SA';
-      u.rate = 0.92; u.volume = 1.0;
-      window.speechSynthesis.speak(u);
-    } catch (_) {}
+    speakWeb(text);
   }
 
   // Web Push Subscribe / Unsubscribe Toggle
