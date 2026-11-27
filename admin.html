@@ -160,6 +160,27 @@
         meta.className = 'text-xs font-bold text-[#4A657A] leading-relaxed';
         meta.textContent = `🏛️ الولاية: ${nrGov} • 📍 العنوان: ${nrAddr} • 📞 ${n.phone || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(n.created_at)}`;
         meta.classList.add('whitespace-pre-line');
+        const docsRow = document.createElement('div');
+        docsRow.className = 'flex flex-wrap gap-1.5';
+        [['doc_cin_url', '🪪 بطاقة التعريف'], ['doc_diploma_url', '🎓 الشهادة'], ['doc_license_url', '📄 شهادة عمل']].forEach(([col, lbl]) => {
+          if (!n[col]) return;
+          const db = document.createElement('button');
+          db.type = 'button';
+          db.className = 'rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-1 text-[11px] font-black text-[#0A4D68]';
+          db.textContent = lbl;
+          db.addEventListener('click', () => {
+            const ov = document.createElement('div');
+            ov.className = 'fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 p-4';
+            const im = document.createElement('img');
+            im.src = n[col];
+            im.className = 'max-h-[85vh] max-w-full rounded-2xl shadow-2xl bg-white';
+            ov.appendChild(im);
+            ov.addEventListener('click', () => ov.remove());
+            document.body.appendChild(ov);
+          });
+          docsRow.appendChild(db);
+        });
+        if (docsRow.childNodes.length) c.appendChild(docsRow);
         const row = document.createElement('div');
         row.className = 'flex flex-wrap gap-1.5 pt-1';
 

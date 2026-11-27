@@ -125,7 +125,7 @@
           <h2 id="profHeading" class="text-lg font-black text-[#0A4D68]">🩺 ملف الممرض المهني</h2>
           <p id="profSub" class="text-xs font-bold text-[#4A657A]">بياناتك تظهر في دليل «أقرب ممرض»</p>
         </div>
-        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-[#0A4D68]">🟢 موثّق</span>
+        <span id="profVerifyBadge" class="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900">🟡 قيد التحقق</span>
       </div>
 
       <!-- Photo Upload inside Profile -->
@@ -154,19 +154,7 @@
           <option value="female">👩‍⚕️ ممرضة (Femme)</option>
         </select>
         <select id="npRegion" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold">
-          <option value="">-- الولاية / Gouvernorat --</option>
-          <option value="Tunis">Tunis / تونس</option><option value="Ariana">Ariana / أريانة</option>
-          <option value="Ben Arous">Ben Arous / بن عروس</option><option value="Manouba">Manouba / منوبة</option>
-          <option value="Nabeul">Nabeul / نابل</option><option value="Zaghouan">Zaghouan / زغوان</option>
-          <option value="Bizerte">Bizerte / بنزرت</option><option value="Béja">Béja / باجة</option>
-          <option value="Jendouba">Jendouba / جندوبة</option><option value="Kef">Le Kef / الكاف</option>
-          <option value="Siliana">Siliana / سليانة</option><option value="Sousse">Sousse / سوسة</option>
-          <option value="Monastir">Monastir / المنستير</option><option value="Mahdia">Mahdia / المهدية</option>
-          <option value="Sfax">Sfax / صفاقس</option><option value="Kairouan">Kairouan / القيروان</option>
-          <option value="Kasserine">Kasserine / القصرين</option><option value="Sidi Bouzid">Sidi Bouzid / سيدي بوزيد</option>
-          <option value="Gabès">Gabès / قابس</option><option value="Médenine">Médenine / مدنين</option>
-          <option value="Tataouine">Tataouine / تطاوين</option><option value="Gafsa">Gafsa / قفصة</option>
-          <option value="Tozeur">Tozeur / توزر</option><option value="Kebili">Kébili / قبلي</option>
+          <option value="Gabès" selected>Gabès / قابس (المرحلة التجريبية)</option>
         </select>
         <input id="npCityZip" type="text" placeholder="المعتمدية / الحي (اختياري — مثال: الحامة، حي الأمل)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold" />
         <input id="npPhone" type="tel" dir="ltr" placeholder="رقم الهاتف إجباري * (+216 ...)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2.5 text-sm font-bold" />
@@ -181,6 +169,17 @@
           <span>تحديد موقع العمل GPS</span>
         </button>
         <span id="gpsStatus" class="text-xs font-bold text-[#4A657A]"></span>
+      </div>
+
+      <div class="rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-2">
+        <p class="text-xs font-black text-[#0A4D68]">📋 وثائق التحقق المهني الإلزامية (ولاية قابس — سرّية للإدارة فقط)</p>
+        <p class="text-[11px] font-bold text-[#4A657A]">المطلوب: نسخة من بطاقة التعريف الوطنية + الدبلوم (شهادة التخرج) + شهادة عمل من المؤسسة التي يعمل بها، ولا تُفعّل الطلبات الحقيقية إلا بعد اعتماد الإدارة.</p>
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <button id="docCinBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🪪 بطاقة التعريف *</button>
+          <button id="docDiplomaBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🎓 شهادة التخرج *</button>
+          <button id="docLicenseBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">📄 شهادة عمل *</button>
+        </div>
+        <p id="docUploadStatus" class="text-[11px] font-bold text-[#4A657A]"></p>
       </div>
 
       <label class="flex items-start gap-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-2.5 text-[11px] font-bold text-[#0B2538]">
@@ -595,6 +594,23 @@
       const b = document.createElement('div');
       b.className = 'cg-card p-5 text-center text-xs font-black text-rose-900';
       b.textContent = isFr ? '⛔ Compte temporairement suspendu.' : '⛔ حسابك معلّق مؤقتاً ولا يمكنك استقبال طلبات جديدة.';
+      listEl.appendChild(b);
+      return;
+    }
+    if (activeSubTab === 'new' && (!myProfile || myProfile.verification_status !== 'verified')) {
+      const b = document.createElement('div');
+      b.className = 'cg-card p-5 text-center space-y-2.5 border-2 border-amber-300 bg-amber-50';
+      const p1 = document.createElement('p');
+      p1.className = 'text-xs font-black text-amber-950 leading-relaxed';
+      p1.textContent = isFr
+        ? '⏳ Compte en attente de vérification professionnelle (Phase pilote Gabès). Complétez votre profil et vos documents.'
+        : '⏳ حسابك قيد التحقق المهني من الإدارة (المرحلة التجريبية بولاية قابس). أكمل ملفك وارفع الوثائق ليتم اعتمادك واستقبال الطلبات.';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tap-btn rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white';
+      btn.textContent = isFr ? 'Compléter mon profil' : 'إكمال الملف والوثائق';
+      btn.addEventListener('click', () => switchMainTab('profile'));
+      b.append(p1, btn);
       listEl.appendChild(b);
       return;
     }
@@ -1226,7 +1242,15 @@
     $('npFullName').value = np.full_name || '';
     if (np.credential) $('npCredential').value = np.credential;
     if (np.gender) $('npGender').value = np.gender;
-    if (np.region) $('npRegion').value = np.region;
+    $('npRegion').value = 'Gabès';
+    if ($('profVerifyBadge')) {
+      const ver = np.verification_status === 'verified';
+      $('profVerifyBadge').className = ver
+        ? 'rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-[#0A4D68]'
+        : 'rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900';
+      $('profVerifyBadge').textContent = ver ? '🟢 موثّق ومعتمد' : '🟡 قيد التحقق';
+    }
+    syncDocButtons(np);
     $('npCityZip').value = np.city_zip || '';
     $('npPhone').value = np.phone || '';
     if (np.years_exp != null) $('npYearsExp').value = np.years_exp;
@@ -1258,6 +1282,7 @@
       $('linkMsg').classList.remove('hidden');
     }
     renderNurseHomeCard();
+    if (np.verification_status === 'verified') S.showActiveAnnouncement('nurse', user.id);
   }
 
   $('saveProfileBtn').addEventListener('click', async () => {
@@ -1280,6 +1305,17 @@
       msgEl.textContent = isFr ? '⚠️ Position GPS obligatoire pour enregistrer le profil.' : '⚠️ تحديد الموقع (GPS) إجباري لحفظ ملف الممرض.';
       msgEl.classList.remove('hidden');
       if ($('setGpsBtn')) $('setGpsBtn').click();
+      return;
+    }
+    const hasCinDoc = !!(docState.cin || (myProfile && myProfile.doc_cin_url));
+    const hasDipDoc = !!(docState.diploma || (myProfile && myProfile.doc_diploma_url));
+    const hasLicDoc = !!(docState.license || (myProfile && myProfile.doc_license_url));
+    if (!hasCinDoc || !hasDipDoc || !hasLicDoc) {
+      msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
+      msgEl.textContent = isFr
+        ? '⚠️ Veuillez joindre les 3 documents (CIN, Diplôme, Attestation de travail).'
+        : '⚠️ يرجى إرفاق الوثائق الثلاث (بطاقة التعريف، الدبلوم، وشهادة العمل) لإرسال ملفك للمراجعة.';
+      msgEl.classList.remove('hidden');
       return;
     }
     if (!$('npTermsAgree').checked) {
@@ -1305,7 +1341,7 @@
       credential_type: $('npCredential').value,
       gender: $('npGender').value,
       country: 'TN',
-      region: $('npRegion').value || '',
+      region: 'Gabès',
       city: ($('npCityZip').value || '').trim() || $('npRegion').value || 'Tunisie',
       city_zip: ($('npCityZip').value || '').trim(),
       license_number: 'TN-BETA',
@@ -1317,7 +1353,10 @@
       directory_opt_in: true,
       base_lat: $('gpsStatus').dataset.lat ? Number($('gpsStatus').dataset.lat) : null,
       base_lng: $('gpsStatus').dataset.lng ? Number($('gpsStatus').dataset.lng) : null,
-      verification_status: 'verified'
+      doc_cin_url: docState.cin || (myProfile && myProfile.doc_cin_url) || null,
+      doc_diploma_url: docState.diploma || (myProfile && myProfile.doc_diploma_url) || null,
+      doc_license_url: docState.license || (myProfile && myProfile.doc_license_url) || null,
+      verification_status: (myProfile && myProfile.verification_status === 'verified') ? 'verified' : 'pending'
     };
     const saveBtn = $('saveProfileBtn');
     const origTxt = saveBtn.textContent;
@@ -1366,6 +1405,19 @@
     const inp = $('avatarFileInput');
     if (inp) inp.click();
   });
+
+  const docState = { cin: null, diploma: null, license: null };
+  function syncDocButtons(np) {
+    const hasCin = !!(docState.cin || (np && np.doc_cin_url));
+    const hasDip = !!(docState.diploma || (np && np.doc_diploma_url));
+    const hasLic = !!(docState.license || (np && np.doc_license_url));
+    if ($('docCinBtn')) $('docCinBtn').textContent = (hasCin ? '✅ ' : '🪪 ') + 'بطاقة التعريف *';
+    if ($('docDiplomaBtn')) $('docDiplomaBtn').textContent = (hasDip ? '✅ ' : '🎓 ') + 'شهادة التخرج *';
+    if ($('docLicenseBtn')) $('docLicenseBtn').textContent = (hasLic ? '✅ ' : '📄 ') + 'شهادة عمل *';
+  }
+  S.attachImagePicker($('docCinBtn'), (url) => { docState.cin = url; syncDocButtons(myProfile); if ($('docUploadStatus')) $('docUploadStatus').textContent = '✓ تم تجهيز صورة بطاقة التعريف — اضغط حفظ ملف الممرض.'; });
+  S.attachImagePicker($('docDiplomaBtn'), (url) => { docState.diploma = url; syncDocButtons(myProfile); if ($('docUploadStatus')) $('docUploadStatus').textContent = '✓ تم تجهيز صورة شهادة التخرج — اضغط حفظ ملف الممرض.'; });
+  S.attachImagePicker($('docLicenseBtn'), (url) => { docState.license = url; syncDocButtons(myProfile); if ($('docUploadStatus')) $('docUploadStatus').textContent = '✓ تم تجهيز صورة شهادة العمل — اضغط حفظ ملف الممرض.'; });
 
   $('avatarFileInput').addEventListener('change', async (e) => {
     const f = e.target.files && e.target.files[0];
@@ -1601,7 +1653,6 @@
       .subscribe();
     }
     S.initNativeFcm(user.id, 'nurse');
-    S.showActiveAnnouncement('nurse', user.id);
     connectNurseRt();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden && nurseRt) { S.client.removeChannel(nurseRt); nurseRt = null; }

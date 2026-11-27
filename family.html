@@ -620,7 +620,7 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
   }
 
   async function loadNurses() {
-    const { data } = await S.client.from('nurse_profiles').select('*').eq('country', 'TN').eq('directory_opt_in', true).neq('is_banned', true);
+    const { data } = await S.client.from('nurse_profiles').select('id, user_id, full_name, credential, credential_type, gender, country, region, city, city_zip, phone, years_exp, languages, specialties, base_lat, base_lng, verification_status, directory_opt_in, is_banned, suspended_until').eq('country', 'TN').eq('directory_opt_in', true).eq('verification_status', 'verified').eq('region', 'Gabès').neq('is_banned', true);
     const nowMs = Date.now();
     cachedNurses = (data || []).filter((n) => !(n.suspended_until && new Date(n.suspended_until).getTime() > nowMs));
     renderNurses();

@@ -1585,7 +1585,7 @@
     $('findNurseModal').classList.remove('hidden');
     const [{ data: blks }, { data: rawNurses }] = await Promise.all([
       S.client.from('senior_blocked_nurses').select('nurse_user_id').eq('senior_user_id', user.id),
-      S.client.from('nurse_profiles').select('*').eq('country', 'TN').eq('directory_opt_in', true).neq('is_banned', true)
+      S.client.from('nurse_profiles').select('id, user_id, full_name, credential, credential_type, gender, country, region, city, city_zip, phone, years_exp, languages, specialties, base_lat, base_lng, verification_status, directory_opt_in, is_banned, suspended_until').eq('country', 'TN').eq('directory_opt_in', true).eq('verification_status', 'verified').eq('region', 'Gabès').neq('is_banned', true)
     ]);
     const blkSet = new Set((blks || []).map((b) => b.nurse_user_id));
     const nowMs = Date.now();
@@ -1659,7 +1659,11 @@
     }
     const sLat = (seniorProfile && seniorProfile.home_lat) || null;
     const sLng = (seniorProfile && seniorProfile.home_lng) || null;
-    const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : '';
+    const reqGov = (sLat && sLng) ? S.detectTnGovernorate(sLat, sLng) : 'Gabès';
+    if (reqGov && S.normGov(reqGov) !== S.normGov('Gabès')) {
+      st.textContent = '📍 المرحلة التجريبية الأولى للتطبيق مخصّصة لولاية قابس فقط حالياً.';
+      return;
+    }
     const basePayload = {
       senior_id: seniorId,
       requester_user_id: user.id,
