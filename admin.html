@@ -222,7 +222,7 @@
         const nrAddr = n.city_zip || n.city || '—';
         const meta = document.createElement('p');
         meta.className = 'text-xs font-bold text-[#4A657A] leading-relaxed';
-        meta.textContent = `🏛️ الولاية: ${nrGov} • 📍 العنوان: ${nrAddr} • 📞 ${n.phone || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(n.created_at)}`;
+        meta.textContent = `🏛️ الولاية: ${nrGov} • 📍 العنوان: ${nrAddr} • 📞 \u2066${n.phone || '—'}\u2069\n📅 تاريخ إنشاء الحساب: ${fmtDate(n.created_at)}`;
         meta.classList.add('whitespace-pre-line');
         const docsRow = document.createElement('div');
         docsRow.className = 'flex flex-wrap gap-1.5';
@@ -387,7 +387,7 @@
         const srGovRaw = (sp.home_lat && sp.home_lng) ? S.detectTnGovernorate(sp.home_lat, sp.home_lng) : '';
         const srGov = srGovRaw ? S.formatGovLabel(srGovRaw) : '—';
         p2.classList.add('whitespace-pre-line', 'leading-relaxed');
-        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 ${sp.senior_phone || '—'}\n🏛️ الولاية: ${srGov} • 📍 العنوان: ${sp.home_address || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(sp.created_at)}`;
+        p2.textContent = `🔑 ${sp.registration_number || '—'} • 📞 \u2066${sp.senior_phone || '—'}\u2069\n🏛️ الولاية: ${srGov} • 📍 العنوان: ${sp.home_address || '—'}\n📅 تاريخ إنشاء الحساب: ${fmtDate(sp.created_at)}`;
         d.append(p1, p2);
         const bDel = document.createElement('button');
         bDel.type = 'button';
