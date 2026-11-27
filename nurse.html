@@ -172,12 +172,12 @@
       </div>
 
       <div class="rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-2">
-        <p class="text-xs font-black text-[#0A4D68]">📋 وثائق التحقق المهني الإلزامية (ولاية قابس — سرّية للإدارة فقط)</p>
+        <p class="text-xs font-black text-[#0A4D68]">📋 وثائق التحقق المهني (يمكن إرفاقها الآن أو لاحقاً لاعتماد الحساب)</p>
         <p class="text-[11px] font-bold text-[#4A657A]">المطلوب: نسخة من بطاقة التعريف الوطنية + الدبلوم (شهادة التخرج) + شهادة عمل من المؤسسة التي يعمل بها، ولا تُفعّل الطلبات الحقيقية إلا بعد اعتماد الإدارة.</p>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <button id="docCinBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🪪 بطاقة التعريف *</button>
-          <button id="docDiplomaBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🎓 شهادة التخرج *</button>
-          <button id="docLicenseBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">📄 شهادة عمل *</button>
+          <button id="docCinBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🪪 بطاقة التعريف</button>
+          <button id="docDiplomaBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">🎓 شهادة التخرج</button>
+          <button id="docLicenseBtn" type="button" class="tap-btn rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 text-[11px] font-black text-[#0A4D68]">📄 شهادة عمل</button>
         </div>
         <p id="docUploadStatus" class="text-[11px] font-bold text-[#4A657A]"></p>
       </div>
@@ -1307,17 +1307,6 @@
       if ($('setGpsBtn')) $('setGpsBtn').click();
       return;
     }
-    const hasCinDoc = !!(docState.cin || (myProfile && myProfile.doc_cin_url));
-    const hasDipDoc = !!(docState.diploma || (myProfile && myProfile.doc_diploma_url));
-    const hasLicDoc = !!(docState.license || (myProfile && myProfile.doc_license_url));
-    if (!hasCinDoc || !hasDipDoc || !hasLicDoc) {
-      msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
-      msgEl.textContent = isFr
-        ? '⚠️ Veuillez joindre les 3 documents (CIN, Diplôme, Attestation de travail).'
-        : '⚠️ يرجى إرفاق الوثائق الثلاث (بطاقة التعريف، الدبلوم، وشهادة العمل) لإرسال ملفك للمراجعة.';
-      msgEl.classList.remove('hidden');
-      return;
-    }
     if (!$('npTermsAgree').checked) {
       msgEl.className = 'rounded-2xl border-2 border-rose-300 bg-rose-50 px-3 py-2 text-center text-xs font-black text-rose-900';
       msgEl.textContent = isFr ? '⚠️ Acceptez les conditions d\'abord.' : '⚠️ يجب الموافقة على الشروط أولاً.';
@@ -1411,9 +1400,9 @@
     const hasCin = !!(docState.cin || (np && np.doc_cin_url));
     const hasDip = !!(docState.diploma || (np && np.doc_diploma_url));
     const hasLic = !!(docState.license || (np && np.doc_license_url));
-    if ($('docCinBtn')) $('docCinBtn').textContent = (hasCin ? '✅ ' : '🪪 ') + 'بطاقة التعريف *';
-    if ($('docDiplomaBtn')) $('docDiplomaBtn').textContent = (hasDip ? '✅ ' : '🎓 ') + 'شهادة التخرج *';
-    if ($('docLicenseBtn')) $('docLicenseBtn').textContent = (hasLic ? '✅ ' : '📄 ') + 'شهادة عمل *';
+    if ($('docCinBtn')) $('docCinBtn').textContent = (hasCin ? '✅ ' : '🪪 ') + 'بطاقة التعريف';
+    if ($('docDiplomaBtn')) $('docDiplomaBtn').textContent = (hasDip ? '✅ ' : '🎓 ') + 'شهادة التخرج';
+    if ($('docLicenseBtn')) $('docLicenseBtn').textContent = (hasLic ? '✅ ' : '📄 ') + 'شهادة عمل';
   }
   S.attachImagePicker($('docCinBtn'), (url) => { docState.cin = url; syncDocButtons(myProfile); if ($('docUploadStatus')) $('docUploadStatus').textContent = '✓ تم تجهيز صورة بطاقة التعريف — اضغط حفظ ملف الممرض.'; });
   S.attachImagePicker($('docDiplomaBtn'), (url) => { docState.diploma = url; syncDocButtons(myProfile); if ($('docUploadStatus')) $('docUploadStatus').textContent = '✓ تم تجهيز صورة شهادة التخرج — اضغط حفظ ملف الممرض.'; });
