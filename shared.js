@@ -418,6 +418,10 @@
           if (matched) { u.voice = matched; u.lang = matched.lang; }
           else u.lang = isFr ? 'fr-FR' : 'ar-SA';
           u.rate = 0.92; u.volume = 1.0;
+          if (activeAudio) { try { activeAudio.volume = 0.08; } catch (_) {} }
+          const restoreVol = () => { if (activeAudio) { try { activeAudio.volume = 1.0; } catch (_) {} } };
+          u.onend = restoreVol;
+          u.onerror = restoreVol;
           ss.speak(u);
         } catch (_) {}
       };
