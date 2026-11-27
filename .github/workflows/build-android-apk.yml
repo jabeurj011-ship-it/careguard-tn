@@ -36,6 +36,7 @@ jobs:
       - name: Install dependencies and prepare www
         run: |
           npm install
+          npm install @capacitor/push-notifications --no-save || true
           npm run prepare:www
           if curl -fsSL -A "Mozilla/5.0" https://cdn.tailwindcss.com/3.4.17 -o www/tailwind.js && [ -s www/tailwind.js ]; then
             python3 -c "from pathlib import Path; [f.write_text(f.read_text(encoding='utf-8').replace('https://cdn.tailwindcss.com/3.4.17', './tailwind.js'), encoding='utf-8') for f in Path('www').glob('*.html')]"
@@ -57,6 +58,31 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+
+      - name: Configure Firebase FCM (optional GOOGLE_SERVICES_JSON secret)
+        env:
+          GSJ: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, base64
+          from pathlib import Path
+          raw = (os.environ.get('GSJ') or '').strip()
+          if raw:
+              out = Path('android/app/google-services.json')
+              if raw.startswith('{'):
+                  out.write_text(raw, encoding='utf-8')
+              else:
+                  out.write_bytes(base64.b64decode(raw))
+              bg = Path('android/build.gradle')
+              if bg.exists():
+                  txt = bg.read_text(encoding='utf-8')
+                  if 'com.google.gms:google-services' not in txt:
+                      txt = txt.replace('dependencies {', "dependencies {\n        classpath 'com.google.gms:google-services:4.4.2'", 1)
+                      bg.write_text(txt, encoding='utf-8')
+              print('Firebase google-services.json configured.')
+          else:
+              print('GOOGLE_SERVICES_JSON secret not set; skipping FCM native config.')
+          PYEOF
 
       - name: Set SoinsDar Android Launcher Icon
         run: |
