@@ -434,17 +434,31 @@
     } catch (_) {}
   }
 
+  function normalizeSpeechText(text) {
+    let s = String(text || '');
+    if (getLang() === 'fr') {
+      s = s.replace(/soinsdar/gi, "Soins d'art");
+      s = s.replace(/\bDr\.?\s+/gi, 'Docteur ');
+    } else {
+      s = s.replace(/(^|[\s:،])د[\.\/]?\s+(?=[\u0600-\u06FF])/g, '$1الدُّكْتُورُ ');
+      s = s.replace(/(^|[\s:،])د\.([\u0600-\u06FF])/g, '$1الدُّكْتُورُ $2');
+      s = s.replace(/\bDr\.?\s*/gi, 'الدُّكْتُورُ ');
+    }
+    return s;
+  }
+
   function speakText(text) {
     if (!text) return;
+    const clean = normalizeSpeechText(text);
     try {
       const Cap = window.Capacitor;
       const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
       if (NA && typeof NA.speak === 'function') {
-        NA.speak({ text: String(text), lang: getLang() }).catch(() => speakWeb(text));
+        NA.speak({ text: clean, lang: getLang() }).catch(() => speakWeb(clean));
         return;
       }
     } catch (_) {}
-    speakWeb(text);
+    speakWeb(clean);
   }
 
   // Web Push Subscribe / Unsubscribe Toggle

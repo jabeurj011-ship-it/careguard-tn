@@ -39,8 +39,8 @@
   <div id="blockWarnBox" class="hidden rounded-2xl border-2 border-rose-400 bg-rose-50 px-4 py-3 text-xs font-black text-rose-900"></div>
 
   <!-- FLOATING MODAL: VISIT REQUESTS (MANDATORY GPS GATE + GOOGLE MAPS) -->
-  <div id="reqFloatingModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/65 backdrop-blur-sm p-3">
-    <div id="secRequests" class="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-[28px] border border-[#CFE3F5] bg-[#F2F8FF] p-4 shadow-2xl space-y-3">
+  <div id="reqFloatingModal" class="hidden fixed inset-0 z-50 flex items-start pt-12 sm:items-center sm:pt-3 justify-center bg-slate-900/65 backdrop-blur-sm p-3">
+    <div id="secRequests" class="w-full max-w-xl min-h-[55vh] max-h-[85vh] overflow-y-auto rounded-[28px] border border-[#CFE3F5] bg-[#F2F8FF] p-4 shadow-2xl space-y-3">
       <div class="flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0A4D68] text-white shadow-sm">
@@ -364,12 +364,14 @@
   let reqGpsError = '';
 
   function openRequestsModal() {
+    reqGpsVerified = false;
     $('reqFloatingModal').classList.remove('hidden');
     $('navRequests').className = 'flex flex-col items-center gap-0.5 text-[#0A4D68]';
     verifyGpsForRequests();
   }
 
   function closeRequestsModal() {
+    reqGpsVerified = false;
     $('reqFloatingModal').classList.add('hidden');
     const onProf = !$('secProfile').classList.contains('hidden');
     $('navRequests').className = 'flex flex-col items-center gap-0.5 text-[#4A657A]';
@@ -406,7 +408,7 @@
           : 'يجب تفعيل خدمة الموقع (GPS) على هاتفك أولاً لمشاهدة الطلبات المتوفرة.';
         renderRequests();
       },
-      { enableHighAccuracy: true, timeout: 7000, maximumAge: 15000 }
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
     );
   }
 
@@ -1504,7 +1506,7 @@
   if ($('openReqsCardBtn')) $('openReqsCardBtn').addEventListener('click', openRequestsModal);
   $('refreshReqBtn').addEventListener('click', async () => {
     const btn = $('refreshReqBtn');
-    if (!reqGpsVerified) { verifyGpsForRequests(); return; }
+    verifyGpsForRequests(); if (!reqGpsVerified) return;
     const lbl = btn ? btn.querySelector('span') : null;
     const svg = btn ? btn.querySelector('svg') : null;
     const isFr = S.getLang() === 'fr';

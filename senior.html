@@ -605,7 +605,12 @@
     $('navMsgs').className = 'flex flex-col items-center gap-0.5 ' + (t === 'msgs' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     $('navSet').className = 'flex flex-col items-center gap-0.5 ' + (t === 'settings' ? 'text-[#0A4D68]' : 'text-[#4A657A]');
     if (t === 'appts') loadAppts();
-    if (t === 'msgs') { loadDirectMessages(); if (seniorId && user) S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', seniorId).neq('sender_user_id', user.id).is('read_at', null).then(() => refreshUnreadBadge()).catch(() => {}); }
+    if (t === 'msgs') {
+      if ($('tileMsgsBadge')) $('tileMsgsBadge').classList.add('hidden');
+      if (seniorId) { try { localStorage.setItem('cg_v2_msgs_seen_at_' + seniorId, new Date().toISOString()); } catch (_) {} }
+      loadDirectMessages();
+      if (seniorId && user) S.client.from('care_direct_messages').update({ read_at: new Date().toISOString() }).eq('senior_id', seniorId).neq('sender_user_id', user.id).is('read_at', null).then(() => refreshUnreadBadge()).catch(() => {});
+    }
   }
 
   function applyTexts() {
@@ -1147,7 +1152,7 @@
           $('medDueTime').textContent = tm;
           $('medDueModal').classList.remove('hidden');
           S.playStrongRingtone();
-          setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${nm}` : `حان وقت الدواء: ${nm}`), 800);
+          setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${nm}` : `حَانَ وَقْتُ الدَّوَاءِ: ${nm}`), 800);
         });
       }
       const pend = LN ? await LN.getPending() : null;
@@ -1275,9 +1280,13 @@
     $('apptDueModal').classList.remove('hidden');
     S.playStrongRingtone();
     setTimeout(() => {
+      let spokenTitle = String(a.title || (isFr ? m.fr : m.ar)).trim();
+      if (a.appt_type === 'doctor' && a.title && !/^(د[\.\/\s]|دكتور|الدكتور|الدُّكْتُور|طبيب|الطبيب|Dr\.?\s|Docteur\s)/i.test(spokenTitle)) {
+        spokenTitle = (isFr ? 'Docteur ' : 'الدُّكْتُورُ ') + spokenTitle;
+      }
       S.speakText(isFr
-        ? `Rappel de votre rendez-vous médical : ${a.title || m.fr}`
-        : `تذكير بموعدك الطبي الآن: ${a.title || m.ar}`);
+        ? `Rappel de votre rendez-vous médical : ${spokenTitle}`
+        : `تَذْكِيرٌ بِمَوْعِدِكَ الطِّبِّيِّ الآنَ: ${spokenTitle}`);
     }, 900);
   }
 
@@ -1378,7 +1387,7 @@
       const pNames = preDue.map((m) => m.name).join(' + ');
       S.speakText(S.getLang() === 'fr'
         ? `Rappel : dans 5 minutes, il sera temps de prendre ${pNames}.`
-        : `تذكير تحضيري: بعد خمس دقائق يحين موعد دواء ${pNames}.`);
+        : `تَذْكِيرٌ تَحْضِيرِيٌّ: بَعْدَ خَمْسِ دَقَائِقَ يَحِينُ مَوْعِدُ دَوَاءِ ${pNames}.`);
     }
     const due = meds.filter((m) => {
       if (takenMap.has(m.id)) return false;
@@ -1398,7 +1407,7 @@
     $('medDueTime').textContent = due[0].dosage || '';
     $('medDueModal').classList.remove('hidden');
     S.playStrongRingtone();
-    setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${names}` : `حان وقت الدواء: ${names}`), 900);
+    setTimeout(() => S.speakText(S.getLang() === 'fr' ? `Il est temps de prendre votre médicament : ${names}` : `حَانَ وَقْتُ الدَّوَاءِ: ${names}`), 900);
   }
 
   $('medDueTakeBtn').addEventListener('click', () => {
@@ -1479,7 +1488,7 @@
           ca.className = 'tap-btn flex-1 text-center rounded-xl bg-[#0A4D68] px-3 py-2 text-xs font-black text-white';
           ca.textContent = '📞 ' + phone;
           const digits = phone.replace(/\D/g, '');
-          const wa = document.createElement('a'); wa.href = 'https://wa.me/' + (digits.length === 8 ? '216' + digits : digits);
+          const dWa = digits.replace(/^00+/, ''); const wa = document.createElement('a'); wa.href = 'https://wa.me/' + (dWa.length === 8 ? '216' + dWa : dWa);
           wa.target = '_blank'; wa.rel = 'noopener noreferrer';
           wa.className = 'tap-btn rounded-xl border border-emerald-500 bg-white px-4 py-2 text-xs font-black text-[#0A4D68]';
           wa.textContent = '💬 WhatsApp';
@@ -2101,11 +2110,11 @@
     if (!localStorage.getItem(k1)) {
       try { localStorage.setItem(k1, '1'); } catch (_) {}
       S.playStrongRingtone();
-      setTimeout(() => S.speakText(isFr ? 'Rappel: pensez à boire un verre d\'eau.' : 'تذكير: حان وقت شرب كوب من الماء.'), 600);
+      setTimeout(() => S.speakText(isFr ? 'Rappel: pensez à boire un verre d\'eau.' : 'تَذْكِيرٌ بِشُرْبِ كَأْسِ مَاءٍ الآنَ.'), 600);
     } else if (elapsed >= 15 && !localStorage.getItem(k2)) {
       try { localStorage.setItem(k2, '1'); } catch (_) {}
       S.playStrongRingtone();
-      setTimeout(() => S.speakText(isFr ? 'Deuxième rappel: n\'oubliez pas votre verre d\'eau.' : 'تذكير ثانٍ: لا تنسَ شرب كوب الماء.'), 600);
+      setTimeout(() => S.speakText(isFr ? 'Deuxième rappel: n\'oubliez pas votre verre d\'eau.' : 'تَذْكِيرٌ ثَانٍ: لَا تَنْسَ شُرْبَ كَأْسِ المَاءِ.'), 600);
     }
   }
 
@@ -2116,7 +2125,7 @@
     S.stopRingtone();
     S.speakText(S.getLang() === 'fr'
       ? 'Bonjour de SoinsDar : il est temps de prendre votre médicament, vérifier votre rendez-vous avec le médecin, ou recharger la batterie.'
-      : 'مرحباً من سوان دار: حان موعد الدواء، لديك موعد مع الطبيب، أو البطارية تحتاج شحن.');
+      : 'مَرْحَباً مِنْ سْوَانْ دَارْ: حَانَ مَوْعِدُ الدَّوَاءِ، لَدَيْكَ مَوْعِدٌ مَعَ الطَّبِيبِ، أَوْ البَطَّارِيَّةُ تَحْتَاجُ إِلَى الشَّحْنِ.');
   });
 
   function openProfileModal() {
@@ -2204,14 +2213,22 @@
 
   async function refreshUnreadBadge() {
     if (!seniorId || !user) return;
+    if (!$('secMsgs').classList.contains('hidden')) {
+      if ($('tileMsgsBadge')) $('tileMsgsBadge').classList.add('hidden');
+      try { localStorage.setItem('cg_v2_msgs_seen_at_' + seniorId, new Date().toISOString()); } catch (_) {}
+      return;
+    }
     try {
       const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      let seenAt = '';
+      try { seenAt = localStorage.getItem('cg_v2_msgs_seen_at_' + seniorId) || ''; } catch (_) {}
+      const effectiveSince = (seenAt && seenAt > since24h) ? seenAt : since24h;
       const { data } = await S.client.from('care_direct_messages')
         .select('id')
         .eq('senior_id', seniorId)
         .neq('sender_user_id', user.id)
         .is('read_at', null)
-        .gte('created_at', since24h)
+        .gt('created_at', effectiveSince)
         .limit(5);
       const hasUnread = !!(data && data.length);
       if ($('tileMsgsBadge')) $('tileMsgsBadge').classList.toggle('hidden', !hasUnread);
@@ -2296,11 +2313,17 @@
     $('cancelFallBtn').textContent = isFr ? '✓ Je vais bien — Annuler' : '✓ أنا بخير — إلغاء الإنذار';
     $('fallCountdownNum').textContent = String(sec);
     $('fallDetectModal').classList.remove('hidden');
+    const fallSpoken = isFr
+      ? 'Chute détectée ! Appuyez sur je vais bien pour annuler.'
+      : 'تَنْبِيهٌ: هَلْ سَقَطْتَ؟ اِضْغَطْ أَنَا بِخَيْرٍ لِإِلْغَاءِ الاسْتِغَاثَةِ.';
     S.playStrongRingtone();
-    S.speakText(isFr ? 'Chute détectée ! Appuyez sur je vais bien pour annuler.' : 'تنبيه: هل سقطت؟ اضغط أنا بخير لإلغاء الاستغاثة.');
+    S.speakText(fallSpoken);
     fallTimer = setInterval(async () => {
       sec -= 1;
       $('fallCountdownNum').textContent = String(Math.max(0, sec));
+      if (sec > 0 && sec % 5 === 0) {
+        S.speakText(fallSpoken);
+      }
       if (sec <= 0) {
         clearInterval(fallTimer); fallTimer = null;
         $('fallDetectModal').classList.add('hidden');
@@ -2383,7 +2406,7 @@
       const txt = isFr
         ? `🚨 ALERTE SOS SOINSDAR de ${name} — Besoin d'aide immédiate !${mapUrl}`
         : `🚨 استغاثة عاجلة (SoinsDar) من ${name} — أحتاج إلى مساعدة فورية!${mapUrl}`;
-      const rawPh = (seniorProfile && seniorProfile.emergency_phone) ? String(seniorProfile.emergency_phone).replace(/\D+/g, '') : '';
+      const rawPh = (seniorProfile && seniorProfile.emergency_phone) ? String(seniorProfile.emergency_phone).replace(/\D+/g, '').replace(/^00+/, '') : '';
       const waPh = rawPh.length === 8 ? '216' + rawPh : rawPh;
       const waUrl = (waPh ? `https://wa.me/${waPh}` : 'https://wa.me/') + `?text=${encodeURIComponent(txt)}`;
       window.open(waUrl, '_blank', 'noopener');
@@ -2689,7 +2712,7 @@
         } catch (_) {}
         S.speakText(S.getLang() === 'fr'
           ? 'Attention, la batterie est faible et a besoin d\'être chargée.'
-          : 'تنبيه: البطارية منخفضة وتحتاج إلى شحن الآن.');
+          : 'تَنْبِيهٌ: البَطَّارِيَّةُ مُنْخَفِضَةٌ وَتَحْتَاجُ إِلَى الشَّحْنِ الآنَ.');
         const Cap = window.Capacitor;
         const LN = Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.LocalNotifications;
         if (LN) {
