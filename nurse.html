@@ -87,7 +87,7 @@
         </div>
         <div class="grid grid-cols-2 gap-1.5">
           <button id="reqModalGpsBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1 rounded-xl border border-[#B6D8F2] bg-[#E8F4FD] px-2.5 py-1.5 text-[11px] font-black text-[#0A4D68]">📍 تحديث موقعي GPS</button>
-          <button id="reqModalBellBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-[11px] font-black text-[#0A4D68]">🔔 تفعيل رنين الطلبات</button>
+          <button id="reqModalBellBtn" type="button" class="tap-btn inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-[11px] font-black text-[#0A4D68]"><svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span>تفعيل التنبيهات</span></button>
         </div>
       </div>
       <div id="reqStatusMsg" class="hidden rounded-2xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-center text-xs font-black text-[#0A4D68]"></div>
@@ -1565,10 +1565,11 @@
       setTimeout(() => S.stopRingtone(), 1800);
       const r = await S.toggleWebPush(user);
       if (r && r.ok) {
-        btn.className = 'tap-btn inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-2.5 py-1.5 text-[11px] font-black text-white';
-        btn.textContent = isFr ? '🔔 Sonnerie active ✓' : '🔔 الرنين مفعّل ✓';
+        btn.className = 'tap-btn inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-1.5 text-[11px] font-black text-white';
+        btn.textContent = isFr ? '🔔 Alertes actives ✓' : '🔔 التنبيهات مفعّلة ✓';
       } else {
-        btn.textContent = isFr ? '🔔 Test sonnerie ✓' : '🔔 تم تجربة النغمة ✓';
+        btn.className = 'tap-btn inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-2.5 py-1.5 text-[11px] font-black text-white';
+        btn.textContent = isFr ? '🔔 Sonnerie prête ✓' : '🔔 التنبيهات مفعّلة ✓';
       }
     });
   }
