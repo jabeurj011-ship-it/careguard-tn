@@ -169,6 +169,15 @@
           <span>تحديد موقع العمل GPS</span>
         </button>
         <span id="gpsStatus" class="text-xs font-bold text-[#4A657A]"></span>
+        <div class="flex w-full items-center justify-between gap-2 pt-1 border-t border-[#DCEBF8]">
+          <span class="text-[11px] font-black text-[#0A4D68]">📡 نطاق العمل الكيلومتري (للرنين والطلبات):</span>
+          <select id="npWorkRadiusSel" class="rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-1 text-xs font-black text-[#0B2538]">
+            <option value="5000">5 كم</option>
+            <option value="10000">10 كم</option>
+            <option value="20000">20 كم</option>
+            <option value="0">كل ولاية قابس</option>
+          </select>
+        </div>
       </div>
 
       <div class="rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-3 space-y-2">
@@ -1499,16 +1508,18 @@
     }
   });
 
-  if ($('radiusFilterSel')) {
-    try {
-      const savedR = localStorage.getItem('cg_nurse_radius_m');
-      if (savedR !== null) $('radiusFilterSel').value = savedR;
-    } catch (_) {}
-    $('radiusFilterSel').addEventListener('change', (e) => {
-      try { localStorage.setItem('cg_nurse_radius_m', e.target.value); } catch (_) {}
-      renderRequests();
-    });
-  }
+  const syncNurseRadius = (val) => {
+    const v = String(val !== undefined && val !== null ? val : '5000');
+    try { localStorage.setItem('cg_nurse_radius_m', v); } catch (_) {}
+    if ($('radiusFilterSel')) $('radiusFilterSel').value = v;
+    if ($('npWorkRadiusSel')) $('npWorkRadiusSel').value = v;
+  };
+  try {
+    const savedR = localStorage.getItem('cg_nurse_radius_m');
+    if (savedR !== null) syncNurseRadius(savedR);
+  } catch (_) {}
+  if ($('radiusFilterSel')) $('radiusFilterSel').addEventListener('change', (e) => { syncNurseRadius(e.target.value); renderRequests(); });
+  if ($('npWorkRadiusSel')) $('npWorkRadiusSel').addEventListener('change', (e) => { syncNurseRadius(e.target.value); renderRequests(); });
   if (S.attachImagePicker) {
     S.attachImagePicker($('chatImgBtn'), async (imgData) => {
       if (!chatSeniorId || !imgData) return;
@@ -1630,6 +1641,9 @@
         await loadRequests();
         if (payload.eventType === 'INSERT' && payload.new) {
           const r = payload.new;
+          const isVer = !!(myProfile && myProfile.verification_status === 'verified');
+          const isBlkProf = !!(myProfile && (myProfile.is_banned || (myProfile.suspended_until && new Date(myProfile.suspended_until).getTime() > Date.now())));
+          if (!isVer || isBlkProf) return;
           const myG = (myProfile && myProfile.gender) || 'male';
           const pg = r.preferred_gender || 'any';
           const okG = pg === 'any' || pg === myG;
@@ -1637,9 +1651,25 @@
           const myGov = getMyGovernorate();
           const reqGov = getReqGovernorate(r);
           const dmRt = distMeters(r);
-          const okGov = !myGov || !reqGov || myGov === reqGov || (dmRt !== null && dmRt <= 25000);
-          if (!isMyBlk && ((r.request_mode === 'open' && okG && okGov && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
+          const maxDist = Number(($('radiusFilterSel') && $('radiusFilterSel').value) || ($('npWorkRadiusSel') && $('npWorkRadiusSel').value) || 5000);
+          const okGov = !myGov || !reqGov || myGov === reqGov;
+          const okDist = (maxDist === 0 || dmRt === null || dmRt <= maxDist);
+          if (!isMyBlk && ((r.request_mode === 'open' && okG && okGov && okDist && !blockedBySet.has(r.requester_user_id)) || r.nurse_user_id === user.id)) {
             S.playStrongRingtone();
+            try {
+              const Cap = window.Capacitor;
+              const LN = Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.LocalNotifications;
+              if (LN) {
+                LN.schedule({
+                  notifications: [{
+                    id: Math.floor(Date.now() % 100000),
+                    title: S.getLang() === 'fr' ? '🩺 Nouvelle demande de soin !' : '🩺 طلب زيارة جديد قريب منك!',
+                    body: `${r.requester_name || ''} • ${r.care_reason || ''}`,
+                    schedule: { at: new Date(Date.now() + 200) }
+                  }]
+                }).catch(() => {});
+              }
+            } catch (_) {}
           }
         }
       })
