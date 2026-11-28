@@ -135,11 +135,21 @@
     { id: 'Kebili', ar: 'قبلي', lat: 33.7044, lng: 8.9690 }
   ];
 
+  const GABES_DELEGATION_ANCHORS = [
+    { id: 'Gabès', lat: 33.8915, lng: 9.7963 },  // El Hamma
+    { id: 'Gabès', lat: 33.9917, lng: 9.9611 },  // Oudhref / Métouia
+    { id: 'Gabès', lat: 34.1833, lng: 9.6167 },  // Menzel El Habib
+    { id: 'Gabès', lat: 33.6214, lng: 10.2922 }, // Mareth
+    { id: 'Gabès', lat: 33.5400, lng: 10.3700 }, // Zarat / Arram
+    { id: 'Gabès', lat: 33.4650, lng: 10.1300 }, // Toujane
+    { id: 'Gabès', lat: 33.5444, lng: 9.9667 }   // Matmata
+  ];
+
   function detectTnGovernorate(lat, lng) {
     const la = Number(lat), lo = Number(lng);
     if (!Number.isFinite(la) || !Number.isFinite(lo)) return '';
     let best = '', bestD = Infinity;
-    for (const g of TN_GOVERNORATES) {
+    for (const g of TN_GOVERNORATES.concat(GABES_DELEGATION_ANCHORS)) {
       const d = haversineMeters(la, lo, g.lat, g.lng);
       if (d < bestD) { bestD = d; best = g.id; }
     }
