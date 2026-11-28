@@ -67,6 +67,10 @@
         </select>
         <button id="linkSubmitBtn" type="button" class="tap-btn shrink-0 rounded-xl bg-[#0A4D68] px-4 py-2 text-xs font-black text-white">ربط</button>
       </div>
+      <div class="grid grid-cols-2 gap-1.5 rounded-xl border border-[#CFE3F5] bg-[#F2F8FF] p-1.5">
+        <button id="famCatSeniorBtn" type="button" class="rounded-lg bg-[#0A4D68] py-1.5 text-xs font-black text-white">👴 عائلة كبير سنّ</button>
+        <button id="famCatPatientBtn" type="button" class="rounded-lg bg-white py-1.5 text-xs font-black text-[#0B2538] border border-[#C2DBF0]">🩺 عائلة مريض</button>
+      </div>
       <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <input id="famPhoneInput" type="tel" dir="ltr" placeholder="رقم هاتفك الدولي إجباري * (+33 / +216 ...)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3 py-2 text-xs font-bold" />
         <div class="flex items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5">
@@ -798,6 +802,23 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
   if ($('famFeedbackBtn')) $('famFeedbackBtn').addEventListener('click', () => S.openFeedbackModal(user, 'family', (user && user.user_metadata && user.user_metadata.full_name) || 'العائلة'));
 
   let famGpsLat = null, famGpsLng = null;
+  let famCareCat = 'senior';
+  function syncFamCatBtns() {
+    const isFr = S.getLang() === 'fr';
+    const on = 'rounded-lg bg-[#0A4D68] py-1.5 text-xs font-black text-white shadow-sm';
+    const off = 'rounded-lg bg-white py-1.5 text-xs font-black text-[#0B2538] border border-[#C2DBF0]';
+    if ($('famCatSeniorBtn')) {
+      $('famCatSeniorBtn').className = famCareCat === 'senior' ? on : off;
+      $('famCatSeniorBtn').textContent = isFr ? '👴 Famille d\'un Senior' : '👴 عائلة كبير سنّ';
+    }
+    if ($('famCatPatientBtn')) {
+      $('famCatPatientBtn').className = famCareCat === 'patient' ? on : off;
+      $('famCatPatientBtn').textContent = isFr ? '🩺 Famille d\'un Patient' : '🩺 عائلة مريض';
+    }
+  }
+  if ($('famCatSeniorBtn')) $('famCatSeniorBtn').addEventListener('click', () => { famCareCat = 'senior'; syncFamCatBtns(); });
+  if ($('famCatPatientBtn')) $('famCatPatientBtn').addEventListener('click', () => { famCareCat = 'patient'; syncFamCatBtns(); });
+  syncFamCatBtns();
   function initFamContactState() {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem('cg_v2_fam_prof_' + (user ? user.id : '')) || '{}'); } catch (_) {}
@@ -872,7 +893,10 @@ if (resList && resolvedAlerts && resolvedAlerts.length) {
     });
     if (!error && user) {
       try {
-        await S.client.from('senior_care_links').update({ requester_phone: rawFamPh }).eq('requester_user_id', user.id).eq('role_type', 'family');
+        const up = await S.client.from('senior_care_links').update({ requester_phone: rawFamPh, care_category: famCareCat }).eq('requester_user_id', user.id).eq('role_type', 'family');
+        if (up.error && /care_category/i.test(up.error.message || '')) {
+          await S.client.from('senior_care_links').update({ requester_phone: rawFamPh }).eq('requester_user_id', user.id).eq('role_type', 'family');
+        }
       } catch (_) {}
     }
     msg.className = error ? 'text-xs font-extrabold text-rose-800' : 'text-xs font-extrabold text-emerald-800';

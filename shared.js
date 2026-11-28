@@ -180,6 +180,7 @@
 
   function unlockAudioOnce() {
     try {
+      if (window.__cgAudioCtx && window.__cgAudioCtx.state === 'suspended') window.__cgAudioCtx.resume().catch(() => {});
       if (!window.__cgAudioCtx) {
         const AC = window.AudioContext || window.webkitAudioContext;
         if (AC) window.__cgAudioCtx = new AC();
@@ -360,9 +361,20 @@
     if (speechRestoreTimer) { clearTimeout(speechRestoreTimer); speechRestoreTimer = null; }
     if (activeStopTimer) { clearTimeout(activeStopTimer); activeStopTimer = null; }
     if (activeAudio) {
-      try { activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
+      try { activeAudio.muted = true; activeAudio.volume = 0; activeAudio.pause(); activeAudio.currentTime = 0; } catch (_) {}
       activeAudio = null;
     }
+    try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (_) {}
+    try {
+      if (window.__cgAudioCtx && window.__cgAudioCtx.state === 'running') {
+        window.__cgAudioCtx.suspend().catch(() => {});
+      }
+    } catch (_) {}
+    try {
+      const Cap = window.Capacitor;
+      const NA = Cap && typeof Cap.isNativePlatform === 'function' && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.SoinsDarAlarm;
+      if (NA && typeof NA.stopAlarm === 'function') NA.stopAlarm().catch(() => {});
+    } catch (_) {}
   }
   function playStrongRingtone(overrideMode) {
     stopRingtone();

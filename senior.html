@@ -420,6 +420,10 @@
         <input id="seniorAvatarFile" type="file" accept="image/*" class="hidden" />
       </div>
       <input id="pName" type="text" placeholder="الاسم الكامل" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
+      <div class="grid grid-cols-2 gap-2 rounded-2xl border border-[#CFE3F5] bg-[#F2F8FF] p-2">
+        <button id="pTypeSeniorBtn" type="button" class="rounded-xl bg-[#0A4D68] py-2 text-xs font-black text-white">👴 كبير سنّ</button>
+        <button id="pTypePatientBtn" type="button" class="rounded-xl bg-white py-2 text-xs font-black text-[#0B2538] border border-[#C2DBF0]">🩺 مريض</button>
+      </div>
       <input id="pPhone" type="tel" dir="ltr" placeholder="هاتف المسنّ (إجباري *)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
       <input id="pEmPhone" type="tel" dir="ltr" placeholder="رقم الطوارئ للعائلة (إجباري *)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
       <input id="pBlood" type="text" placeholder="فصيلة الدم (مثال: O+)" class="w-full rounded-xl border border-[#C2DBF0] bg-white px-3.5 py-2.5 text-sm font-bold" />
@@ -673,8 +677,8 @@
     $('deleteAccountBtn').textContent = isFr ? '🗑️ Supprimer mes données' : '🗑️ حذف بياناتي وحسابي نهائياً';
     $('setQrTitle').textContent = isFr ? '📷 Partager SoinsDar par QR Code' : '📷 شارك تطبيق SoinsDar عبر QR Code';
     $('setQrSub').textContent = isFr ? 'Scannez avec un autre téléphone pour ouvrir l\'app' : 'امسح الكود بهاتف آخر لفتح التطبيق مباشرة';
-    if ($('openFirstAidBtn')) {
-      const lbl = $('openFirstAidBtn').lastElementChild || $('openFirstAidBtn');
+    if ($('openEmCardBtn')) {
+      const lbl = $('openEmCardBtn').lastElementChild || $('openEmCardBtn');
       lbl.textContent = isFr ? 'Urgences' : 'الإسعاف';
     }
     if (typeof seniorProfile !== 'undefined' && seniorProfile) {
@@ -796,6 +800,8 @@
         d.append(k, v);
         mr.appendChild(d);
       };
+      const pType = getPatientType();
+      addHRow(pType === 'patient' ? '🩺' : '👴', isFr ? 'Statut' : 'الصفة', pType === 'patient' ? (isFr ? 'Patient' : 'مريض') : (isFr ? 'Senior' : 'كبير سنّ'), 'bg-[#E8F4FD] text-[#0A4D68] border border-[#B6D8F2]');
       addHRow('🩸', isFr ? 'Groupe' : 'فصيلة الدم', seniorProfile.blood_type, 'bg-rose-50 text-rose-900 border border-rose-200');
       addHRow('⚠️', isFr ? 'Allergies' : 'الحساسية', translateMedicalTags(seniorProfile.allergies, isFr), 'bg-amber-50 text-amber-950 border border-amber-200');
       addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', translateMedicalTags(seniorProfile.conditions, isFr), 'bg-emerald-50 text-[#0A4D68] border border-emerald-200');
@@ -2353,7 +2359,34 @@
     syncHidden();
   }
 
+  let selectedPatientType = 'senior';
+  function getPatientType() {
+    try {
+      const um = (user && user.user_metadata && user.user_metadata.patient_type) || '';
+      const dbPt = (seniorProfile && seniorProfile.patient_type) || '';
+      const ls = seniorId ? (localStorage.getItem('cg_v2_ptype_' + seniorId) || '') : '';
+      return dbPt || ls || um || selectedPatientType || 'senior';
+    } catch (_) { return selectedPatientType || 'senior'; }
+  }
+  function syncPatientTypeBtns() {
+    const isFr = S.getLang() === 'fr';
+    const on = 'rounded-xl bg-[#0A4D68] py-2 text-xs font-black text-white shadow-sm';
+    const off = 'rounded-xl bg-white py-2 text-xs font-black text-[#0B2538] border border-[#C2DBF0]';
+    if ($('pTypeSeniorBtn')) {
+      $('pTypeSeniorBtn').className = selectedPatientType === 'senior' ? on : off;
+      $('pTypeSeniorBtn').textContent = isFr ? '👴 Senior' : '👴 كبير سنّ';
+    }
+    if ($('pTypePatientBtn')) {
+      $('pTypePatientBtn').className = selectedPatientType === 'patient' ? on : off;
+      $('pTypePatientBtn').textContent = isFr ? '🩺 Patient' : '🩺 مريض';
+    }
+  }
+  if ($('pTypeSeniorBtn')) $('pTypeSeniorBtn').addEventListener('click', () => { selectedPatientType = 'senior'; syncPatientTypeBtns(); });
+  if ($('pTypePatientBtn')) $('pTypePatientBtn').addEventListener('click', () => { selectedPatientType = 'patient'; syncPatientTypeBtns(); });
+
   function openProfileModal() {
+    selectedPatientType = getPatientType();
+    syncPatientTypeBtns();
     if ($('profSaveErr')) $('profSaveErr').classList.add('hidden');
     if (seniorProfile) {
       $('pName').value = seniorProfile.display_name || '';
@@ -2492,14 +2525,19 @@
       conditions: $('pConditions').value.trim(),
       home_address: $('pAddress').value.trim(),
       home_lat: seniorProfile ? seniorProfile.home_lat : null,
-      home_lng: seniorProfile ? seniorProfile.home_lng : null
+      home_lng: seniorProfile ? seniorProfile.home_lng : null,
+      patient_type: selectedPatientType
     };
     if (!seniorId && typeof ensureSenior === 'function') {
       try { await ensureSenior(); } catch (_) {}
     }
     let updErr = null;
     if (seniorId) {
-      const res = await S.client.from('senior_profiles').update(patch).eq('id', seniorId).select('*').maybeSingle();
+      let res = await S.client.from('senior_profiles').update(patch).eq('id', seniorId).select('*').maybeSingle();
+      if (res.error && /patient_type/i.test(res.error.message || '')) {
+        const p2 = Object.assign({}, patch); delete p2.patient_type;
+        res = await S.client.from('senior_profiles').update(p2).eq('id', seniorId).select('*').maybeSingle();
+      }
       updErr = res.error || (!res.data ? new Error('لم يُحفظ — تحقق من صلاحيات جدول senior_profiles (RLS)') : null);
       if (!updErr && res.data) seniorProfile = res.data;
     } else if (user) {
@@ -2516,6 +2554,8 @@
       showProfErr('⚠️ ' + (updErr.message || 'تعذر حفظ البيانات'));
       return;
     }
+    if (seniorId) { try { localStorage.setItem('cg_v2_ptype_' + seniorId, selectedPatientType); } catch (_) {} }
+    try { S.client.auth.updateUser({ data: { patient_type: selectedPatientType } }).catch(() => {}); } catch (_) {}
     if (!seniorProfile) seniorProfile = Object.assign({}, patch);
     else Object.assign(seniorProfile, patch);
     renderSeniorHeader();
