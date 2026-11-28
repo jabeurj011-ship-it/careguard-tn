@@ -243,7 +243,7 @@ jobs:
               -Pandroid.injected.signing.store.password="$REL_STORE_PASS" \
               -Pandroid.injected.signing.key.alias="$REL_ALIAS" \
               -Pandroid.injected.signing.key.password="$REL_KEY_PASS"
-            cp app/build/outputs/apk/release/app-release.apk ../careguard-tn.apk
+            cp app/build/outputs/apk/release/app-release.apk ../soinsdar.apk
           else
             if [ -n "$KEYSTORE_B64" ]; then
               mkdir -p ~/.android
@@ -252,14 +252,14 @@ jobs:
             cd android
             chmod +x gradlew
             ./gradlew assembleDebug
-            cp app/build/outputs/apk/debug/app-debug.apk ../careguard-tn.apk
+            cp app/build/outputs/apk/debug/app-debug.apk ../soinsdar.apk
           fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: careguard-tn-apk
-          path: careguard-tn.apk
+          name: soinsdar-apk
+          path: soinsdar.apk
 
       - name: Publish APK to Latest Release
         uses: softprops/action-gh-release@v2
@@ -267,5 +267,5 @@ jobs:
           tag_name: latest
           name: SoinsDar — نسخة أندرويد الرسمية (APK)
           body: تحميل مباشر لتطبيق SoinsDar للأندرويد.
-          files: careguard-tn.apk
+          files: soinsdar.apk
           make_latest: true
