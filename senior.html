@@ -565,6 +565,7 @@
   let takenMap = new Map();
   let alertedMedKeys = new Set();
   let preAlertedMedKeys = new Set();
+  let lastMedDayStr = S.getLocalDateStr();
   let alertedApptIds = new Set();
   const WATER_SLOTS = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
   function getWaterSlotInfo() {
@@ -738,9 +739,7 @@
         try { localStorage.setItem(lsKey, data[0].checked_in_at); } catch (_) {}
         $('lastCheckInTxt').textContent = formatCheckInText(data[0].checked_in_at);
       }
-    } catch (err) {
-      if (stEl) { stEl.textContent = '⚠️ خطأ في برمجة المنبه: ' + (err && err.message ? err.message : String(err)); stEl.classList.remove('hidden'); }
-    }
+    } catch (_) {}
   }
 
   function renderSeniorHeader() {
@@ -1090,7 +1089,8 @@
           if (!isMedDueNow(m)) return;
           takenMap.set(m.id, new Date().toISOString());
           renderMeds();
-          try { await S.client.from('medication_logs').insert({ medication_id: m.id, senior_id: seniorId, status: 'taken' }); } catch (_) {}
+          const { error: logErr } = await S.client.from('medication_logs').insert({ medication_id: m.id, senior_id: seniorId, status: 'taken' });
+          if (logErr) { takenMap.delete(m.id); renderMeds(); alert('⚠️ ' + logErr.message); }
         });
         btns.appendChild(takeBtn);
       }
@@ -1399,24 +1399,35 @@
       if (!Number.isFinite(medMins) || nowMins < medMins + 30) continue;
       const escKey = `cg_v2_esc_${m.id}_${today}`;
       if (localStorage.getItem(escKey)) continue;
-      try { localStorage.setItem(escKey, '1'); } catch (_) {}
       const sName = (seniorProfile && seniorProfile.display_name) || 'المسنّ';
       const msg = S.getLang() === 'fr'
         ? `⏰ Escalade auto : ${sName} n'a pas encore pris ${m.name} (${m.dosage}) +30 min de retard.`
         : `⏰ تصعيد تلقائي: تأخّر ${sName} عن دواء ${m.name} (${m.dosage}) لأكثر من 30 دقيقة.`;
       try {
-        await Promise.allSettled([
+        const [alRes] = await Promise.all([
           S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'missed_med', severity: 'warning', status: 'open', message: msg }),
           S.client.from('care_direct_messages').insert([
             { senior_id: seniorId, sender_user_id: user.id, sender_name: sName, sender_role: 'senior', channel: 'family', message_text: msg },
             { senior_id: seniorId, sender_user_id: user.id, sender_name: sName, sender_role: 'senior', channel: 'nurse', message_text: msg }
-          ])
+          ]).catch(() => ({}))
         ]);
+        if (!alRes || !alRes.error) {
+          try { localStorage.setItem(escKey, '1'); } catch (_) {}
+        }
       } catch (_) {}
     }
   }
 
   function checkDueMeds() {
+    const _nowDay = S.getLocalDateStr();
+    if (_nowDay !== lastMedDayStr) {
+      lastMedDayStr = _nowDay;
+      takenMap.clear();
+      alertedMedKeys.clear();
+      preAlertedMedKeys.clear();
+      loadMeds();
+      return;
+    }
     checkMissedMedEscalation();
     if (!$('medDueModal').classList.contains('hidden') || !meds.length) return;
     const now = new Date();
@@ -1468,7 +1479,9 @@
     const rows = ids.map((id) => { takenMap.set(id, nowIso); return { medication_id: id, senior_id: seniorId, status: 'taken' }; });
     renderMeds();
     if (rows.length) {
-      try { Promise.resolve(S.client.from('medication_logs').insert(rows)).catch(() => {}); } catch (_) {}
+      S.client.from('medication_logs').insert(rows).then(({ error }) => {
+        if (error) { ids.forEach((id) => takenMap.delete(id)); renderMeds(); alert('⚠️ ' + error.message); }
+      }).catch(() => {});
     }
   });
   $('medDueSnoozeBtn').addEventListener('click', () => {
@@ -1900,13 +1913,22 @@
 
   $('checkInBtn').addEventListener('click', async () => {
     if (!seniorId) return;
+    const isFr = S.getLang() === 'fr';
+    const fb = $('checkInFeedback');
+    const { error } = await S.client.from('safety_checkins').insert({ senior_id: seniorId });
+    if (error) {
+      fb.className = 'rounded-3xl border-2 border-rose-500 bg-rose-600 px-5 py-4 text-center text-base font-black text-white shadow-lg';
+      fb.textContent = isFr ? '⚠️ Échec d\'envoi — vérifiez votre connexion !' : '⚠️ تعذر إرسال الطمأنة — تحقق من الإنترنت وحاول مجدداً!';
+      fb.classList.remove('hidden');
+      return;
+    }
     const nowIso = new Date().toISOString();
     try { localStorage.setItem('cg_v2_last_checkin_' + seniorId, nowIso); } catch (_) {}
     $('lastCheckInTxt').textContent = formatCheckInText(nowIso);
-    await S.client.from('safety_checkins').insert({ senior_id: seniorId });
     const _tNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    $('checkInFeedback').textContent = S.getLang() === 'fr' ? `✅ Confirmation « Je vais bien » envoyée à votre famille ! (${_tNow})` : `✅ تم إرسال طمأنة «أنا بخير» بنجاح إلى عائلتك! (${_tNow})`;
-    $('checkInFeedback').classList.remove('hidden');
+    fb.className = 'rounded-3xl border-2 border-emerald-500 bg-emerald-600 px-5 py-4 text-center text-base font-black text-white shadow-lg';
+    fb.textContent = isFr ? `✅ Confirmation « Je vais bien » envoyée à votre famille ! (${_tNow})` : `✅ تم إرسال طمأنة «أنا بخير» بنجاح إلى عائلتك! (${_tNow})`;
+    fb.classList.remove('hidden');
   });
 
   $('copyCodeBtn').addEventListener('click', () => {
@@ -2258,13 +2280,15 @@
     const hid = $(hiddenId);
     if (!box || !hid) return;
     const selected = new Set(String(currentVal || '').split(/[،,]/).map((x) => x.trim()).filter(Boolean));
+    const allOpts = opts.slice();
+    selected.forEach((sv) => { if (!allOpts.includes(sv)) allOpts.push(sv); });
     box.replaceChildren();
     const syncHidden = () => {
       const vals = [];
       box.querySelectorAll('input[type="checkbox"]').forEach((c) => { if (c.checked) vals.push(c.value); });
       hid.value = vals.join('، ');
     };
-    opts.forEach((opt, idx) => {
+    allOpts.forEach((opt, idx) => {
       const isNone = idx === 0;
       const lbl = document.createElement('label');
       lbl.className = 'flex items-center gap-1.5 rounded-xl border border-[#C2DBF0] bg-white px-2.5 py-2 cursor-pointer text-[11px] font-black text-[#0B2538]';
@@ -2467,7 +2491,8 @@
     const nowIso = new Date().toISOString();
     const rows = dueNowList.map((m) => { takenMap.set(m.id, nowIso); return { medication_id: m.id, senior_id: seniorId, status: 'taken' }; });
     renderMeds();
-    try { await S.client.from('medication_logs').insert(rows); } catch (_) {}
+    const { error: hLogErr } = await S.client.from('medication_logs').insert(rows);
+    if (hLogErr) { dueNowList.forEach((m) => takenMap.delete(m.id)); renderMeds(); alert('⚠️ ' + hLogErr.message); }
   });
 
   async function refreshUnreadBadge() {
@@ -2682,11 +2707,13 @@
         const lastSentKey = 'cg_v2_left_home_at_' + seniorId;
         const lastAt = Number(localStorage.getItem(lastSentKey) || 0);
         if (Date.now() - lastAt > 30 * 60000) {
-          try { localStorage.setItem(lastSentKey, String(Date.now())); } catch (_) {}
           const dTxt = dist >= 1000 ? `${(dist / 1000).toFixed(1)} كم` : `${Math.round(dist)} م`;
           const mapUrl = `https://maps.google.com/?q=${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`;
           const msg = `ابتعد عن مكان الإقامة المسجّل بمسافة ${dTxt} — ${mapUrl}`;
-          await S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'left_home', severity: 'warning', status: 'open', message: msg });
+          const { error: lhErr } = await S.client.from('alerts').insert({ senior_id: seniorId, alert_type: 'left_home', severity: 'warning', status: 'open', message: msg });
+          if (!lhErr) {
+            try { localStorage.setItem(lastSentKey, String(Date.now())); } catch (_) {}
+          }
         }
       }
     }, () => {}, { enableHighAccuracy: true, timeout: 6000 });

@@ -414,7 +414,7 @@
           ['فصيلة الدم', sp.blood_type],
           ['الحساسية', sp.allergies],
           ['الأمراض المزمنة', sp.conditions],
-          ['الولاية', sGov],
+          ['الولاية', srGov],
           ['موقع GPS', (sp.home_lat && sp.home_lng) ? `https://maps.google.com/?q=${sp.home_lat},${sp.home_lng}` : 'غير محدد'],
           ['تاريخ التسجيل', fmtDate(sp.created_at)]
         ]));
@@ -464,7 +464,7 @@
           ['رقم هاتف العائلة', famPh],
           ['المسنّ المرتبط', f.senior_profiles && f.senior_profiles.display_name],
           ['هاتف المسنّ', f.senior_profiles && f.senior_profiles.senior_phone],
-          ['الولاية', fGov],
+          ['الولاية', fmGov],
           ['الحالة', f.status],
           ['تاريخ التسجيل', fmtDate(f.created_at)]
         ]));

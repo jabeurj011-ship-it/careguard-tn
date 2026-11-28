@@ -286,7 +286,7 @@
   $('signUpBtn').addEventListener('click', async () => {
     const email = $('emailInput').value.trim(), password = $('passInput').value, name = $('emailName').value.trim();
     if (!email || password.length < 6) return showErr(S.getLang() === 'fr' ? 'E-mail et mot de passe (6+ car.) requis.' : 'أدخل البريد الإلكتروني وكلمة مرور (6 أحرف على الأقل).');
-    const { data, error } = await S.client.auth.signUp({ email, password, options: { data: { display_name: name || email.split('@')[0] } } });
+    const { data, error } = await S.client.auth.signUp({ email, password, options: { data: { full_name: name || email.split('@')[0], display_name: name || email.split('@')[0] } } });
     if (error) return showErr(error.message);
     if (data && data.session) window.location.href = S.rolePageUrl(pickedRole || 'senior');
     else showErr(S.getLang() === 'fr' ? 'Vérifiez votre boîte e-mail pour confirmer.' : 'تم إنشاء الحساب — تحقق من بريدك الإلكتروني للتأكيد.');

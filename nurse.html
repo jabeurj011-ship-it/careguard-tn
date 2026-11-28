@@ -896,7 +896,7 @@
     const meta = document.createElement('p');
     meta.className = 'text-xs font-bold text-[#4A657A]';
     const gov = mp.region ? S.formatGovLabel(mp.region) : (isFr ? 'Tunisie' : 'تونس');
-    meta.textContent = `${credMap[mp.credential_level] || (isFr ? 'Infirmier' : 'ممرض')} • ${gov}`;
+    meta.textContent = `${credMap[mp.credential || mp.credential_level] || (isFr ? 'Infirmier' : 'ممرض')} • ${gov}`;
     const ph = document.createElement('p');
     ph.className = 'text-xs font-extrabold text-[#0A4D68]';
     ph.dir = 'ltr';
