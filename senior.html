@@ -673,6 +673,19 @@
     $('deleteAccountBtn').textContent = isFr ? '🗑️ Supprimer mes données' : '🗑️ حذف بياناتي وحسابي نهائياً';
     $('setQrTitle').textContent = isFr ? '📷 Partager SoinsDar par QR Code' : '📷 شارك تطبيق SoinsDar عبر QR Code';
     $('setQrSub').textContent = isFr ? 'Scannez avec un autre téléphone pour ouvrir l\'app' : 'امسح الكود بهاتف آخر لفتح التطبيق مباشرة';
+    if ($('openFirstAidBtn')) {
+      const lbl = $('openFirstAidBtn').lastElementChild || $('openFirstAidBtn');
+      lbl.textContent = isFr ? 'Urgences' : 'الإسعاف';
+    }
+    if (typeof seniorProfile !== 'undefined' && seniorProfile) {
+      if (typeof renderSeniorHeader === 'function') renderSeniorHeader();
+      try {
+        const cachedCi = localStorage.getItem('cg_v2_last_checkin_' + seniorId);
+        if (cachedCi && $('lastCheckInTxt') && typeof formatCheckInText === 'function') {
+          $('lastCheckInTxt').textContent = formatCheckInText(cachedCi);
+        }
+      } catch (_) {}
+    }
     if ($('setApkLbl')) $('setApkLbl').textContent = isFr ? 'Télécharger l\'application (Android APK)' : 'تحميل التطبيق على الهاتف (APK)';
     if ($('fallDetectLbl')) $('fallDetectLbl').textContent = isFr ? '🛡️ Détection de chute automatique' : '🛡️ كشف السقوط التلقائي';
     if (typeof syncFallBtnUI === 'function') syncFallBtnUI();
@@ -742,6 +755,30 @@
     } catch (_) {}
   }
 
+  const MED_TAG_FR = {
+    'لا توجد حساسية': 'Aucune allergie',
+    'حساسية البنسلين': 'Allergie à la pénicilline',
+    'حساسية الأسبرين / المسكنات': 'Allergie aspirine / antalgiques',
+    'حساسية مضادات حيوية أخرى': 'Allergie autres antibiotiques',
+    'حساسية غذائية': 'Allergie alimentaire',
+    'غير متأكد / أخرى': 'Incertain / Autre',
+    'لا توجد أمراض مزمنة': 'Aucune maladie chronique',
+    'ارتفاع ضغط الدم': 'Hypertension artérielle',
+    'السكري': 'Diabète',
+    'أمراض القلب': 'Maladies cardiaques',
+    'الربو / الحساسية التنفسية': 'Asthme / Allergie respiratoire',
+    'ألزهايمر / ضعف الذاكرة': 'Alzheimer / Troubles de la mémoire',
+    'غير متأكد / أمراض أخرى': 'Incertain / Autres maladies'
+  };
+  function translateMedicalTags(val, isFr) {
+    if (!val) return val;
+    if (!isFr) return val;
+    return String(val).split(/[،,]/).map((s) => {
+      const t = s.trim();
+      return MED_TAG_FR[t] || t;
+    }).filter(Boolean).join(', ');
+  }
+
   function renderSeniorHeader() {
     if (!seniorProfile) return;
     const isFr = S.getLang() === 'fr';
@@ -760,8 +797,8 @@
         mr.appendChild(d);
       };
       addHRow('🩸', isFr ? 'Groupe' : 'فصيلة الدم', seniorProfile.blood_type, 'bg-rose-50 text-rose-900 border border-rose-200');
-      addHRow('⚠️', isFr ? 'Allergies' : 'الحساسية', seniorProfile.allergies, 'bg-amber-50 text-amber-950 border border-amber-200');
-      addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', seniorProfile.conditions, 'bg-emerald-50 text-[#0A4D68] border border-emerald-200');
+      addHRow('⚠️', isFr ? 'Allergies' : 'الحساسية', translateMedicalTags(seniorProfile.allergies, isFr), 'bg-amber-50 text-amber-950 border border-amber-200');
+      addHRow('🩺', isFr ? 'Maladies' : 'الأمراض', translateMedicalTags(seniorProfile.conditions, isFr), 'bg-emerald-50 text-[#0A4D68] border border-emerald-200');
       if (!mr.childNodes.length) {
         const sp = document.createElement('span');
         sp.className = 'inline-block rounded-full bg-white border border-[#CFE3F5] px-2.5 py-0.5 text-[11px] font-extrabold text-[#0B2538]';
